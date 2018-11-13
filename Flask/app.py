@@ -10,18 +10,23 @@ def Login():
      #render_template('Login.html')
      #print(username + " " + password)
      return render_template('Login.html')
-
-@app.route('/', methods=['POST'])
+Testusername = ""
+Testpassword = ""
+@app.route('/login', methods=['POST'])
 def LoginPost():
     username = request.form['username']
     password = request.form['password']
+    #Testpassword = password
+    #Testusername = username
+    print(username)
+    print(password)
     return username, password
 
 @app.route('/NewAccount.html/')
 def newAccount():
     return render_template('/NewAccount.html')
 
-@app.route('/NewAccount.html', methods=['POST'])
+@app.route('/signup', methods=['POST'])
 def newAccountPost():
     username = request.form['username']
     password = request.form['password']
@@ -31,6 +36,11 @@ def newAccountPost():
     address = request.form['address']
     return username, password, email, name, age, address
 
+@app.route('/Retrieval.html/')
+def retrival():
+    username, password = LoginPost()
+    print(username, password)
+    return render_template('/Retrieval.html', username=username, password=password)
 
 if __name__ == '__main__': #starting function, causes the website to launch
     app.run()
