@@ -1,50 +1,19 @@
-from flask import Flask, render_template, request, redirect, flash, url_for
-
+from flask import Flask, render_template, request
 app = Flask(__name__)
 
-
 @app.route('/')
-def Login():
-     #username = request.form['username']
-     #password = request.form['password']
-     #render_template('Login.html')
-     #print(username + " " + password)
-     return render_template('Login.html')
-Testusername = ""
-Testpassword = ""
-@app.route('/login', methods=['POST', 'GET']) # resolve this here, doesn't take in request
-def LoginPost():
-    if request.method == "POST":
-        username = request.form['username']
-        password = request.form['password']
-        #flash(username)
-        #flash(password)
-        return redirect(url_for("retrival"), username=username, password=password)
-    #Testpassword = password
-    #Testusername = username
-    #print(username)
-    #print(password)
-    #return retrival()
+def login():
+   return render_template('login.html')
 
-@app.route('/NewAccount.html/')
+@app.route('/NewAccount.html?_ijt=ag21gism55qiqq47cs85u1e62h')
 def newAccount():
-    return render_template('/NewAccount.html')
+   return render_template('/NewAccount.html')
 
-@app.route('/signup', methods=['POST'])
-def newAccountPost():
-    username = request.form['username']
-    password = request.form['password']
-    email = request.form['email']
-    name = request.form['name']
-    age = request.form['age']
-    address = request.form['address']
-    return username, password, email, name, age, address
+@app.route('/test',methods = ['POST', 'GET'])
+def result():
+   if request.method == 'POST':
+      result = request.form
+      return render_template("test.html",result = result)
 
-@app.route('/Retrieval.html/', methods = ['POST'])
-def retrival():
-    result = request.form
-    #print(username, password)
-    return render_template('/Retrieval.html', result = result)
-
-if __name__ == '__main__': #starting function, causes the website to launch
-    app.run()
+if __name__ == '__main__':
+   app.run(debug = True)
