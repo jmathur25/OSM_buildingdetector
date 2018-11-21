@@ -100,14 +100,14 @@ body {
 <body>
 <div class="login-page">
     <form class="login-form">
-        <form class="login-form" form method = "POST" form action =  "http://localhost:63342/flaskfix/templates/Retrieval.html">
-        <p><input id = "username" type="text" placeholder="username"/> </p>
-        <p><input id = "password" type="password" placeholder="password"/> </p>
-        <p><input type = "submit" value = "submit" /></p>
-        <!-- <button>login</button> -->
+        <form class = "send" form method = "POST" form action =  "">
+        <p><input name = "username" id = "username" type="text" placeholder="username" value="{{ request.form.username}}"/> </p>
+        <p><input name = "password" id = "password" type="password" placeholder="password" value="{{ request.form.password }}"/> </p>
+        <!--  <p><input type = "submit" value = "submit" /></p>-->
+       <button>login</button>
         </form>
       <p class="message">Not registered? <a href="NewAccount.html" target="_blank">Create an account</a></p>
-      <p class="message"> <a href="Retrieval.html" target="_blank">tester</a></p>
+    <!--  <p class="message"> <a href="Retrieval.html" target="_blank">tester</a></p>-->
     </form>
   </div>
 </div>

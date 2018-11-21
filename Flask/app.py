@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash, url_for
 
 app = Flask(__name__)
 
@@ -12,15 +12,19 @@ def Login():
      return render_template('Login.html')
 Testusername = ""
 Testpassword = ""
-@app.route('/login', methods=['POST']) # resolve this here, doesn't take in request
+@app.route('/login', methods=['POST', 'GET']) # resolve this here, doesn't take in request
 def LoginPost():
-    username = request.form['username']
-    password = request.form['password']
+    if request.method == "POST":
+        username = request.form['username']
+        password = request.form['password']
+        #flash(username)
+        #flash(password)
+        return redirect(url_for("retrival"), username=username, password=password)
     #Testpassword = password
     #Testusername = username
-    print(username)
-    print(password)
-    return username, password
+    #print(username)
+    #print(password)
+    #return retrival()
 
 @app.route('/NewAccount.html/')
 def newAccount():
