@@ -5,7 +5,7 @@ app = Flask(__name__)
 def login():
    return render_template('login.html')
 
-@app.route('/NewAccount.html?_ijt=ag21gism55qiqq47cs85u1e62h')
+@app.route('/NewAccount.html')
 def newAccount():
    return render_template('/NewAccount.html')
 
