@@ -32,6 +32,18 @@
         L.marker([51.5, -0.09]).addTo(map)
             .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
             .openPopup();
+        
+        
+        // Popup to show when the user clicks
+        var popup = L.popup();
+        
+        // Handle map clicks
+        function onMapClick(e) {
+            popup.setLatLng(e.latlng);
+            popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
+            popup.openOn(map);
+        }
+        map.on("click", onMapClick);
     </script>
   </body>
 </html>
