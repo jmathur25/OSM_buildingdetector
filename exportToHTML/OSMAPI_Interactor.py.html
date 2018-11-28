@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>OSMAPI_Interactor.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #808080;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832;}
+.s3 { color: #6a8759;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+OSMAPI_Interactor.py</font>
+</center></td></tr></table>
+<pre><span class="s0"># based on https://pypi.org/project/osmapi/ and http://osmapi.metaodi.ch/#header-classes</span>
+# not a built-in library in PyCharm
+<span class="s2">import </span><span class="s1">osmapi</span>
+
+<span class="s0"># I made an account for us to all use</span>
+<span class="s1">api = osmapi.OsmApi(api=</span><span class="s3">&quot;https://api06.dev.openstreetmap.org&quot;</span><span class="s2">, </span><span class="s1">username=</span><span class="s3">&quot;OSM_buildingdetector&quot;</span><span class="s2">, </span><span class="s1">password=</span><span class="s3">&quot;fakepassword123&quot;</span><span class="s1">)</span>
+
+<span class="s0"># add meaningful comments pls :)</span>
+<span class="s1">api.ChangesetCreate({</span><span class="s3">u&quot;comment&quot;</span><span class="s1">: </span><span class="s3">u&quot;Testing Way Create on Building&quot;</span><span class="s1">})</span>
+
+<span class="s0"># make Nodes based on longitude and latitude</span>
+# add relevant tags
+<span class="s1">Node1 = api.NodeCreate({</span><span class="s3">&quot;lat&quot;</span><span class="s1">: </span><span class="s4">41.788348</span><span class="s2">, </span><span class="s3">&quot;lon&quot;</span><span class="s1">: -</span><span class="s4">88.129079</span><span class="s2">, </span><span class="s3">&quot;tag&quot;</span><span class="s1">: {</span><span class="s3">&quot;Corner&quot;</span><span class="s1">: </span><span class="s3">&quot;1&quot;</span><span class="s1">}})</span>
+Node2 = api.NodeCreate({<span class="s3">&quot;lat&quot;</span><span class="s1">: </span><span class="s4">41.788453</span><span class="s2">, </span><span class="s3">&quot;lon&quot;</span><span class="s1">: -</span><span class="s4">88.129079</span><span class="s2">, </span><span class="s3">&quot;tag&quot;</span><span class="s1">: {</span><span class="s3">&quot;Corner&quot;</span><span class="s1">: </span><span class="s3">&quot;2&quot;</span><span class="s1">}})</span>
+Node3 = api.NodeCreate({<span class="s3">&quot;lat&quot;</span><span class="s1">: </span><span class="s4">41.788445</span><span class="s2">, </span><span class="s3">&quot;lon&quot;</span><span class="s1">: -</span><span class="s4">88.129262</span><span class="s2">, </span><span class="s3">&quot;tag&quot;</span><span class="s1">: {</span><span class="s3">&quot;Corner&quot;</span><span class="s1">: </span><span class="s3">&quot;3&quot;</span><span class="s1">}})</span>
+Node4 = api.NodeCreate({<span class="s3">&quot;lat&quot;</span><span class="s1">: </span><span class="s4">41.788338</span><span class="s2">, </span><span class="s3">&quot;lon&quot;</span><span class="s1">: -</span><span class="s4">88.129211</span><span class="s2">, </span><span class="s3">&quot;tag&quot;</span><span class="s1">: {</span><span class="s3">&quot;Corner&quot;</span><span class="s1">: </span><span class="s3">&quot;4&quot;</span><span class="s1">}})</span>
+
+<span class="s0"># need the id of the Node specifically</span>
+<span class="s1">node_list = [Node1[</span><span class="s3">&quot;id&quot;</span><span class="s1">]</span><span class="s2">, </span><span class="s1">Node2[</span><span class="s3">&quot;id&quot;</span><span class="s1">]</span><span class="s2">, </span><span class="s1">Node3[</span><span class="s3">&quot;id&quot;</span><span class="s1">]</span><span class="s2">, </span><span class="s1">Node4[</span><span class="s3">&quot;id&quot;</span><span class="s1">]]</span>
+
+<span class="s0"># if you want to see the id's of the Nodes you made uncomment this part</span>
+# for node in node_list:
+#     print(node)
+
+# create the way (area) using the nodes
+# add relevant tag
+<span class="s1">way = api.WayCreate({</span><span class="s3">&quot;nd&quot;</span><span class="s1">: node_list</span><span class="s2">, </span><span class="s3">&quot;tag&quot;</span><span class="s1">: {}})</span>
+
+<span class="s0"># see data on the way you just made</span>
+<span class="s1">print(api.WayGet(str(way[</span><span class="s3">&quot;id&quot;</span><span class="s1">])))</span>
+
+<span class="s0"># to close the set of changes</span>
+<span class="s1">api.ChangesetClose()</span>
+</pre>
+</body>
+</html>
