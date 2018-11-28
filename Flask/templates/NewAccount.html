@@ -108,5 +108,8 @@ body {
           <p><input type="text" placeholder="address" name = "address"/></p>
       <button>create</button></form></form>
    </div>
+   {% with messages = get_flashed_messages() %}
+     <h3> {{ message }}</h3>
+   {% endwith %}
    </body>
 </html>
