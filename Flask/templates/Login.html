@@ -99,17 +99,13 @@ body {
 </head>
 <body>
 <div class="login-page">
-    <form class="login-form">
-        <form class = "send" form method = "POST" form action =  "">
-        <p><input name = "username" id = "username" type="text" placeholder="username" value="{{ request.form.username}}"/> </p>
-        <p><input name = "password" id = "password" type="password" placeholder="password" value="{{ request.form.password }}"/> </p>
-        <!--  <p><input type = "submit" value = "submit" /></p>-->
-       <button>login</button>
-        </form>
-      <p class="message">Not registered? <a href="NewAccount.html" target="_blank">Create an account</a></p>
-    <!--  <p class="message"> <a href="Retrieval.html" target="_blank">tester</a></p>-->
+    <form class = "send" method = "post" action =  "">
+        <input name = "username" id = "username" type="text" placeholder="username" value="{{ request.form.username}}"/>
+        <input name = "password" id = "password" type="password" placeholder="password" value="{{ request.form.password }}"/>
+        <input type = "submit" value = "Login" />
     </form>
-  </div>
+    <p class="message">Not registered? <a href="NewAccount.html" target="_blank">Create an account</a></p>
+    <!--  <p class="message"> <a href="Retrieval.html" target="_blank">tester</a></p>-->
 </div>
 
 <script>

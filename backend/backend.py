@@ -27,13 +27,16 @@ def create_user(info):
     if check_user_exists(info["username"]):
         return False
     table = init_backend()
+    info['logins'] = 0
     table.insert(info)
     return True
 
 
 # call this when a user attempts to sign in. It will update the database IF the users' info checks out
-def user_sign_in(username=None, password=None):
-    if check_user_exists(username, password) is False:
+def user_sign_in(info):
+    username = info['username']
+    password = info['password']
+    if check_user_sign_in(username, password) is False:
         return False
 
     table = init_backend()
@@ -50,6 +53,13 @@ def check_user_exists(username):
     else:
         return False
 
+
+def check_user_sign_in(username, password):
+    table = init_backend()
+    if table.find_one(username=username, password=password) is not None:
+        return True
+    else:
+        return False
 
 # call this whenever a user queries something. The query will be added to the person's search history
 # for some reason, dataset doesn't like entries that are lists, so all search history code is commented out for now
