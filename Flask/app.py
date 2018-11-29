@@ -29,13 +29,13 @@ def login():  #this method is called when the page starts up
     return render_template('Login.html', error=error)
 
 
-@app.route('/home')
+@app.route('/home/')
 def home():
     return render_template('Skeleton.html')
 
 
 @app.route('/NewAccount/', methods=['POST', 'GET']) #activates when create a new account is clicked
-def newAccount():
+def new_account():
     error = None
     if request.method == 'POST':  # if the user hits the submit button. post is called
         result = request.form
@@ -46,7 +46,6 @@ def newAccount():
             return redirect(url_for('home'))
         else:  # false condition
             error = "account already exists"
-
         return redirect(url_for('login'))
 
     return render_template('/NewAccount.html', error=error) #links to the create a new account page
