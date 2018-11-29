@@ -34,25 +34,22 @@ def home():
     return render_template('Skeleton.html')
 
 
-@app.route('/NewAccount.html/') #activates when create a new account is clicked
+@app.route('/NewAccount/', methods=['POST', 'GET']) #activates when create a new account is clicked
 def newAccount():
-   return render_template('/NewAccount.html') #links to the create a new account page
-
-
-@app.route('/test', methods=['POST', 'GET'])   #this page is a test page to show if the information is saved
-def result():
     error = None
-    if request.method == 'POST': # if the user hits the submit button. post is called
+    if request.method == 'POST':  # if the user hits the submit button. post is called
         result = request.form
         info = result_to_dict(result)
         status = backend.create_user(info)
-        if status: # true condition
+        if status:  # true condition
             flash('You successfully made a new account')
             return redirect(url_for('home'))
-        else: # false condition
+        else:  # false condition
             error = "account already exists"
 
-    return render_template('login.html', error=error)
+        return redirect(url_for('login'))
+
+    return render_template('/NewAccount.html', error=error) #links to the create a new account page
 
 
 if __name__ == '__main__': #causes the program to boot
