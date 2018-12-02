@@ -40,3 +40,16 @@ class ImageryDownloader(object):
         image.save(img_fname)
         
         return image
+
+    
+    def get_tiles_around(self, x, y, zoom):
+        """Downloads all the tiles around the x, y tile"""
+        image = Image.new("RGB", (256 * 3, 256 * 3))
+        for i in range(-1, 2, 1):
+            for j in range(-1, 2, 1):
+                try:
+                    tile_part = self.download_tile(x + i, y + j, zoom)
+                    image.paste(tile_part, (256 * (i + 1), 256 * (j + 1)))
+                except:
+                    pass
+        return image
