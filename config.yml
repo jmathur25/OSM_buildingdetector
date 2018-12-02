@@ -1,0 +1,10 @@
+# --- OpenStreetMap Building Detector configuration file ---
+
+# Mapbox Access Key - necessary for downloading Mapbox imagery
+mapboxAccessKey: "---YOUR ACCESS KEY HERE---"
+
+# Default map location and zoom
+defaultLocation:
+    lat: 45.1269
+    lon: -94.5266
+    zoom: 13
