@@ -44,6 +44,19 @@
             popup.setLatLng(e.latlng);
             popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
             popup.openOn(map);
+            
+            // Send the map click
+            var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "");
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./mapclick", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert(xhr.responseText);
+                }
+            }
+            xhr.send(params);
         }
         map.on("click", onMapClick);
     </script>
