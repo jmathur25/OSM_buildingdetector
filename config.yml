@@ -1,0 +1,15 @@
+# --- OpenStreetMap Building Detector configuration file ---
+
+# Access Key - necessary for downloading certain types of imagery
+accessKey: "---YOUR ACCESS KEY HERE---"
+
+# Default map location and zoom
+defaultLocation:
+    lat: 45.1269
+    lon: -94.5266
+    zoom: 13
+
+# Slippy Map imagery URL to use as imagery
+# "{x}", "{y}", "{zoom}", and (optional) "{access_key}" will be replaced
+#     with the values during runtime.
+imageryURL: "https://a.tiles.mapbox.com/v4/digitalglobe.316c9a2e/{zoom}/{x}/{y}.png?access_token={access_key}"
