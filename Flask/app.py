@@ -1,46 +1,70 @@
-from flask import Flask, render_template, request, redirect
+import sys
+sys.path.append('../')
+import backend
 
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 app = Flask(__name__)
 
 
-@app.route('/')
-def Login():
-     #username = request.form['username']
-     #password = request.form['password']
-     #render_template('Login.html')
-     #print(username + " " + password)
-     return render_template('Login.html')
-Testusername = ""
-Testpassword = ""
-@app.route('/login', methods=['POST'])
-def LoginPost():
-    username = request.form['username']
-    password = request.form['password']
-    #Testpassword = password
-    #Testusername = username
-    print(username)
-    print(password)
-    return username, password
+def result_to_dict(result):
+    info = {}
+    for k, v in result.items():
+        info[k.lower()] = v
+    return info
 
-@app.route('/NewAccount.html/')
-def newAccount():
-    return render_template('/NewAccount.html')
 
-@app.route('/signup', methods=['POST'])
-def newAccountPost():
-    username = request.form['username']
-    password = request.form['password']
-    email = request.form['email']
-    name = request.form['name']
-    age = request.form['age']
-    address = request.form['address']
-    return username, password, email, name, age, address
+@app.route('/', methods=['POST', 'GET']) #base page that loads up on start/accessing the website
+def login():  #this method is called when the page starts up
+    error = None
+    if request.method == 'POST':
+        result = request.form
+        info = result_to_dict(result)
+        status = backend.user_sign_in(info)
+        if status:
+            flash('You successfully made a new account')
+            return redirect(url_for("home"))
+        else:
+            error = "Account does not exist"
 
-@app.route('/Retrieval.html/')
-def retrival():
-    username, password = LoginPost()
-    print(username, password)
-    return render_template('/Retrieval.html', username=username, password=password)
+    return render_template('Login.html', error=error)
 
-if __name__ == '__main__': #starting function, causes the website to launch
+
+@app.route('/home/')
+def home():
+    # x = send_from_directory("../templates/", "DisplayMap.html", as_attachment=True)
+    # print(x)
+    # return send_from_directory('./../templates/', 'DisplayMap.html')
+    return render_template('DisplayMap.html')
+
+
+@app.route('/home/mapclick', methods=['POST'])
+def mapclick():
+    if request.method == 'POST':
+        result = request.form
+        info = result_to_dict(result)
+        print(info)
+    return 'Recorded'
+
+@app.route('/NewAccount/', methods=['GET', 'POST']) #activates when create a new account is clicked
+def new_account():
+    error = None
+    if request.method == 'POST':  # if the user hits the submit button. post is called
+        result = request.form
+        info = result_to_dict(result)
+        status = backend.create_user(info)
+        if status:  # true condition
+            flash('You successfully made a new account')
+            return redirect(url_for('home'))
+        else:  # false condition
+            error = "account already exists"
+        return redirect(url_for('login'))
+
+    return render_template('/NewAccount.html', error=error) #links to the create a new account page
+
+
+if __name__ == '__main__': #causes the program to boot
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+
+    app.debug = True
     app.run()
