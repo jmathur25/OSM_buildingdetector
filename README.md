@@ -8,10 +8,10 @@ In rural areas (and even suburban areas) the buildings, especially houses, arenâ
 
 # Requirements
 OSM API for interacting with the online database:
-```pip install osmapi
+```pip install osmapi```
 
 For the local database:
-```pip install dataset
+```pip install dataset```
 
 # Usage
 Simply clone the repo and run _start.py_ to start the Flask server. Navigate to localhost:5000 in a web browser to begin mapping.
