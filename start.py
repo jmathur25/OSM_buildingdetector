@@ -14,4 +14,4 @@ if "accessKey" in config:
     access_key = config["accessKey"]
     
 # Start Flask
-#import app
+import app
