@@ -1,7 +1,6 @@
-<!DOCTYPE html>
 <html>
 <head>
-     <style>
+    <style>
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
 .login-page {
@@ -97,35 +96,20 @@ body {
 }
     </style>
 </head>
-<body>
-<div class="login-page">
-    <form class="login-form" form method = "POST" form action="/signup">
-      <input id = "username" type="text" placeholder="username"/>
-      <input id = "password" type="password" placeholder="password"/>
-      <input id = "email" type="text" placeholder="email"/>
-      <input id = "name" type="text" placeholder="name"/>
-      <input id = "age" type="text" placeholder="age"/>
-      <input id = "address" type="text" placeholder="address"/>
-      <button onclick="3 ">create</button></form>
-  </div>
-</div>
 
-<script>
-    $('.message a').click(function(){
-   $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
-});
-
-    //variables that you can draw from: username (username) and password (pass)
-
-</script>
-</body>
-
+   <body>                                       <!-- the post method within the apge to send data to app.py and subsequently test-->
+   <div class="login-page">
+      <form action = "" method = "POST" class = "login-form">
+         <p><input type = "text" name = "username" placeholder="username"/></p>
+         <p><input type = "password" name = "password" placeholder="password"/></p>
+          <p><input type="text" placeholder="email" name = "email"/></p>
+          <p><input type="text" placeholder="name" name = "name"/></p>
+          <p><input type="text" placeholder="age" name = "age"/></p>
+          <p><input type="text" placeholder="address" name = "address"/></p>
+      <button>create</button></form></form>
+   </div>
+   {% with messages = get_flashed_messages() %}
+     <h3> {{ message }}</h3>
+   {% endwith %}
+   </body>
 </html>
-<!-- name, username, email, password, address, age -->
-<!-- <input id = "username" type="text" placeholder="username"/>
-      <input id = "password" type="password" placeholder="password"/>
-      <input id = "email" type="text" placeholder="email"/>
-      <input id = "name" type="text" placeholder="name"/>
-      <input id = "age" type="text" placeholder="age"/>
-      <input id = "address" type="text" placeholder="address"/>
-      <button>create</button> -->
