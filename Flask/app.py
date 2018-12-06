@@ -62,6 +62,11 @@ def new_account():
     return render_template('/NewAccount.html', error=error) #links to the create a new account page
 
 
+@app.route('/imagery/<zoom>/<x>/<y>.png', methods=['GET'])
+def imagery_request(zoom, x, y):
+    return 'TEST'
+
+
 if __name__ == '__main__': #causes the program to boot
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
