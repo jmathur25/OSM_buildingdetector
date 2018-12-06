@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OSM Building Detector</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./../leaflet/leaflet.css" />
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }#map {
+        height: 100%;
+      }
+    </style>
+    <script type="text/javascript" src="./../leaflet/leaflet.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+        // Create map
+        var map = L.map('map').setView([45.1269, -94.5266], 13);
+        
+        L.tileLayer('https://a.tiles.mapbox.com/v4/digitalglobe.316c9a2e/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZGFrZ2c2dzFlMWgyd2x0ZHdmMDB6NzYifQ.9Pl3XOO82ArX94fHV289Pg', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Marker
+        L.marker([45.1269, -94.5266]).addTo(map)
+            .bindPopup('Our testing location is Litchfield, Minnesota!<br>Try clicking the map.')
+            .openPopup();
+        
+        
+        // Popup to show when the user clicks
+        var popup = L.popup();
+        
+        // Handle map clicks
+        function onMapClick(e) {
+            popup.setLatLng(e.latlng);
+            popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
+            popup.openOn(map);
+            
+            // Send the map click
+            var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "");
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./mapclick", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert(xhr.responseText);
+                }
+            }
+            xhr.send(params);
+        }
+        map.on("click", onMapClick);
+    </script>
+  </body>
+</html>
