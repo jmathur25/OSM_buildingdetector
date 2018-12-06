@@ -9,7 +9,7 @@ import os.path
 
 class ImageryDownloader(object):
 
-    def __init__(self, access_token):
+    def __init__(self, access_token, imagery_url):
         """Initializes the object with a Mapbox access token"""
         self.access_token = access_token
     
@@ -24,9 +24,12 @@ class ImageryDownloader(object):
             return Image.open(img_fname)
         
         # Download the image
-        url = "https://a.tiles.mapbox.com/v4/digitalglobe.316c9a2e/" \
-               "" + str(zoom) + "/" + str(x) + "/" + str(y) + "" \
-               ".png?access_token=" + self.access_token
+        url = self.imagery_url
+        url = url.replace("{x}", str(x))
+        url = url.replace("{y}", str(y))
+        url = url.replace("{zoom}", str(zoom))
+        url = url.replace("{access_key}", self.access_token)
+        
         req = requests.get(url)
         image = Image.open(BytesIO(req.content))
         
