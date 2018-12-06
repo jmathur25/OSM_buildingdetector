@@ -19,7 +19,7 @@ class ImageryDownloader(object):
         """
         
         # Try to fetch the image from the cache first
-        img_fname = "imgcache/" + str(zoom) + "/" + str(x) + "/" + str(y) + ".png"
+        img_fname = self.get_tile_filename(self, x, y, zoom)
         if os.path.isfile(img_fname):
             return Image.open(img_fname)
         
@@ -44,6 +44,10 @@ class ImageryDownloader(object):
         
         return image
 
+    def get_tile_filename(self, x, y, zoom):
+        """Get the filename for a given tile"""
+        img_fname = "imgcache/" + str(zoom) + "/" + str(x) + "/" + str(y) + ".png"
+        return img_fname
     
     def get_tiles_around(self, x, y, zoom):
         """Downloads all the tiles around the x, y tile"""
