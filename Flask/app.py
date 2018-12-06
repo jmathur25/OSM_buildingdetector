@@ -2,7 +2,7 @@ import sys
 sys.path.append('../')
 import backend
 
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 app = Flask(__name__)
 
 
@@ -31,10 +31,21 @@ def login():  #this method is called when the page starts up
 
 @app.route('/home/')
 def home():
-    return render_template('Skeleton.html')
+    # x = send_from_directory("../templates/", "DisplayMap.html", as_attachment=True)
+    # print(x)
+    # return send_from_directory('./../templates/', 'DisplayMap.html')
+    return render_template('DisplayMap.html')
 
 
-@app.route('/NewAccount/', methods=['POST', 'GET']) #activates when create a new account is clicked
+@app.route('/home/mapclick', methods=['POST'])
+def mapclick():
+    if request.method == 'POST':
+        result = request.form
+        info = result_to_dict(result)
+        print(info)
+    return 'Recorded'
+
+@app.route('/NewAccount/', methods=['GET', 'POST']) #activates when create a new account is clicked
 def new_account():
     error = None
     if request.method == 'POST':  # if the user hits the submit button. post is called
