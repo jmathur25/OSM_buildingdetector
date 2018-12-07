@@ -59,6 +59,43 @@
             xhr.send(params);
         }
         map.on("click", onMapClick);
+        
+        // Polygons
+        var polygons = {}
+        
+        function addStuff() {
+            addPolygon([[45.12735370724504, -94.5264905691147],
+            [45.12736127276118, -94.52608287334444],
+            [45.127221310550375, -94.5260775089264],
+            [45.127225093317335, -94.5264905691147]], 0);
+        }
+        
+        // Add a polygon to the map
+        function addPolygon(nodeList, id) {
+            // Remove the polygon if it already exists
+            if (id in polygons) {
+                removePolygon(id);
+            }
+            
+            polygons[id] = L.polygon(nodeList);
+            polygons[id].addTo(map);
+        }
+        
+        // Gets a polygon object from a given ID.
+        // If the polygon is not in the map, the return value will be
+        // "undefined".
+        function getPolygon(id) {
+            if (id in polygons) {
+                return polygons[id];
+            } else {
+                return undefined;
+            }
+        }
+        
+        // Remove a polygon
+        function removePolygon(id) {
+            polygons[id].remove();
+        }
     </script>
   </body>
 </html>
