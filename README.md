@@ -7,6 +7,8 @@ Where there are not as many OSM mappers adding details to their area, adding ite
 In rural areas (and even suburban areas) the buildings, especially houses, aren’t there.
 
 # Requirements
+OpenStreetMap Building Detector requires some extra packages to run. Install the following packages before running the start.py script.
+
 OSM API for interacting with the online database:
 ```pip install osmapi```
 
