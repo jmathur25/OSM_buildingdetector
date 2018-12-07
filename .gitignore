@@ -2,3 +2,4 @@ __pycache__/*
 backend/__pycache__/*
 imgcache/*
 mydatabase.db
+config.yml
