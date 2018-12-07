@@ -1,6 +1,7 @@
 import backend
 import imagery
 import os
+import geolocation
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 app = Flask(__name__)
@@ -40,9 +41,22 @@ def home():
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
+    global imd
     if request.method == 'POST':
         result = request.form
         info = result_to_dict(result)
+        
+        # Put this into a form that the backend can use
+        lat = float(info["lat"])
+        long = float(info["long"])
+        zoom = int(info["zoom"])
+        
+        # Find which tile we want
+        xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
+        
+        # Get those tiles
+        backend_image = imd.get_tiles_around(xtile, ytile, zoom)
+        
         print(info)
     return 'Recorded'
 
