@@ -9,8 +9,9 @@ import os.path
 
 class ImageryDownloader(object):
 
-    def __init__(self, access_token, imagery_url):
+    def __init__(self, imagery_url, access_token=""):
         """Initializes the object with a Mapbox access token"""
+        self.imagery_url = imagery_url
         self.access_token = access_token
     
     def download_tile(self, x, y, zoom):
@@ -19,7 +20,7 @@ class ImageryDownloader(object):
         """
         
         # Try to fetch the image from the cache first
-        img_fname = self.get_tile_filename(self, x, y, zoom)
+        img_fname = self.get_tile_filename(x, y, zoom)
         if os.path.isfile(img_fname):
             return Image.open(img_fname)
         

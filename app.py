@@ -1,8 +1,11 @@
 import backend
+import imagery
+import os
 
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 app = Flask(__name__)
 
+imd = None
 
 def result_to_dict(result):
     info = {}
@@ -60,14 +63,20 @@ def new_account():
     return render_template('/NewAccount.html', error=error) #links to the create a new account page
 
 
-@app.route('/imagery/<zoom>/<x>/<y>.png', methods=['GET'])
+@app.route('/home/imagery/<zoom>/<x>/<y>.png', methods=['GET'])
 def imagery_request(zoom, x, y):
-    return 'TEST'
+    fname = imd.get_tile_filename(x, y, zoom)
+    if not os.path.isfile(fname):
+        imd.download_tile(x, y, zoom)
+    return send_file(fname, mimetype="image/png")
 
-
-if __name__ == '__main__': #causes the program to boot
+def start_webapp(imagery_downloader):
+    """Starts the Flask server."""
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
+    
+    global imd
+    imd = imagery_downloader
 
     app.debug = True
     app.run()

@@ -1,4 +1,5 @@
 import config_reader
+import imagery
 
 # Read the config
 config = config_reader.get_config()
@@ -12,6 +13,10 @@ access_key = ""
 
 if "accessKey" in config:
     access_key = config["accessKey"]
+
+# Create imagery downloader
+imd = imagery.ImageryDownloader(imagery_url, access_key)
     
 # Start Flask
 import app
+app.start_webapp(imd)
