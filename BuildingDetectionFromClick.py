@@ -11,6 +11,7 @@ NOTE: image must be in grayscale
 
 
 import cv2
+import geolocation
 import time
 
 threshold = 50
@@ -48,16 +49,6 @@ class Rectangle:
         for i in range(0, len(Rectangle.all_rectangles) - 1):
             if Rectangle.all_rectangles[i].merge_with(self):
                 break
-        self.draw_all()
-
-        print('PRINT ALL RECTS TO UPDATE')
-        print('--- ADDED_RECTS:')
-        for rect in Rectangle.added_rectangles:
-            print(rect.get_id_str())
-        print('--- REMOVED_RECTS:')
-        for rect in Rectangle.removed_rectangles:
-            print(rect.get_id_str())
-        print('END THE PRINTING\n')
 
     def merge_with(self, other_rectangle):
         for point in other_rectangle.points:
@@ -196,12 +187,6 @@ class Rectangle:
             id_arr.append(rect.get_id_str())
         return id_arr
 
-    @staticmethod
-    def draw_all():
-        for rect in Rectangle.all_rectangles:
-            for i in range(0, len(rect.points)):
-                cv2.line(image, rect.points[i], rect.points[(i + 1) % len(rect.points)], (255, 0, 0), 5)
-
 
 def draw_left(x, y, threshold, timeout):
     """
@@ -323,39 +308,36 @@ def draw_right(x, y, threshold, timeout):
             return right_x_compare
     return width
 
-# GETS USER CLICKS
-def getMouse(event, x, y, flags, param):
 
-    if event == cv2.EVENT_LBUTTONDOWN:
-        threshold = 50
-        timeout = time.time() + 5  # 5 seconds to timeout
-        top = draw_up(x, y, threshold, timeout)
-        bot = draw_down(x, y, threshold, timeout)
-        right = draw_right(x, y, threshold, timeout)
-        left = draw_left(x, y, threshold, timeout)
-
-        Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
-
-    if event == cv2.EVENT_RBUTTONDOWN:
-        print('PRINT ALL RECTS TO UPDATE')
-        print('--- ADDED_RECTS:')
-        for rect in Rectangle.get_added_rectangles():
-            print(rect.get_id_str())
-        print('--- REMOVED_RECTS:')
-        for rect in Rectangle.get_removed_rectangles():
-            print(rect.get_id_str())
-        print('END THE PRINTING\n')
-
-
-def getRectangleFromImageXY(grayScaleImage, x, y):
+# this is how this script is accessed
+def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom):
     global image, width, height
-    image = grayScaleImage.copy()
-    height = image.shape[0]
-    width = image.shape[1]
+    #image = gray_scale_image.copy()
+    #height = image.shape[0]
+    #width = image.shape[1]
 
-    top = draw_up(x, y, threshold, timeout)
-    bot = draw_down(x, y, threshold, timeout)
-    right = draw_right(x, y, threshold, timeout)
-    left = draw_left(x, y, threshold, timeout)
 
-    return Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
+    # TODO check if this converts lat/long to x/y
+    xy_tuple = geolocation.deg_to_tilexy(lat_deg, long_deg, zoom)
+    x = xy_tuple[0]
+    y = xy_tuple[1]
+
+
+    top_y = draw_up(x, y, threshold, timeout)
+    bot_y = draw_down(x, y, threshold, timeout)
+    right_x = draw_right(x, y, threshold, timeout)
+    left_x = draw_left(x, y, threshold, timeout)
+
+
+    # TODO check if this converts x/y to lat/long
+    slippy_tiles_tuple = geolocation.deg_to_tile(lat_deg, long_deg, zoom)
+    x_tile = slippy_tiles_tuple[0]
+    y_tile = slippy_tiles_tuple[1]
+
+    top_right_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, top_y)
+    top_left_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, top_y)
+    bot_left_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, bot_y)
+    bot_right_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, bot_y)
+
+
+    return Rectangle([top_right_lat_long, top_left_lat_long, bot_left_lat_long, bot_right_lat_long])
