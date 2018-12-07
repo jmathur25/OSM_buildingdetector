@@ -359,20 +359,3 @@ def getRectangleFromImageXY(grayScaleImage, x, y):
     left = draw_left(x, y, threshold, timeout)
 
     return Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
-
-# bind the function to window
-cv2.namedWindow('DrawOutline')
-cv2.setMouseCallback('DrawOutline', getMouse)
-
-# Do until esc pressed
-while 1:
-    # TODO FIND BETTER WAY TO REDRAW
-    # redraws all buildings every frame, but shouldn't matter too much because the user sees only 1 pic at a time
-    # clears the image
-    image = cv2.imread(filename).copy()
-    Rectangle.draw_all()
-    cv2.imshow('DrawOutline', image)
-    if cv2.waitKey(20) & 0xFF == 27:
-        break
-# if esc pressed, finish.
-cv2.destroyAllWindows()
