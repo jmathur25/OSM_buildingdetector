@@ -13,13 +13,11 @@ NOTE: image must be in grayscale
 import cv2
 import time
 
-# Testing, remove later
-filename = 'some_houses_gray.png'   #has to be in same file directory, in greyscale      _gray
-
-
-image = cv2.imread(filename).copy()
-height = image.shape[0]
-width = image.shape[1]
+threshold = 50
+timeout = 5
+image = None
+height = -1
+width = -1
 
 # all rectangles are parallel to the xy axis
 class Rectangle:
@@ -325,7 +323,6 @@ def draw_right(x, y, threshold, timeout):
             return right_x_compare
     return width
 
-
 # GETS USER CLICKS
 def getMouse(event, x, y, flags, param):
 
@@ -349,6 +346,19 @@ def getMouse(event, x, y, flags, param):
             print(rect.get_id_str())
         print('END THE PRINTING\n')
 
+
+def getRectangleFromImageXY(grayScaleImage, x, y):
+    global image, width, height
+    image = grayScaleImage.copy()
+    height = image.shape[0]
+    width = image.shape[1]
+
+    top = draw_up(x, y, threshold, timeout)
+    bot = draw_down(x, y, threshold, timeout)
+    right = draw_right(x, y, threshold, timeout)
+    left = draw_left(x, y, threshold, timeout)
+
+    return Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
 
 # bind the function to window
 cv2.namedWindow('DrawOutline')
