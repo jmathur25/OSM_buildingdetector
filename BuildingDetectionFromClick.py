@@ -181,10 +181,10 @@ class Rectangle:
         return "id{}".format(self.get_id())
 
     @staticmethod # for debugging TODO remove
-    def arr_all_rect_id():
+    def arr_rect_to_id(rect_arr):
         id_arr = []
-        for rect in Rectangle.all_rectangles:
-            id_arr.append(rect.get_id_str())
+        for rect in rect_arr:
+            id_arr.append(rect.get_id())
         return id_arr
 
 
