@@ -312,9 +312,9 @@ def draw_right(x, y, threshold, timeout):
 # this is how this script is accessed
 def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom):
     global image, width, height
-    #image = gray_scale_image.copy()
-    #height = image.shape[0]
-    #width = image.shape[1]
+    image = gray_scale_image.copy()
+    height = image.shape[0]
+    width = image.shape[1]
 
 
     # TODO check if this converts lat/long to x/y
