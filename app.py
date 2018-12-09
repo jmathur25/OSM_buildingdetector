@@ -68,17 +68,19 @@ def mapclick():
         backend_image.show()
 
         # create a rectangle from click
+        # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_data = bdfc.get_rectangle_from_image_lat_long(numpy.array(backend_image), lat, long, zoom)
         print(rect_data)
         rectangles_to_add = rect_data[0]
         for rect in rectangles_to_add:
-            rect_points = rect.get_points()  # a list of [lat, long]  # TODO check if the rect logic is switched backwards
+            rect_points = rect.get_points()  # a list of [lat, long]  # TODO check if the rectangle lat/long internal conversions are correct
             rect_id = rect.get_id()
             print("")
-            print("points:\n{}\nid: {}".format(rect_points, rect_id))
+            print("Adding Rectangle id #{}; lat/long points are:\n{}".format(rect_id, rect_points))
             # TODO draw polygon stuff
         rectangles_id_to_remove = rect_data[1]
         for rect_id in rectangles_id_to_remove:
+            print("Removing Rectangle id #{}:".format(rect_id))
             # TODO remove polygon of id rect_id
             print(rect_id)
 
