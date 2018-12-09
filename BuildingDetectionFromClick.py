@@ -35,7 +35,7 @@ class Rectangle:
     tolerable_distance_to_combine_rectangles = 25  # arbitrary number deduced with testing given images TODO !!!!!!!
 
     def __init__(self, init_points):
-        self.points = init_points   # a point is a tuple
+        self.points = init_points   # a point is a list
         Rectangle.current_id += 1
         self.id = Rectangle.current_id
 
@@ -65,7 +65,7 @@ class Rectangle:
                 Rectangle.remove_rectangle(self)
 
                 # make a new merged rectangle
-                Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
+                Rectangle([right, top], [left, top], [left, bot], [right, bot])
                 return True
         return False
 
@@ -176,11 +176,10 @@ class Rectangle:
     def get_id(self):
         return self.id
 
-    # just for debugging #TODO remove
-    def get_id_str(self):
-        return "id{}".format(self.get_id())
+    def get_points(self):
+        return self.points
 
-    @staticmethod # for debugging TODO remove
+    @staticmethod
     def arr_rect_to_id(rect_arr):
         id_arr = []
         for rect in rect_arr:
@@ -310,6 +309,9 @@ def draw_right(x, y, threshold, timeout):
 
 
 # this is how this script is accessed
+# returns a tuple of 2 lists:
+#   a list of rectangles to add (whose ids can be accessed with .get_id()
+#   a list of rectangle ids to remove
 def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom):
     global image, width, height
     image = gray_scale_image.copy()
@@ -335,10 +337,11 @@ def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom)
     x_tile = slippy_tiles_tuple[0]
     y_tile = slippy_tiles_tuple[1]
 
-    top_right_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, top_y)
-    top_left_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, top_y)
-    bot_left_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, bot_y)
-    bot_right_lat_long = geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, bot_y)
+    top_right_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, top_y))
+    top_left_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, top_y))
+    bot_left_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, bot_y))
+    bot_right_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, bot_y))
 
+    Rectangle([top_right_lat_long, top_left_lat_long, bot_left_lat_long, bot_right_lat_long])
 
-    return Rectangle([top_right_lat_long, top_left_lat_long, bot_left_lat_long, bot_right_lat_long])
+    return Rectangle.get_added_rectangles(), Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles())

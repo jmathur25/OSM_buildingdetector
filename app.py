@@ -67,8 +67,20 @@ def mapclick():
         backend_image = PIL.ImageOps.grayscale(backend_image)
         backend_image.show()
 
-        x = bdfc.getRectangleFromImageXY(numpy.array(backend_image), x, y)
-        print(x.points)
+        # create a rectangle from click
+        rect_data = bdfc.get_rectangle_from_image_lat_long(numpy.array(backend_image), lat, long, zoom)
+        print(rect_data)
+        rectangles_to_add = rect_data[0]
+        for rect in rectangles_to_add:
+            rect_points = rect.get_points()  # a list of [lat, long]  # TODO check if the rect logic is switched backwards
+            rect_id = rect.get_id()
+            print("")
+            print("points:\n{}\nid: {}".format(rect_points, rect_id))
+            # TODO draw polygon stuff
+        rectangles_id_to_remove = rect_data[1]
+        for rect_id in rectangles_id_to_remove:
+            # TODO remove polygon of id rect_id
+            print(rect_id)
 
         print(info)
 
