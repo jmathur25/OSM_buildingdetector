@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OSM Building Detector</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" >
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }#map {
+        height: 100%;
+      }
+    </style>
+    <script type="text/javascript" src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+        // Create map
+        var map = L.map('map').setView([45.1269, -94.5266], 13);
+        
+        L.tileLayer('imagery/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Marker
+        L.marker([45.1269, -94.5266]).addTo(map)
+            .bindPopup('Our testing location is Litchfield, Minnesota!<br>Try clicking the map.')
+            .openPopup();
+        
+        
+        // Popup to show when the user clicks
+        var popup = L.popup();
+        
+        // Handle map clicks
+        function onMapClick(e) {
+            popup.setLatLng(e.latlng);
+            popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
+            popup.openOn(map);
+
+            // Send the map click
+            var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom());
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./mapclick", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert(xhr.responseText);
+                }
+            }
+            xhr.send(params);
+        }
+        map.on("click", onMapClick);
+        
+        // Polygons
+        var polygons = {}
+        
+        function addStuff() {
+            addPolygon([[45.12735370724504, -94.5264905691147],
+            [45.12736127276118, -94.52608287334444],
+            [45.127221310550375, -94.5260775089264],
+            [45.127225093317335, -94.5264905691147]], 0);
+        }
+        
+        // Add a polygon to the map
+        function addPolygon(nodeList, id) {
+            // Remove the polygon if it already exists
+            if (id in polygons) {
+                removePolygon(id);
+            }
+            
+            polygons[id] = L.polygon(nodeList);
+            polygons[id].addTo(map);
+        }
+        
+        // Gets a polygon object from a given ID.
+        // If the polygon is not in the map, the return value will be
+        // "undefined".
+        function getPolygon(id) {
+            if (id in polygons) {
+                return polygons[id];
+            } else {
+                return undefined;
+            }
+        }
+        
+        // Remove a polygon
+        function removePolygon(id) {
+            polygons[id].remove();
+        }
+    </script>
+  </body>
+</html>
