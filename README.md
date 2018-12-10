@@ -15,5 +15,8 @@ OSM API for interacting with the online database:
 For the local database:
 ```pip install dataset```
 
+OpenCV for building detection:
+```pip install opencv-python```
+
 # Usage
 Simply clone the repo and run _start.py_ to start the Flask server. Navigate to localhost:5000 in a web browser to begin mapping.
