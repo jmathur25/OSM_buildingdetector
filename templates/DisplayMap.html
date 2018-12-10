@@ -83,6 +83,8 @@
         // Polygons
         var polygons = {}
         
+        var polygonStack = [];
+        
         function addStuff() {
             addPolygon([[45.12735370724504, -94.5264905691147],
             [45.12736127276118, -94.52608287334444],
@@ -99,6 +101,9 @@
             
             polygons[id] = L.polygon(nodeList);
             polygons[id].addTo(map);
+            
+            // Update the polygon stack
+            polygonStack.push(id);
         }
         
         // Gets a polygon object from a given ID.
@@ -112,9 +117,44 @@
             }
         }
         
-        // Remove a polygon
-        function removePolygon(id) {
+        // Remove a polygon (external only)
+        function removePolygon(id, updateStack = true, sendChange = false) {
             polygons[id].remove();
+            
+            if (updateStack) {
+                polygonStack.splice(polygonStack.indexOf(id), 1);
+            }
+            
+            if (sendChange) {
+                var params = "rect_id=" + encodeURIComponent(id + "");
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "./deleterect", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                // Wait for a response
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        // Response here
+                    }
+                }
+                xhr.send(params);
+            }
+        }
+        
+        // Add Ctrl+Z functionality
+        function onBodyKeyDown(event) {
+            if (event.ctrlKey && event.key == "z") {
+                undoAddPolygon();
+            }
+        }
+        document.body.onkeydown = onBodyKeyDown;
+        
+        // Undo adding a polygon
+        function undoAddPolygon() {
+            if (polygonStack.length > 0) {
+                var lastPolygonId = polygonStack.pop();
+                removePolygon(lastPolygonId, false, true);
+            }
         }
     </script>
   </body>

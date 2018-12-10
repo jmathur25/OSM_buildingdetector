@@ -5,6 +5,9 @@ import geolocation
 # Next unique rectangle ID
 current_rect_id = 0
 
+# All rectangles
+all_rects = {}
+
 def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
     """ Tries to detect the rectangle at a given point on an image. """
     im = numpy.array(pil_image_grayscale)
@@ -37,7 +40,10 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
     my_id = current_rect_id
     current_rect_id += 1
     
-    return (current_rect_id, rect_points, rectangles_ids_to_remove)
+    # Add to rectangle list
+    all_rects[my_id] = rect_points
+    
+    return (my_id, rect_points, rectangles_ids_to_remove)
 
 """ Get the next major intensity change in a given direction. """
 def get_next_intensity_change(image, x, y, xstep, ystep):
@@ -94,3 +100,11 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
                 
     
     return (x, y)
+
+""" Delete a rectangle """
+def delete_rect(rect_id):
+    if rect_id in all_rects.keys():
+        all_rects.pop(rect_id)
+        print("Number of polygons left: " + str(len(all_rects)))
+    else:
+        print(str(rect_id) + " is not in " + str(all_rects))

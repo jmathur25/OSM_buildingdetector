@@ -46,6 +46,17 @@ def home():
     # return send_from_directory('./../templates/', 'DisplayMap.html')
     return render_template('DisplayMap.html')
 
+@app.route('/home/deleterect', methods=['POST'])
+def delete_rect():
+    if request.method == 'POST':
+        result = request.form
+        info = result_to_dict(result)
+        
+        # Delete the rectangle with this ID
+        rect_id = int(info['rect_id'])
+        building_detection_v2.delete_rect(rect_id)
+        
+    return "Success"
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
