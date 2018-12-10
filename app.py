@@ -73,7 +73,7 @@ def mapclick():
         rect_data = bdfc.get_rectangle_from_image_lat_long(numpy.array(backend_image), lat, long, zoom)
         print(rect_data)
         
-        rect_to_add = rect_data[0]
+        rect_to_add = rect_data[0][0]
         rect_points = rect_to_add.get_points()  # a list of [lat, long]  # TODO check if the rectangle lat/long internal conversions are correct
         rect_id = rect_to_add.get_id()
         
