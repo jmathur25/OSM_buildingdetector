@@ -88,7 +88,7 @@ def mapclick():
 
         json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
-                     "rectsToDelete": [{"ids": rectangles_id_to_remove}]
+                     "rectsToDelete": {"ids": rectangles_id_to_remove}
                             }
 
         return json.dumps(json_post)
