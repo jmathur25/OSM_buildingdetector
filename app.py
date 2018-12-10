@@ -91,11 +91,7 @@ def mapclick():
                      "rectsToDelete": [{"ids": rectangles_id_to_remove}]
                             }
 
-        json.dumps(json_post)
-
-        print(info)
-
-    return 'Recorded'
+        return json.dumps(json_post)
 
 
 @app.route('/NewAccount/', methods=['GET', 'POST'])  # activates when create a new account is clicked
