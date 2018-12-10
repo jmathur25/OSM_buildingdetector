@@ -84,6 +84,21 @@ def mapclick():
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom)
 
+        # update OpenStreetMap
+
+        # node list keeps track of all nodes for the purpose of eventually creating a way (area) amongst the nodes
+        # to update to OpenStreetMap
+        node_list = []
+        api = backend.sign_in()
+        for coordinates in rect_points:
+            lat = coordinates[0]
+            long = coordinates[1]
+            node = backend.node_create(api, lat, long, comment="Full stack node create test")
+            node_list.append(node)
+        backend.way_create(api, node_list, comment="Full stack way create test")
+
+        # OpenStreetMap part over
+
         json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
                      "rectsToDelete": {"ids": rectangles_id_to_remove}
