@@ -331,8 +331,8 @@ def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom)
     # TODO check if this converts x/y to lat/long
     # How to deal with this: 9 slippy tiles in one pic
     slippy_tiles_tuple = geolocation.deg_to_tile(lat_deg, long_deg, zoom)
-    x_tile = slippy_tiles_tuple[0] - 1
-    y_tile = slippy_tiles_tuple[1] - 1
+    x_tile = slippy_tiles_tuple[0]
+    y_tile = slippy_tiles_tuple[1]
 
     top_right_lat_long = list(geolocation.tilexy_to_deg_matrix(x_tile, y_tile, zoom, right_x, top_y))
     top_left_lat_long = list(geolocation.tilexy_to_deg_matrix(x_tile, y_tile, zoom, left_x, top_y))
