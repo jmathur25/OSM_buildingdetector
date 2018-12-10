@@ -66,7 +66,17 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
         cur_intensity = int(image[y, x])
         next_intensity = int(image[downy, downx])
         
-        seen.append(cur_intensity)
+        if (abs(cur_intensity - next_intensity) > threshold):
+            for i in range(lookahead):
+                downx = max(min(x + xstep * i, width - 1), 0)
+                downy = max(min(y + ystep * i, height - 1), 0)
+                
+                next_intensity = int(image[downy, downx])
+                if (abs(cur_intensity - next_intensity) > threshold):
+                    return (downx, downy)
+            return (downx, downy)
+        
+        """seen.append(cur_intensity)
         seen_sum += cur_intensity
         
         # Find the variance
@@ -79,7 +89,8 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
             
             variance /= (len(seen) - 1)
             
-            if (abs(cur_intensity - average) ** 2 > variance * 10 or abs(cur_intensity - next_intensity) > threshold):
-                return (x, y)
+            if (abs(cur_intensity - average) ** 2 > variance * 5 or abs(cur_intensity - next_intensity) > threshold):
+                return (x, y)"""
+                
     
     return (x, y)
