@@ -5,7 +5,7 @@ import geolocation
 # Next unique rectangle ID
 current_rect_id = 0
 
-def detect_rectangle(pil_image_grayscale, lat, long, zoom):
+def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
     """ Tries to detect the rectangle at a given point on an image. """
     im = numpy.array(pil_image_grayscale)
     
