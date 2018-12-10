@@ -70,21 +70,7 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        rect_data = bdfc.get_rectangle_from_image_lat_long(numpy.array(backend_image), lat, long, zoom)
-        print(rect_data)
-        
-        rect_to_add = rect_data[0][0]
-        rect_points = rect_to_add.get_points()  # a list of [lat, long]  # TODO check if the rectangle lat/long internal conversions are correct
-        rect_id = rect_to_add.get_id()
-        
-        print("")
-        print("Adding Rectangle id #{}; lat/long points are:\n{}".format(rect_id, rect_points))
-        # TODO draw polygon stuff
-        rectangles_id_to_remove = rect_data[1]
-        for rect_id in rectangles_id_to_remove:
-            print("Removing Rectangle id #{}:".format(rect_id))
-            # TODO remove polygon of id rect_id
-            print(rect_id)
+        rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(backend_image, lat, long, zoom)
 
         json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
