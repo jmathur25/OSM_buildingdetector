@@ -25,6 +25,6 @@ Click on a building on the map. This will generate a rectangle around the clicke
 
 Sometimes the rectangle detected is slightly inaccurate. When this happens, press "Ctrl z" on your keyboard to undo the last added rectangle. Click at a slightly different point on the same building to generate another rectangle.
 
-Press the "Submit" button to upload the building outlines to the OpenStreetMap server.
+Press the "Submit" button to upload all of the building outlines on your map to the OpenStreetMap server.
 
 Press the "Merge" button or press "m" to toggle Merge Mode. When Merge Mode is turned on, new buidling outlines that are generated will try to merge with nearby building outlines. This should be used to outline buildings with a lot of noise in the image, or buidlings with roofs that contain different colors/gradients.
