@@ -1,7 +1,7 @@
 # --- OpenStreetMap Building Detector configuration file ---
 
 # Access Key - necessary for downloading certain types of imagery
-accessKey: "---YOUR ACCESS KEY HERE---"
+accessKey: "pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZGFrZ2c2dzFlMWgyd2x0ZHdmMDB6NzYifQ.9Pl3XOO82ArX94fHV289Pg"
 
 # Default map location and zoom
 defaultLocation:

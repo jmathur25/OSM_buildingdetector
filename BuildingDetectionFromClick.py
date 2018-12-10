@@ -11,6 +11,7 @@ NOTE: image must be in grayscale
 
 
 import cv2
+import geolocation
 import time
 
 threshold = 50
@@ -34,7 +35,7 @@ class Rectangle:
     tolerable_distance_to_combine_rectangles = 25  # arbitrary number deduced with testing given images TODO !!!!!!!
 
     def __init__(self, init_points):
-        self.points = init_points   # a point is a tuple
+        self.points = init_points   # a point is a list
         Rectangle.current_id += 1
         self.id = Rectangle.current_id
 
@@ -48,16 +49,6 @@ class Rectangle:
         for i in range(0, len(Rectangle.all_rectangles) - 1):
             if Rectangle.all_rectangles[i].merge_with(self):
                 break
-        self.draw_all()
-
-        print('PRINT ALL RECTS TO UPDATE')
-        print('--- ADDED_RECTS:')
-        for rect in Rectangle.added_rectangles:
-            print(rect.get_id_str())
-        print('--- REMOVED_RECTS:')
-        for rect in Rectangle.removed_rectangles:
-            print(rect.get_id_str())
-        print('END THE PRINTING\n')
 
     def merge_with(self, other_rectangle):
         for point in other_rectangle.points:
@@ -74,7 +65,7 @@ class Rectangle:
                 Rectangle.remove_rectangle(self)
 
                 # make a new merged rectangle
-                Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
+                Rectangle([right, top], [left, top], [left, bot], [right, bot])
                 return True
         return False
 
@@ -185,22 +176,15 @@ class Rectangle:
     def get_id(self):
         return self.id
 
-    # just for debugging #TODO remove
-    def get_id_str(self):
-        return "id{}".format(self.get_id())
-
-    @staticmethod # for debugging TODO remove
-    def arr_all_rect_id():
-        id_arr = []
-        for rect in Rectangle.all_rectangles:
-            id_arr.append(rect.get_id_str())
-        return id_arr
+    def get_points(self):
+        return self.points
 
     @staticmethod
-    def draw_all():
-        for rect in Rectangle.all_rectangles:
-            for i in range(0, len(rect.points)):
-                cv2.line(image, rect.points[i], rect.points[(i + 1) % len(rect.points)], (255, 0, 0), 5)
+    def arr_rect_to_id(rect_arr):
+        id_arr = []
+        for rect in rect_arr:
+            id_arr.append(rect.get_id())
+        return id_arr
 
 
 def draw_left(x, y, threshold, timeout):
@@ -323,56 +307,41 @@ def draw_right(x, y, threshold, timeout):
             return right_x_compare
     return width
 
-# GETS USER CLICKS
-def getMouse(event, x, y, flags, param):
 
-    if event == cv2.EVENT_LBUTTONDOWN:
-        threshold = 50
-        timeout = time.time() + 5  # 5 seconds to timeout
-        top = draw_up(x, y, threshold, timeout)
-        bot = draw_down(x, y, threshold, timeout)
-        right = draw_right(x, y, threshold, timeout)
-        left = draw_left(x, y, threshold, timeout)
-
-        Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
-
-    if event == cv2.EVENT_RBUTTONDOWN:
-        print('PRINT ALL RECTS TO UPDATE')
-        print('--- ADDED_RECTS:')
-        for rect in Rectangle.get_added_rectangles():
-            print(rect.get_id_str())
-        print('--- REMOVED_RECTS:')
-        for rect in Rectangle.get_removed_rectangles():
-            print(rect.get_id_str())
-        print('END THE PRINTING\n')
-
-
-def getRectangleFromImageXY(grayScaleImage, x, y):
+# this is how this script is accessed
+# returns a tuple of 2 lists:
+#   a list of rectangles to add (whose ids can be accessed with .get_id()
+#   a list of rectangle ids to remove
+def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom):
     global image, width, height
-    image = grayScaleImage.copy()
+    image = gray_scale_image.copy()
     height = image.shape[0]
     width = image.shape[1]
 
-    top = draw_up(x, y, threshold, timeout)
-    bot = draw_down(x, y, threshold, timeout)
-    right = draw_right(x, y, threshold, timeout)
-    left = draw_left(x, y, threshold, timeout)
 
-    return Rectangle([(right, top), (left, top), (left, bot), (right, bot)])
+    # TODO check if this converts lat/long to x/y
+    xy_tuple = geolocation.deg_to_tilexy(lat_deg, long_deg, zoom)
+    x = xy_tuple[0]
+    y = xy_tuple[1]
 
-# bind the function to window
-cv2.namedWindow('DrawOutline')
-cv2.setMouseCallback('DrawOutline', getMouse)
 
-# Do until esc pressed
-while 1:
-    # TODO FIND BETTER WAY TO REDRAW
-    # redraws all buildings every frame, but shouldn't matter too much because the user sees only 1 pic at a time
-    # clears the image
-    image = cv2.imread(filename).copy()
-    Rectangle.draw_all()
-    cv2.imshow('DrawOutline', image)
-    if cv2.waitKey(20) & 0xFF == 27:
-        break
-# if esc pressed, finish.
-cv2.destroyAllWindows()
+    top_y = draw_up(x, y, threshold, timeout)
+    bot_y = draw_down(x, y, threshold, timeout)
+    right_x = draw_right(x, y, threshold, timeout)
+    left_x = draw_left(x, y, threshold, timeout)
+
+
+    # TODO check if this converts x/y to lat/long
+    # How to deal with this: 9 slippy tiles in one pic
+    slippy_tiles_tuple = geolocation.deg_to_tile(lat_deg, long_deg, zoom)
+    x_tile = slippy_tiles_tuple[0]
+    y_tile = slippy_tiles_tuple[1]
+
+    top_right_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, top_y))
+    top_left_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, top_y))
+    bot_left_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, bot_y))
+    bot_right_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, bot_y))
+
+    Rectangle([top_right_lat_long, top_left_lat_long, bot_left_lat_long, bot_right_lat_long])
+
+    return Rectangle.get_added_rectangles(), Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles())
