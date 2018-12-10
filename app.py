@@ -64,9 +64,9 @@ def mapclick():
 
         # Get those tiles
         backend_image = imd.get_tiles_around(xtile, ytile, zoom)
-        backend_image.show()
+        # backend_image.show()
         backend_image = PIL.ImageOps.grayscale(backend_image)
-        backend_image.show()
+        # backend_image.show()
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)

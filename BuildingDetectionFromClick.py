@@ -320,10 +320,7 @@ def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom)
 
 
     # TODO check if this converts lat/long to x/y
-    xy_tuple = geolocation.deg_to_tilexy(lat_deg, long_deg, zoom)
-    x = xy_tuple[0]
-    y = xy_tuple[1]
-
+    x, y = geolocation.deg_to_tilexy_matrix(lat_deg, long_deg, zoom)
 
     top_y = draw_up(x, y, threshold, timeout)
     bot_y = draw_down(x, y, threshold, timeout)
@@ -334,13 +331,13 @@ def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom)
     # TODO check if this converts x/y to lat/long
     # How to deal with this: 9 slippy tiles in one pic
     slippy_tiles_tuple = geolocation.deg_to_tile(lat_deg, long_deg, zoom)
-    x_tile = slippy_tiles_tuple[0]
-    y_tile = slippy_tiles_tuple[1]
+    x_tile = slippy_tiles_tuple[0] - 1
+    y_tile = slippy_tiles_tuple[1] - 1
 
-    top_right_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, top_y))
-    top_left_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, top_y))
-    bot_left_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, left_x, bot_y))
-    bot_right_lat_long = list(geolocation.tilexy_to_deg(x_tile, y_tile, zoom, right_x, bot_y))
+    top_right_lat_long = list(geolocation.tilexy_to_deg_matrix(x_tile, y_tile, zoom, right_x, top_y))
+    top_left_lat_long = list(geolocation.tilexy_to_deg_matrix(x_tile, y_tile, zoom, left_x, top_y))
+    bot_left_lat_long = list(geolocation.tilexy_to_deg_matrix(x_tile, y_tile, zoom, left_x, bot_y))
+    bot_right_lat_long = list(geolocation.tilexy_to_deg_matrix(x_tile, y_tile, zoom, right_x, bot_y))
 
     Rectangle([top_right_lat_long, top_left_lat_long, bot_left_lat_long, bot_right_lat_long])
 
