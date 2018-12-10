@@ -6,6 +6,7 @@ import geolocation
 import PIL.ImageOps
 import cv2
 import numpy
+import json
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
@@ -56,7 +57,7 @@ def mapclick():
         zoom = int(info['zoom'])
 
         # find xtile, ytile
-        xtile, ytile = geolocation.deg_to_tilexy(lat, long, zoom)
+        xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
 
         # find x, y
         x, y = geolocation.deg_to_tilexy(lat, long, zoom)
@@ -71,18 +72,26 @@ def mapclick():
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_data = bdfc.get_rectangle_from_image_lat_long(numpy.array(backend_image), lat, long, zoom)
         print(rect_data)
-        rectangles_to_add = rect_data[0]
-        for rect in rectangles_to_add:
-            rect_points = rect.get_points()  # a list of [lat, long]  # TODO check if the rectangle lat/long internal conversions are correct
-            rect_id = rect.get_id()
-            print("")
-            print("Adding Rectangle id #{}; lat/long points are:\n{}".format(rect_id, rect_points))
-            # TODO draw polygon stuff
+        
+        rect_to_add = rect_data[0]
+        rect_points = rect_to_add.get_points()  # a list of [lat, long]  # TODO check if the rectangle lat/long internal conversions are correct
+        rect_id = rect_to_add.get_id()
+        
+        print("")
+        print("Adding Rectangle id #{}; lat/long points are:\n{}".format(rect_id, rect_points))
+        # TODO draw polygon stuff
         rectangles_id_to_remove = rect_data[1]
         for rect_id in rectangles_id_to_remove:
             print("Removing Rectangle id #{}:".format(rect_id))
             # TODO remove polygon of id rect_id
             print(rect_id)
+
+        json_post = {"rectsToAdd": [{"id": rect_id,
+                                    "points": rect_points}],
+                     "rectsToDelete": [{"ids": rectangles_id_to_remove}]
+                            }
+
+        json.dumps(json_post)
 
         print(info)
 
