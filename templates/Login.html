@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <style>
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+        @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
 .login-page {
   width: 360px;
@@ -97,25 +98,28 @@ body {
 }
     </style>
 </head>
+
 <body>
-<div class="login-page">
-    <form class = "send" method = "post" action =  "">
-        <input name = "username" id = "username" type="text" placeholder="username" value="{{ request.form.username}}"/>
-        <input name = "password" id = "password" type="password" placeholder="password" value="{{ request.form.password }}"/>
-        <input type = "submit" value = "Login" />
-    </form>
-    <p class="message">Not registered? <a href="NewAccount" target="_blank">Create an account</a></p>
-    <!--  <p class="message"> <a href="Retrieval.html" target="_blank">tester</a></p>-->
-</div>
+    <div class="login-page">
+        <h2>OpenStreetMap Building Detection Login</h2>
+        <form class="send" method="post" action="">
+            <input name="username" id="username" type="text" placeholder="username" value="{{ request.form.username}}" />
+            <input name="password" id="password" type="password" placeholder="password" value="{{ request.form.password }}" />
+            <input type="submit" value="Login" />
+        </form>
+        <p class="message">Not registered? <a href="NewAccount" target="_blank">Create an account</a></p>
+    </div>
 
-<script>
-    $('.message a').click(function(){
-   $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
-});
+    <script>
+        $('.message a').click(function() {
+            $('form').animate({
+                height: "toggle",
+                opacity: "toggle"
+            }, "slow");
+        });
 
-    //variables that you can draw from: username (username) and password (pass)
-
-</script>
+        //variables that you can draw from: username (username) and password (pass)
+    </script>
 </body>
 
 </html>
