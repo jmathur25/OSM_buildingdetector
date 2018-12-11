@@ -289,6 +289,7 @@ def set_merge_mode(merge_mode_state):
 def toggle_merge_mode():
     Rectangle.merge_mode = not Rectangle.merge_mode
     print("MERGE MODE IS NOW: ", Rectangle.merge_mode)
+    return Rectangle.merge_mode
 
 
 def get_merge_mode():

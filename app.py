@@ -62,9 +62,9 @@ def delete_rect():
 @app.route('/home/mergetoggle', methods=['POST'])
 def merge_toggle():
     if request.method == 'POST':
-        building_detection_v2.toggle_merge_mode()
+        return building_detection_v2.toggle_merge_mode()
 
-    return "Success"
+    return "None"
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
