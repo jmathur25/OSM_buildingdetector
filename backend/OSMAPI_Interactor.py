@@ -5,8 +5,8 @@ import osmapi
 # I made an account for us to all use
 # api = osmapi.OsmApi(api="https://api06.dev.openstreetmap.org", username="OSM_buildingdetector", password="fakepassword123")
 
-def sign_in():
-    api = osmapi.OsmApi(api="https://api06.dev.openstreetmap.org", username="OSM_buildingdetector", password="fakepassword123")
+def sign_in(api, username, password):
+    api = osmapi.OsmApi(api=api, username=username, password=password)
     return api
 
 # tag must be as a dict, like {"Corner": "1"}

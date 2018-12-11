@@ -14,7 +14,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, sen
 app = Flask(__name__)
 
 imd = None
-
+program_config = {}
 
 def result_to_dict(result):
     info = {}
@@ -120,10 +120,19 @@ def mapclick():
 
 @app.route('/home/uploadchanges', methods=['POST'])
 def upload_changes():
-    api = backend.sign_in()
     
-    if (len(building_detection_v2.get_all_rects()) == 0):
-        return "0";
+    # Get the login information from the config and make sure it exists
+    upload_info = program_config["osmUpload"]
+    args = ["api", "username", "password"]
+    for arg in args:
+        if arg not in upload_info:
+            print("[ERROR] Config: osmUpload->" + arg + " not found!")
+            return "0"
+    
+    api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
+    
+    if (len(building_detection_v2.all_rects) == 0):
+        return "0"
     
     # Create the way using the list of nodes
     changeset_comment = "Add " + str(len(building_detection_v2.get_all_rects())) + " buildings."
@@ -159,13 +168,29 @@ def imagery_request(zoom, x, y):
     return send_file(fname, mimetype="image/png")
 
 
-def start_webapp(imagery_downloader):
+def start_webapp(config):
     """Starts the Flask server."""
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
+    
+    # Get config variables
+    
+    if "imageryURL" not in config:
+        print("[ERROR] Could not find imageryURL in the config file!")
 
+    # Get the imagery URL and access key
+    imagery_url = config["imageryURL"]
+    access_key = ""
+
+    if "accessKey" in config:
+        access_key = config["accessKey"]
+
+    # Create imagery downloader
     global imd
-    imd = imagery_downloader
+    imd = imagery.ImageryDownloader(imagery_url, access_key)
+    
+    global program_config
+    program_config = config
 
     app.debug = True
     app.run()
