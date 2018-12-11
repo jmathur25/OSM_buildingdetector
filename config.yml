@@ -1,4 +1,6 @@
-# --- OpenStreetMap Building Detector configuration file ---
+# --- OpenStreetMap Building Detector configuration file --- #
+
+# | Imagery | #
 
 # Access Key - necessary for downloading certain types of imagery
 accessKey: "pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZGFrZ2c2dzFlMWgyd2x0ZHdmMDB6NzYifQ.9Pl3XOO82ArX94fHV289Pg"
@@ -13,3 +15,10 @@ defaultLocation:
 # "{x}", "{y}", "{zoom}", and (optional) "{access_key}" will be replaced
 #     with the values during runtime.
 imageryURL: "https://a.tiles.mapbox.com/v4/digitalglobe.316c9a2e/{zoom}/{x}/{y}.png?access_token={access_key}"
+
+# | OpenStreetMap login information | #
+osmUpload:
+    # API location. The full v0.6 OpenStreetMap database API is https://api.openstreetmap.org/api/0.6
+    api: https://api06.dev.openstreetmap.org
+    username: OSM_buildingdetector
+    password: fakepassword123
