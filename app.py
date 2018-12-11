@@ -58,6 +58,18 @@ def delete_rect():
         
     return "Success"
 
+
+@app.route('/home/mergetoggle', methods=['POST'])
+def merge_toggle():
+    if request.method == 'POST':
+        # Toggle the merge mode and return the current merge state
+        merge_mode = building_detection_v2.toggle_merge_mode()
+        if merge_mode:
+            return "merge_enabled"
+        else:
+            return "merge_disabled"
+    return "None"
+
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
     if request.method == 'POST':
@@ -123,11 +135,11 @@ def upload_changes():
         return "0"
     
     # Create the way using the list of nodes
-    changeset_comment = "Add " + str(len(building_detection_v2.all_rects)) + " buildings."
-    ways_created = backend.way_create_multiple(api, building_detection_v2.all_rects, changeset_comment, {"building": "yes"})
+    changeset_comment = "Add " + str(len(building_detection_v2.get_all_rects())) + " buildings."
+    ways_created = backend.way_create_multiple(api, building_detection_v2.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
     
     # Clear the rectangle list
-    building_detection_v2.all_rects = {}
+    building_detection_v2.delete_all_rects()
     
     return str(len(ways_created))
 
