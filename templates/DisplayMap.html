@@ -147,7 +147,7 @@
             uploadButton.enable();
         }
 
-        // Toggle the merge mode (if rectangles combine (external only)
+        // Toggle the merge mode - whether rectangles combine (external only)
         function mergetoggle() {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./mergetoggle", true);
@@ -155,7 +155,13 @@
             // Wait for a response
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Response here
+                    if (xhr.responseText == "merge_enabled") {
+                        mergeMode = true;
+                        mergeButton.update();
+                    } else if (xhr.responseText == "merge_disabled") {
+                        mergeMode = false;
+                        mergeButton.update();
+                    }
                 }
             }
             xhr.send();
@@ -165,6 +171,12 @@
         function onBodyKeyDown(event) {
             if (event.ctrlKey && event.key == "z") {
                 undoAddPolygon();
+            }
+            
+            // Handle the merge toggle button
+            if (event.key == "m") {
+                mergetoggle();
+                mergeButton.update();
             }
         }
         document.body.onkeydown = onBodyKeyDown;
@@ -317,6 +329,70 @@
             }
             xhr.send(params);
         }
+        
+        var mergeMode = false;
+        
+        // Add merge control
+        L.Control.MergeButton = L.Control.extend({
+            // @section
+            // @aka Control.Zoom options
+            options: {
+                position: 'topleft',
+                // @option mergeText: String = '+'
+                // The text set on the 'merge' button.
+                mergeText: 'M',
+                // @option mergeTitle: String = 'Zoom in'
+                // The title set on the 'zoom in' button.
+                mergeTitle: 'Toggle Merge'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.mergeButton = this._createButton(options.mergeText, options.mergeTitle,
+                        zoomName + '-in',  container, this.mergeButtonClick);
+                return container;
+            },
+            mergeButtonClick: function (e) {
+                mergetoggle();
+                
+                // Update merge mode
+                this.update();
+            },
+            
+            update: function () {
+                var col = "#FFFFFF";
+                if (mergeMode) {
+                    col = "#BBFFBB";
+                }
+                this.mergeButton.style.backgroundColor = col;
+            },
+
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
+
+        // Merge button constructor
+        L.control.mergeButton = function(opts) {
+            return new L.Control.MergeButton(opts);
+        }
+
+        // Add the merge button to the map
+        var mergeButton = L.control.mergeButton({ position: "topleft" }).addTo(map);
     </script>
   </body>
 </html>
