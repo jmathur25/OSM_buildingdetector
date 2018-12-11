@@ -112,15 +112,15 @@ def mapclick():
 def upload_changes():
     api = backend.sign_in()
     
-    if (len(building_detection_v2.all_rects) == 0):
+    if (len(building_detection_v2.get_all_rects()) == 0):
         return "0";
     
     # Create the way using the list of nodes
-    changeset_comment = "Add " + str(len(building_detection_v2.all_rects)) + " buildings."
-    ways_created = backend.way_create_multiple(api, building_detection_v2.all_rects, changeset_comment, {"building": "yes"})
+    changeset_comment = "Add " + str(len(building_detection_v2.get_all_rects())) + " buildings."
+    ways_created = backend.way_create_multiple(api, building_detection_v2.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
     
     # Clear the rectangle list
-    building_detection_v2.all_rects = {}
+    building_detection_v2.delete_all_rects()
     
     return str(len(ways_created))
 
