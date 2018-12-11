@@ -8,7 +8,7 @@ class Rectangle:
     current_id = 0
 
     # do rectangles try to merge with neighboring rectangles?
-    merge_mode = True
+    merge_mode = False
 
     # list of all rectangles in existence
     all_rectangles = []
@@ -225,16 +225,7 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
 
     Rectangle([topleft, topright, bottomright, bottomleft])
 
-    # TODO remove print statements
-    #print("MERGE MODE: ", get_merge_mode())
-    #print("ALL RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.get_all_rectangles())))
-    #print("Added RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.added_rectangles)))
-    #print("Removed RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.removed_rectangles)))
-
     retangles_to_add = Rectangle.get_added_rectangles()
-
-    # TODO remove print statements
-    #print("returning: {}; {}; {}".format(retangles_to_add[0].get_id(), retangles_to_add[0].get_points(), Rectangle.arr_rect_to_id(Rectangle.removed_rectangles)))
 
     # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
     return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
@@ -282,13 +273,11 @@ def delete_rect(rect_id):
 # set if rectangles merge or not
 def set_merge_mode(merge_mode_state):
     Rectangle.merge_mode = merge_mode_state
-    print("MERGE MODE IS NOW: ", Rectangle.merge_mode)
 
 
 # toggle between True and False for merge_mode
 def toggle_merge_mode():
     Rectangle.merge_mode = not Rectangle.merge_mode
-    print("MERGE MODE IS NOW: ", Rectangle.merge_mode)
     return Rectangle.merge_mode
 
 
@@ -312,5 +301,4 @@ def get_all_rects_dictionary():
     rect_dict = {}
     for rect in Rectangle.all_rectangles:
         rect_dict[rect.get_id()] = rect.get_points()
-    print(rect_dict)
     return rect_dict

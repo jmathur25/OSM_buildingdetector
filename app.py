@@ -131,7 +131,7 @@ def upload_changes():
     
     api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
     
-    if (len(building_detection_v2.Rectangle.all_rectangles) == 0):
+    if (len(building_detection_v2.get_all_rects()) == 0):
         return "0"
     
     # Create the way using the list of nodes
