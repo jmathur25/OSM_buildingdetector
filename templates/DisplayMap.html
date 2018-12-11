@@ -127,7 +127,11 @@
         
         // Remove a polygon (external only)
         function removePolygon(id, updateStack = true, sendChange = false) {
+            // Remove from map
             polygons[id].remove();
+            
+            // Remove from dictionary
+            delete polygons[id];
             
             if (updateStack) {
                 polygonStack.splice(polygonStack.indexOf(id), 1);
@@ -243,9 +247,13 @@
             },
 
             uploadButtonClick: function (e) {
-                if (!_disabled) {
+                // Pass the upload command to the server
+                if (!this._disabled) {
                     uploadClick(e);
                 }
+                
+                // Disable the button to show that it is working
+                this._updateDisabled(true);
             },
             
             _createButton: function (html, title, className, container, fn) {
@@ -268,11 +276,11 @@
                 return link;
             },
 
-            _updateDisabled: function () {
+            _updateDisabled: function (disabled = (polygonStack.length == 0)) {
                 var map = this._map,
                     className = 'leaflet-disabled';
                 
-                _disabled = (polygons.length == 0);
+                this._disabled = disabled;
 
                 L.DomUtil.removeClass(this.uploadButton, className);
 
@@ -299,6 +307,7 @@
 
             // Wait for a response
             xhr.onreadystatechange = function() {
+                var success = false;
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     // Response here
                     var responseText = xhr.responseText;
@@ -320,7 +329,14 @@
                         // Clear polygon dictionary and the stack
                         polygons = {};
                         polygonStack = [];
+                        
+                        success = true;
                     }
+                }
+                
+                // Enable the button again
+                if (!success) {
+                    uploadButton.enable();
                 }
             }
             xhr.send(params);
