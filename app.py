@@ -108,12 +108,10 @@ def mapclick():
         """
 
         # OpenStreetMap part over
-
         json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
                      "rectsToDelete": {"ids": rectangles_id_to_remove}
                             }
-
         return json.dumps(json_post)
 
 @app.route('/home/uploadchanges', methods=['POST'])
