@@ -8,7 +8,6 @@
     <style>
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
-
       /* Optional: Makes the sample page fill the window. */
       html, body {
         height: 100%;
@@ -30,41 +29,38 @@
     <script>
         // Create map
         var map = L.map('map').setView([45.1269, -94.5266], 13);
-        
+
         L.tileLayer('imagery/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-
         // Marker
         L.marker([45.1269, -94.5266]).addTo(map)
             .bindPopup('Our testing location is Litchfield, Minnesota!<br>Try clicking the map.')
             .openPopup();
-        
-        
+
+
         // Popup to show when the user clicks
         var popup = L.popup();
-        
+
         // Handle map clicks
         function onMapClick(e) {
             /*popup.setLatLng(e.latlng);
             popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
             popup.openOn(map);*/
-
             // Send the map click
             var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom());
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./mapclick", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
             // Wait for a response
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    
+
                     // Parse the response
                     var responseJson = JSON.parse(xhr.responseText);
                     var rectsToUpdate = responseJson["rectsToAdd"];
                     var rectsToDelete = responseJson["rectsToDelete"];
-                    
+
                     // Add polygon(s)
                     if (rectsToUpdate.length > 0) {
                         var rect = rectsToUpdate[0];
@@ -72,7 +68,7 @@
                         var rect_id = rect["id"];
                         addPolygon(rect_nodes, rect_id);
                     }
-                    
+
                     // Delete polygon(s)
                     if (rectsToDelete["ids"].length > 0) {
                         for (var i = 0; i < rectsToDelete["ids"].length; i++) {
@@ -84,36 +80,36 @@
             xhr.send(params);
         }
         map.on("click", onMapClick);
-        
+
         // Polygons
         var polygons = {}
-        
+
         var polygonStack = [];
-        
+
         function addStuff() {
             addPolygon([[45.12735370724504, -94.5264905691147],
             [45.12736127276118, -94.52608287334444],
             [45.127221310550375, -94.5260775089264],
             [45.127225093317335, -94.5264905691147]], 0);
         }
-        
+
         // Add a polygon to the map
         function addPolygon(nodeList, id) {
             // Remove the polygon if it already exists
             if (id in polygons) {
                 removePolygon(id);
             }
-            
+
             polygons[id] = L.polygon(nodeList);
             polygons[id].addTo(map);
-            
+
             // Update the polygon stack
             polygonStack.push(id);
-            
+
             // Update the uploadButton
             uploadButton.enable();
         }
-        
+
         // Gets a polygon object from a given ID.
         // If the polygon is not in the map, the return value will be
         // "undefined".
@@ -124,21 +120,20 @@
                 return undefined;
             }
         }
-        
+
         // Remove a polygon (external only)
         function removePolygon(id, updateStack = true, sendChange = false) {
             polygons[id].remove();
-            
+
             if (updateStack) {
                 polygonStack.splice(polygonStack.indexOf(id), 1);
             }
-            
+
             if (sendChange) {
                 var params = "rect_id=" + encodeURIComponent(id + "");
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", "./deleterect", true);
                 xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
                 // Wait for a response
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState == 4 && xhr.status == 200) {
@@ -147,17 +142,16 @@
                 }
                 xhr.send(params);
             }
-            
+
             // Update upload button
             uploadButton.enable();
         }
 
         // Toggle the merge mode (if rectangles combine (external only)
-        function mergetoggle(id, updateStack = true, sendChange = true) {
+        function mergetoggle() {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./mergetoggle", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
             // Wait for a response
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
@@ -166,18 +160,15 @@
             }
             xhr.send();
         }
-        
+
         // Add Ctrl+Z functionality
         function onBodyKeyDown(event) {
             if (event.ctrlKey && event.key == "z") {
                 undoAddPolygon();
             }
-            if (event.key == "m") {
-                mergetoggle(2)
-            }
         }
         document.body.onkeydown = onBodyKeyDown;
-        
+
         // Undo adding a polygon
         function undoAddPolygon() {
             if (polygonStack.length > 0) {
@@ -185,32 +176,28 @@
                 removePolygon(lastPolygonId, false, true);
             }
         }
-        
+
         // Add upload control
         L.Control.UploadButton = L.Control.extend({
             // @section
             // @aka Control.Zoom options
             options: {
                 position: 'topleft',
-
                 // @option uploadText: String = '+'
                 // The text set on the 'upload' button.
                 uploadText: '&#x1F81D',
-
                 // @option uploadTitle: String = 'Zoom in'
                 // The title set on the 'zoom in' button.
                 uploadTitle: 'Upload'
             },
-
             onAdd: function (map) {
                 var zoomName = 'leaflet-control-zoom',
                     parentContainer = L.DomUtil.create('div'),
                     container = L.DomUtil.create('div', zoomName + ' leaflet-bar', parentContainer),
                     options = this.options;
-
                 this.uploadButton = this._createButton(options.uploadText, options.uploadTitle,
                         zoomName + '-in',  container, this.uploadButtonClick);
-                
+
                 // Add popup bar
                 var divContainer = document.createElement("div");
                 divContainer.id = "popupDiv";
@@ -219,102 +206,89 @@
                 divContainer.style.left = "5%";
                 divContainer.style.top = "5%";
                 divContainer.visibility = "hidden";
-                
+
                 document.body.appendChild(divContainer);
-                
+
                 this._popupBar = L.DomUtil.create("p", "leaflet-bar", divContainer);
                 this._popupBar.style.backgroundColor = "white";
-
                 this.disable();
                 this._updateDisabled();
                 map.on('zoomend zoomlevelschange', this._updateDisabled, this);
-
                 return parentContainer;
             },
-
             onRemove: function (map) {
                 map.off('zoomend zoomlevelschange', this._updateDisabled, this);
             },
-            
+
             showPopUpBar: function(text) {
                 // Set the text
                 this._popupBar.innerHTML = text;
                 document.getElementById("popupDiv").style.visibility = "";
-                
+
                 window.setTimeout(this.hidePopUpBar, 5000);
             },
-            
+
             hidePopUpBar: function () {
                 document.getElementById("popupDiv").style.visibility = "hidden";
             },
-
             disable: function () {
                 this._disabled = true;
                 this._updateDisabled();
                 return this;
             },
-
             enable: function () {
                 this._disabled = false;
                 this._updateDisabled();
                 return this;
             },
-
             uploadButtonClick: function (e) {
                 if (!_disabled) {
                     uploadClick(e);
                 }
             },
-            
+
             _createButton: function (html, title, className, container, fn) {
                 var link = L.DomUtil.create('a', className, container);
                 link.innerHTML = html;
                 link.href = '#';
                 link.title = title;
-
                 /*
                  * Will force screen readers like VoiceOver to read this as "Zoom in - button"
                  */
                 link.setAttribute('role', 'button');
                 link.setAttribute('aria-label', title);
-
                 L.DomEvent.disableClickPropagation(link);
                 L.DomEvent.on(link, 'click', L.DomEvent.stop);
                 L.DomEvent.on(link, 'click', fn, this);
                 L.DomEvent.on(link, 'click', this._refocusOnMap, this);
-
                 return link;
             },
-
             _updateDisabled: function () {
                 var map = this._map,
                     className = 'leaflet-disabled';
-                
+
                 _disabled = (polygons.length == 0);
-
                 L.DomUtil.removeClass(this.uploadButton, className);
-
                 if (this._disabled) {
                     L.DomUtil.addClass(this.uploadButton, className);
                 }
             }
         });
-        
+
         // Upload button constructor
         L.control.uploadButton = function(opts) {
             return new L.Control.UploadButton(opts);
         }
-        
+
         // Add the upload button to the map
         var uploadButton = L.control.uploadButton({ position: "topleft" }).addTo(map);
-        
+
         // Handle the upload control click
         function uploadClick(e) {
             var params = "";
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./uploadchanges", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
             // Wait for a response
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
@@ -322,19 +296,19 @@
                     var responseText = xhr.responseText;
                     if (Number(responseText) > 0) {
                         uploadButton.disable();
-                        
+
                         s = "";
                         if (Number(responseText) > 1) {
                             s = "s";
                         }
-                        
+
                         uploadButton.showPopUpBar(responseText + " building" + s + " added to OpenStreetMap!");
-                        
+
                         // Change current polygon colors
                         for (thisPolygon in polygons) {
                             polygons[thisPolygon].setStyle({fillColor: '#00FF00', color: '#00FF00'});
                         }
-                        
+
                         // Clear polygon dictionary and the stack
                         polygons = {};
                         polygonStack = [];
