@@ -151,11 +151,29 @@
             // Update upload button
             uploadButton.enable();
         }
+
+        // Toggle the merge mode (if rectangles combine (external only)
+        function mergetoggle(id, updateStack = true, sendChange = true) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./mergetoggle", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            // Wait for a response
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Response here
+                }
+            }
+            xhr.send();
+        }
         
         // Add Ctrl+Z functionality
         function onBodyKeyDown(event) {
             if (event.ctrlKey && event.key == "z") {
                 undoAddPolygon();
+            }
+            if (event.key == "m") {
+                mergetoggle(2)
             }
         }
         document.body.onkeydown = onBodyKeyDown;

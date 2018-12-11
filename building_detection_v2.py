@@ -225,16 +225,16 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
 
     Rectangle([topleft, topright, bottomright, bottomleft])
 
-    print("MERGE MODE: ", get_merge_mode())
-
-    print("ALL RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.get_all_rectangles())))
-    print("Added RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.added_rectangles)))
-    print("Removed RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.removed_rectangles)))
+    # TODO remove print statements
+    #print("MERGE MODE: ", get_merge_mode())
+    #print("ALL RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.get_all_rectangles())))
+    #print("Added RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.added_rectangles)))
+    #print("Removed RECTS: {}".format(Rectangle.arr_rect_to_id(Rectangle.removed_rectangles)))
 
     retangles_to_add = Rectangle.get_added_rectangles()
 
-    print("returning: {}; {}; {}".format(retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
-                                         Rectangle.arr_rect_to_id(Rectangle.removed_rectangles)))
+    # TODO remove print statements
+    #print("returning: {}; {}; {}".format(retangles_to_add[0].get_id(), retangles_to_add[0].get_points(), Rectangle.arr_rect_to_id(Rectangle.removed_rectangles)))
 
     # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
     return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
