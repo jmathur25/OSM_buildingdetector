@@ -88,6 +88,7 @@ def mapclick():
 
         # node list keeps track of all nodes for the purpose of eventually creating a way (area) amongst the nodes
         # to update to OpenStreetMap
+        """
         node_list = []
         api = backend.sign_in()
         for coordinates in rect_points:
@@ -96,15 +97,30 @@ def mapclick():
             node = backend.node_create(api, lat, long, comment="Full stack node create test")
             node_list.append(node)
         backend.way_create(api, node_list, comment="Full stack way create test")
+        """
 
         # OpenStreetMap part over
-        
         json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
                      "rectsToDelete": {"ids": rectangles_id_to_remove}
                             }
         return json.dumps(json_post)
 
+@app.route('/home/uploadchanges', methods=['POST'])
+def upload_changes():
+    api = backend.sign_in()
+    
+    if (len(building_detection_v2.all_rects) == 0):
+        return "0";
+    
+    # Create the way using the list of nodes
+    changeset_comment = "Add " + str(len(building_detection_v2.all_rects)) + " buildings."
+    ways_created = backend.way_create_multiple(api, building_detection_v2.all_rects, changeset_comment, {"building": "yes"})
+    
+    # Clear the rectangle list
+    building_detection_v2.all_rects = {}
+    
+    return str(len(ways_created))
 
 @app.route('/NewAccount/', methods=['GET', 'POST'])  # activates when create a new account is clicked
 def new_account():
