@@ -109,6 +109,9 @@
             
             // Update the polygon stack
             polygonStack.push(id);
+            
+            // Update the uploadButton
+            uploadButton.enable();
         }
         
         // Gets a polygon object from a given ID.
@@ -144,6 +147,9 @@
                 }
                 xhr.send(params);
             }
+            
+            // Update upload button
+            uploadButton.enable();
         }
         
         // Add Ctrl+Z functionality
@@ -160,6 +166,164 @@
                 var lastPolygonId = polygonStack.pop();
                 removePolygon(lastPolygonId, false, true);
             }
+        }
+        
+        // Add upload control
+        L.Control.UploadButton = L.Control.extend({
+            // @section
+            // @aka Control.Zoom options
+            options: {
+                position: 'topleft',
+
+                // @option uploadText: String = '+'
+                // The text set on the 'upload' button.
+                uploadText: '&#x1F81D',
+
+                // @option uploadTitle: String = 'Zoom in'
+                // The title set on the 'zoom in' button.
+                uploadTitle: 'Upload'
+            },
+
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    parentContainer = L.DomUtil.create('div'),
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar', parentContainer),
+                    options = this.options;
+
+                this.uploadButton = this._createButton(options.uploadText, options.uploadTitle,
+                        zoomName + '-in',  container, this.uploadButtonClick);
+                
+                // Add popup bar
+                var divContainer = document.createElement("div");
+                divContainer.id = "popupDiv";
+                divContainer.style.position = "absolute";
+                divContainer.style.zIndex = 600;
+                divContainer.style.left = "5%";
+                divContainer.style.top = "5%";
+                divContainer.visibility = "hidden";
+                
+                document.body.appendChild(divContainer);
+                
+                this._popupBar = L.DomUtil.create("p", "leaflet-bar", divContainer);
+                this._popupBar.style.backgroundColor = "white";
+
+                this.disable();
+                this._updateDisabled();
+                map.on('zoomend zoomlevelschange', this._updateDisabled, this);
+
+                return parentContainer;
+            },
+
+            onRemove: function (map) {
+                map.off('zoomend zoomlevelschange', this._updateDisabled, this);
+            },
+            
+            showPopUpBar: function(text) {
+                // Set the text
+                this._popupBar.innerHTML = text;
+                document.getElementById("popupDiv").style.visibility = "";
+                
+                window.setTimeout(this.hidePopUpBar, 5000);
+            },
+            
+            hidePopUpBar: function () {
+                document.getElementById("popupDiv").style.visibility = "hidden";
+            },
+
+            disable: function () {
+                this._disabled = true;
+                this._updateDisabled();
+                return this;
+            },
+
+            enable: function () {
+                this._disabled = false;
+                this._updateDisabled();
+                return this;
+            },
+
+            uploadButtonClick: function (e) {
+                if (!_disabled) {
+                    uploadClick(e);
+                }
+            },
+            
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+
+                return link;
+            },
+
+            _updateDisabled: function () {
+                var map = this._map,
+                    className = 'leaflet-disabled';
+                
+                _disabled = (polygons.length == 0);
+
+                L.DomUtil.removeClass(this.uploadButton, className);
+
+                if (this._disabled) {
+                    L.DomUtil.addClass(this.uploadButton, className);
+                }
+            }
+        });
+        
+        // Upload button constructor
+        L.control.uploadButton = function(opts) {
+            return new L.Control.UploadButton(opts);
+        }
+        
+        // Add the upload button to the map
+        var uploadButton = L.control.uploadButton({ position: "topleft" }).addTo(map);
+        
+        // Handle the upload control click
+        function uploadClick(e) {
+            var params = "";
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./uploadchanges", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            // Wait for a response
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Response here
+                    var responseText = xhr.responseText;
+                    if (Number(responseText) > 0) {
+                        uploadButton.disable();
+                        
+                        s = "";
+                        if (Number(responseText) > 1) {
+                            s = "s";
+                        }
+                        
+                        uploadButton.showPopUpBar(responseText + " building" + s + " added to OpenStreetMap!");
+                        
+                        // Change current polygon colors
+                        for (thisPolygon in polygons) {
+                            polygons[thisPolygon].setStyle({fillColor: '#00FF00', color: '#00FF00'});
+                        }
+                        
+                        // Clear polygon dictionary and the stack
+                        polygons = {};
+                        polygonStack = [];
+                    }
+                }
+            }
+            xhr.send(params);
         }
     </script>
   </body>

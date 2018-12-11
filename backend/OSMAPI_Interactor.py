@@ -11,9 +11,7 @@ def sign_in():
 
 # tag must be as a dict, like {"Corner": "1"}
 def node_create(api, latitude, longitude, comment, tag = {}):
-    api.ChangesetCreate({u"comment": comment})
     node = api.NodeCreate({"lat": latitude, "lon": longitude, "tag": tag})
-    api.ChangesetClose()
     return node
 
 # tag must be as a dict, like {"Way": "The best way!"}
@@ -46,6 +44,33 @@ def way_create(api, node_list, comment, tag = {}):
     # close set of changes
     api.ChangesetClose()
     return way
+
+# Create a changeset with multiple ways (multiple buildings)
+def way_create_multiple(api, all_rects_dict, comment, tag = {"building": "yes"}):
+    # Create the changeset
+    api.ChangesetCreate({u"comment": comment})
+    
+    way_list = []
+    
+    # Create each way
+    for rect in all_rects_dict.values():
+        node_list = []
+        
+        for coordinates in rect:
+            lat = coordinates[0]
+            long = coordinates[1]
+            node = node_create(api, lat, long, "")
+            node_list.append(node["id"])
+        
+        # If there are at least three nodes, create the area
+        if len(node_list) >= 3:
+            node_list.append(node_list[0])
+            this_way = api.WayCreate({"nd": node_list, "tag": tag})
+            way_list.append(this_way)
+    
+    # Close the changeset
+    api.ChangesetClose()
+    return way_list
 
 def find_way(api, way):
     # see data on the way you just made
