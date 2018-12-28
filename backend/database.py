@@ -2,7 +2,7 @@
 import dataset
 
 
-# call this to initialize backend
+# call this to initialize the database and get access to it
 def init_backend():
     db = dataset.connect("sqlite:///mydatabase.db")
     table = db["users"]

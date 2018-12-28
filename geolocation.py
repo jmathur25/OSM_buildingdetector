@@ -27,6 +27,7 @@ def tile_to_deg(xtile, ytile, zoom):
     lat_deg = math.degrees(lat_rad)
     return (lat_deg, lon_deg)
 
+
 def deg_to_tilexy(lat_deg, lon_deg, zoom):
     """Converts geocoordinates to an x,y position on a tile."""
     lat_rad = math.radians(lat_deg)
@@ -36,12 +37,14 @@ def deg_to_tilexy(lat_deg, lon_deg, zoom):
         / math.pi) / 2.0 * n)
     return (int((x % 1) * 256), int((y % 1) * 256))
 
+
 def deg_to_tilexy_matrix(lat_deg, lon_deg, zoom, center_tile_xoffset = 1, center_tile_yoffset = 1):
     """Converts geocoordinates to an x,y position on a tile matrix.
     For a 3x3 tile matrix, the image used is the center tile, so pass
     1 for center_tile_xoffset and 1 for center_tile_yoffset"""
     x, y = deg_to_tilexy(lat_deg, lon_deg, zoom)
     return (256 * center_tile_xoffset + x, 256 * center_tile_yoffset + y)
+
 
 def tilexy_to_deg(xtile, ytile, zoom, x, y):
     """Converts a specific location on a tile (x,y) to geocoordinates."""

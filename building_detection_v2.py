@@ -21,7 +21,7 @@ class Rectangle:
     tolerable_distance_to_combine_rectangles = 0.00005  # buildings need to be this (lat/long degrees) away to merge
 
     def __init__(self, init_points):
-        self.points = init_points  # a point is a list
+        self.points = init_points  # a point is a list, in (lat, long) form
         Rectangle.current_id += 1
         self.id = Rectangle.current_id
 
@@ -35,6 +35,7 @@ class Rectangle:
         if Rectangle.merge_mode == True:
             for i in range(0, len(Rectangle.all_rectangles) - 1):
                 if Rectangle.all_rectangles[i].merge_with(self):
+                    # the merge is done and the Rectangles class is accordingly adjusted
                     break
 
     def merge_with(self, other_rectangle):
@@ -245,7 +246,8 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
         
         x += xstep
         y += ystep
-        
+
+        # keeps the x coordinates and y coordinates bounded by 0 and width / height respectively
         downx = max(min(x + xstep * lookahead, width - 1), 0)
         downy = max(min(y + ystep * lookahead, height - 1), 0)
         

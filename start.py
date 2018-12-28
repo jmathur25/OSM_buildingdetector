@@ -1,5 +1,4 @@
 import config_reader
-import imagery
 
 # Read the config
 config = config_reader.get_config()

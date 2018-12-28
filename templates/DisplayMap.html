@@ -44,6 +44,8 @@
 
         // Handle map clicks
         function onMapClick(e) {
+            //uploads are now valid so button is enabled (or re-enabled)
+            uploadButton.enable();
             /*popup.setLatLng(e.latlng);
             popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
             popup.openOn(map);*/
@@ -175,6 +177,7 @@
         function onBodyKeyDown(event) {
             if (event.ctrlKey && event.key == "z") {
                 undoAddPolygon();
+
             }
             
             // Handle the merge toggle button
@@ -336,6 +339,7 @@
                         polygonStack = [];
                         
                         success = true;
+                        uploadButton.disable();
                     }
                 }
                 

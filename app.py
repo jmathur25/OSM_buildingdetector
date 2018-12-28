@@ -16,6 +16,8 @@ app = Flask(__name__)
 imd = None
 program_config = {}
 
+
+# useful function for turning request data into usable dictionaries
 def result_to_dict(result):
     info = {}
     for k, v in result.items():
@@ -41,10 +43,8 @@ def login():  # this method is called when the page starts up
 
 @app.route('/home/')
 def home():
-    # x = send_from_directory("../templates/", "DisplayMap.html", as_attachment=True)
-    # print(x)
-    # return send_from_directory('./../templates/', 'DisplayMap.html')
     return render_template('DisplayMap.html')
+
 
 @app.route('/home/deleterect', methods=['POST'])
 def delete_rect():
@@ -69,6 +69,7 @@ def merge_toggle():
         else:
             return "merge_disabled"
     return "None"
+
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
@@ -96,27 +97,13 @@ def mapclick():
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom)
 
-        # update OpenStreetMap
-
-        # node list keeps track of all nodes for the purpose of eventually creating a way (area) amongst the nodes
-        # to update to OpenStreetMap
-        """
-        node_list = []
-        api = backend.sign_in()
-        for coordinates in rect_points:
-            lat = coordinates[0]
-            long = coordinates[1]
-            node = backend.node_create(api, lat, long, comment="Full stack node create test")
-            node_list.append(node)
-        backend.way_create(api, node_list, comment="Full stack way create test")
-        """
-
         # OpenStreetMap part over
         json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
                      "rectsToDelete": {"ids": rectangles_id_to_remove}
                             }
         return json.dumps(json_post)
+
 
 @app.route('/home/uploadchanges', methods=['POST'])
 def upload_changes():
@@ -129,19 +116,20 @@ def upload_changes():
             print("[ERROR] Config: osmUpload->" + arg + " not found!")
             return "0"
     
-    api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
+    osm_api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
     
     if (len(building_detection_v2.get_all_rects()) == 0):
         return "0"
     
     # Create the way using the list of nodes
-    changeset_comment = "Add " + str(len(building_detection_v2.get_all_rects())) + " buildings."
-    ways_created = backend.way_create_multiple(api, building_detection_v2.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
+    changeset_comment = "Added " + str(len(building_detection_v2.get_all_rects())) + " buildings."
+    ways_created = backend.way_create_multiple(osm_api, building_detection_v2.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
     
     # Clear the rectangle list
     building_detection_v2.delete_all_rects()
     
     return str(len(ways_created))
+
 
 @app.route('/NewAccount/', methods=['GET', 'POST'])  # activates when create a new account is clicked
 def new_account():
@@ -171,7 +159,7 @@ def imagery_request(zoom, x, y):
 def start_webapp(config):
     """Starts the Flask server."""
     app.secret_key = 'super secret key'
-    app.config['SESSION_TYPE'] = 'filesystem'
+    # app.config['SESSION_TYPE'] = 'filesystem'
     
     # Get config variables
     
