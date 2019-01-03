@@ -96,8 +96,16 @@ def mapclick():
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom)
-        # OpenStreetMap part over
-        json_post = {"rectsToAdd": [{"id": rect_id,
+
+        json_post = {}
+
+        if backend.area_from_points(rect_points) > 0.000001:
+            json_post = {"rectsToAdd": [],
+                         "rectsToDelete": []
+                         }
+
+        else:
+            json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
                      "rectsToDelete": {"ids": rectangles_id_to_remove}
                             }

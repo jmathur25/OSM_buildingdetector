@@ -70,13 +70,16 @@
                           var rect_nodes = rect["points"];
                           var rect_id = rect["id"];
                           addPolygon(rect_nodes, rect_id);
-                      }
-
-                      // Delete polygon(s)
-                      if (rectsToDelete["ids"].length > 0) {
+                          // Delete polygon(s)
+                          if (rectsToDelete["ids"].length > 0) {
                           for (var i = 0; i < rectsToDelete["ids"].length; i++) {
                               removePolygon(rectsToDelete["ids"][i]);
                           }
+                      }
+                      } else {
+                        popup.setLatLng(e.latlng);
+                        popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
+                        popup.openOn(map);
                       }
                   }
               }
@@ -455,11 +458,12 @@
                           addPolygonSync(rect_nodes, rect_id);
                         }
                     }
+
+                    console.log('Sync Finished')
+                    syncButton.updateEnd();
                 }
             }
             xhr.send(params);
-            console.log('Sync Finished')
-            this.syncButton.updateEnd();
         }
 
         // Add upload control
@@ -470,7 +474,7 @@
                 position: 'topleft',
                 // @option mergeText: String = '+'
                 // The text set on the 'merge' button.
-                mergeText: 'S',
+                mergeText: '&#8650',
                 // @option mergeTitle: String = 'Zoom in'
                 // The title set on the 'zoom in' button.
                 mergeTitle: 'Sync with OSM'
