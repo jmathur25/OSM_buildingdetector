@@ -178,7 +178,6 @@ def OSM_map_sync():
         osm_api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
         map_info = backend.see_map(osm_api, min_long, min_lat, max_long, max_lat)
         mappable_results = backend.parse_map(map_info)
-        print(mappable_results)
         # note that this is in a different format as the other json_post for a map click
         # mappable_results is a list with each index a building containing tuples for the coordinates of the corners
         json_post = {"rectsToAdd": mappable_results}
