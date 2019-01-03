@@ -156,6 +156,17 @@ def imagery_request(zoom, x, y):
     return send_file(fname, mimetype="image/png")
 
 
+@app.route('/home/<min_long>/<min_lat>/<max_long>/<max_lat>.png', methods=['POST'])
+def OSM_map_sync(min_long, min_lat, max_long, max_lat):
+    osm_api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
+    map_info = backend.see_map(osm_api, min_long, min_lat, max_long, max_lat)
+    mappable_results = backend.parse_map(map_info)
+    # note that this is in a different format as the other json_post for a map click
+    # mappable_results is a list with each index being a building containing tuples for the coordinates of the corners
+    json_post = {"rectsToAdd": mappable_results}
+    return json.dumps(json_post)
+
+
 def start_webapp(config):
     """Starts the Flask server."""
     app.secret_key = 'super secret key'
