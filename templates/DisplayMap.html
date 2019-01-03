@@ -337,12 +337,12 @@
                         // Clear polygon dictionary and the stack
                         polygons = {};
                         polygonStack = [];
-                        
+
                         success = true;
                         uploadButton.disable();
                     }
                 }
-                
+
                 // Enable the button again
                 if (!success) {
                     uploadButton.enable();
@@ -350,7 +350,7 @@
             }
             xhr.send(params);
         }
-        
+
         var mergeMode = false;
         
         // Add merge control
@@ -444,7 +444,70 @@
             xhr.send(params);
         }
         // temporary, as it isn't related to the click but for now we'll make it so
-        map.on("click", OSMSync);
+        // map.on("click", OSMSync);
+
+        // Add upload control
+        L.Control.SyncButton = L.Control.extend({
+            // @section
+            // @aka Control.Zoom options
+            options: {
+                position: 'topleft',
+                // @option mergeText: String = '+'
+                // The text set on the 'merge' button.
+                mergeText: 'S',
+                // @option mergeTitle: String = 'Zoom in'
+                // The title set on the 'zoom in' button.
+                mergeTitle: 'Sync OSM'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.SyncButton = this._createButton(options.mergeText, options.mergeTitle,
+                        zoomName + '-in',  container, this.mergeButtonClick);
+                return container;
+            },
+            mergeButtonClick: function (e) {
+                OSMSync(e);
+
+                // Update merge mode
+                this.update();
+            },
+
+            update: function () {
+                var col = "#FFFFFF";
+                if (mergeMode) {
+                    col = "#BBFFBB";
+                }
+                this.SyncButton.style.backgroundColor = col;
+            },
+
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
+
+        // Upload button constructor
+        L.control.SyncButton = function(opts) {
+            return new L.Control.SyncButton(opts);
+        }
+
+        // Add the upload button to the map
+        var syncButton = L.control.SyncButton({ position: "topleft" }).addTo(map);
+
     </script>
   </body>
 </html>
