@@ -67,7 +67,7 @@ def see_map(osm_api, min_lon, min_lat, max_lon, max_lat):
     # FORMAT: min lon, min lat, max lon, max lat
     # returns a dictionary of the form [{'type': (one of node, way, changeset), 'data': dict}, ...]
     # print(api.Map(-94.532408, 45.127431, -94.531071, 45.128568))
-    return api.Map(min_lon, min_lat, max_lon, max_lat)
+    return osm_api.Map(min_lon, min_lat, max_lon, max_lat)
 
 
 def parse_map(map_info):
@@ -87,6 +87,6 @@ def parse_map(map_info):
     return render_buildings
 
 
-api = sign_in('https://api06.dev.openstreetmap.org', 'OSM_buildingdetector', 'fakepassword123')
-map_info = see_map(api, -94.532408, 45.127431, -94.531071, 45.128568)
-parse_map(map_info)
+# api = sign_in('https://api06.dev.openstreetmap.org', 'OSM_buildingdetector', 'fakepassword123')
+# map_info = see_map(api, -94.532408, 45.127431, -94.531071, 45.128568)
+# parse_map(map_info)

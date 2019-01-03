@@ -96,7 +96,6 @@ def mapclick():
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom)
-
         # OpenStreetMap part over
         json_post = {"rectsToAdd": [{"id": rect_id,
                                     "points": rect_points}],
@@ -156,15 +155,27 @@ def imagery_request(zoom, x, y):
     return send_file(fname, mimetype="image/png")
 
 
-@app.route('/home/<min_long>/<min_lat>/<max_long>/<max_lat>.png', methods=['POST'])
-def OSM_map_sync(min_long, min_lat, max_long, max_lat):
-    osm_api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
-    map_info = backend.see_map(osm_api, min_long, min_lat, max_long, max_lat)
-    mappable_results = backend.parse_map(map_info)
-    # note that this is in a different format as the other json_post for a map click
-    # mappable_results is a list with each index being a building containing tuples for the coordinates of the corners
-    json_post = {"rectsToAdd": mappable_results}
-    return json.dumps(json_post)
+@app.route('/home/OSMSync', methods=['POST'])
+def OSM_map_sync():
+    if request.method == 'POST':
+        result = request.form
+        info = result_to_dict(result)
+
+        min_long = float(info['min_long'])
+        min_lat = float(info['min_lat'])
+        max_long = float(info['max_long'])
+        max_lat = float(info['max_lat'])
+        print(min_long, min_lat, max_long, max_lat)
+
+        upload_info = program_config["osmUpload"]
+        osm_api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])
+        map_info = backend.see_map(osm_api, min_long, min_lat, max_long, max_lat)
+        mappable_results = backend.parse_map(map_info)
+        print(mappable_results)
+        # note that this is in a different format as the other json_post for a map click
+        # mappable_results is a list with each index a building containing tuples for the coordinates of the corners
+        json_post = {"rectsToAdd": mappable_results}
+        return json.dumps(json_post)
 
 
 def start_webapp(config):

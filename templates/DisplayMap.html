@@ -414,6 +414,37 @@
 
         // Add the merge button to the map
         var mergeButton = L.control.mergeButton({ position: "topleft" }).addTo(map);
+
+        // Sync with OSM map
+        function OSMSync(e) {
+            // Currently sending precoded defaults
+            var params = "min_long=-94.532408&min_lat=45.127431&max_long=-94.531071&max_lat=45.128568"
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./OSMSync", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            // Wait for a response
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+
+                    // Parse the response
+                    var responseJson = JSON.parse(xhr.responseText);
+                    var rectsToUpdate = responseJson["rectsToAdd"];
+
+                    // Add polygon(s)
+                    if (rectsToUpdate.length > 0) {
+                        for (var count = 1; count < rectsToUpdate.length; count++) {
+                          var rect_nodes = rectsToUpdate[count];
+                          // temporary until we can disentangle this from adding a clicked building
+                          var rect_id = -count;
+                          addPolygon(rect_nodes, rect_id);
+                        }
+                    }
+                }
+            }
+            xhr.send(params);
+        }
+        // temporary, as it isn't related to the click but for now we'll make it so
+        map.on("click", OSMSync);
     </script>
   </body>
 </html>
