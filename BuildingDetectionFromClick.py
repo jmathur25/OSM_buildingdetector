@@ -342,3 +342,16 @@ def get_rectangle_from_image_lat_long(gray_scale_image, lat_deg, long_deg, zoom)
     Rectangle([top_right_lat_long, top_left_lat_long, bot_left_lat_long, bot_right_lat_long])
 
     return Rectangle.get_added_rectangles(), Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles())
+
+
+# Uses shoelace to find the area given SORTED lat, long coordinates of ANY polygon
+# points in the form [(lat1, long1), (lat2, long2), ...]
+def area_from_points(points):
+    n = len(points)  # of corners
+    area = 0.0
+    for i in range(n):
+        j = (i + 1) % n
+        area += points[i][0] * points[j][1]
+        area -= points[j][0] * points[i][1]
+    area = abs(area) / 2.0
+    return area

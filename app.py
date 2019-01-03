@@ -165,7 +165,6 @@ def OSM_map_sync():
         min_lat = float(info['min_lat'])
         max_long = float(info['max_long'])
         max_lat = float(info['max_lat'])
-        print(min_long, min_lat, max_long, max_lat)
 
         upload_info = program_config["osmUpload"]
         osm_api = backend.sign_in(upload_info["api"],upload_info["username"], upload_info["password"])

@@ -44,42 +44,48 @@
 
         // Handle map clicks
         function onMapClick(e) {
-            //uploads are now valid so button is enabled (or re-enabled)
-            uploadButton.enable();
-            /*popup.setLatLng(e.latlng);
-            popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
-            popup.openOn(map);*/
-            // Send the map click
-            var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom());
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "./mapclick", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            // Wait for a response
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
+            if (isSync) {
+              //uploads are now valid so button is enabled (or re-enabled)
+              uploadButton.enable();
+              /*popup.setLatLng(e.latlng);
+              popup.setContent("You clicked the map at<br>(" + e.latlng.lat + ", " + e.latlng.lng + ") !");
+              popup.openOn(map);*/
+              // Send the map click
+              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom());
+              var xhr = new XMLHttpRequest();
+              xhr.open("POST", "./mapclick", true);
+              xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+              // Wait for a response
+              xhr.onreadystatechange = function() {
+                  if (xhr.readyState == 4 && xhr.status == 200) {
 
-                    // Parse the response
-                    var responseJson = JSON.parse(xhr.responseText);
-                    var rectsToUpdate = responseJson["rectsToAdd"];
-                    var rectsToDelete = responseJson["rectsToDelete"];
+                      // Parse the response
+                      var responseJson = JSON.parse(xhr.responseText);
+                      var rectsToUpdate = responseJson["rectsToAdd"];
+                      var rectsToDelete = responseJson["rectsToDelete"];
 
-                    // Add polygon(s)
-                    if (rectsToUpdate.length > 0) {
-                        var rect = rectsToUpdate[0];
-                        var rect_nodes = rect["points"];
-                        var rect_id = rect["id"];
-                        addPolygon(rect_nodes, rect_id);
-                    }
+                      // Add polygon(s)
+                      if (rectsToUpdate.length > 0) {
+                          var rect = rectsToUpdate[0];
+                          var rect_nodes = rect["points"];
+                          var rect_id = rect["id"];
+                          addPolygon(rect_nodes, rect_id);
+                      }
 
-                    // Delete polygon(s)
-                    if (rectsToDelete["ids"].length > 0) {
-                        for (var i = 0; i < rectsToDelete["ids"].length; i++) {
-                            removePolygon(rectsToDelete["ids"][i]);
-                        }
-                    }
-                }
+                      // Delete polygon(s)
+                      if (rectsToDelete["ids"].length > 0) {
+                          for (var i = 0; i < rectsToDelete["ids"].length; i++) {
+                              removePolygon(rectsToDelete["ids"][i]);
+                          }
+                      }
+                  }
+              }
+              xhr.send(params);
+            } else {
+              popup.setLatLng(e.latlng);
+              popup.setContent("You need to enable Sync before mapping to see what is already mapped!");
+              popup.openOn(map);
             }
-            xhr.send(params);
         }
         map.on("click", onMapClick);
 
@@ -415,16 +421,20 @@
         // Add the merge button to the map
         var mergeButton = L.control.mergeButton({ position: "topleft" }).addTo(map);
 
+        var isSync = false;
+
         // Sync with OSM map
         function OSMSync(e) {
             // this function returns the NE and SW of the given image, returned as a dictionary
+            isSync = true;
+            console.log('Sync Pressed')
+            this.syncButton.updateStart();
             var bounds = map.getBounds();
             var min_long = bounds['_southWest']['lng']
             var min_lat = bounds['_southWest']['lat']
             var max_lat = bounds['_northEast']['lat']
             var max_long = bounds['_northEast']['lng']
             var params = "min_long="+min_long+"&min_lat="+min_lat+"&max_long="+max_long+"&max_lat="+max_lat
-            console.log('Sync Pressed')
             console.log('params: ' + params)
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./OSMSync", true);
@@ -449,9 +459,8 @@
             }
             xhr.send(params);
             console.log('Sync Finished')
+            this.syncButton.updateEnd();
         }
-        // temporary, as it isn't related to the click but for now we'll make it so
-        // map.on("click", OSMSync);
 
         // Add upload control
         L.Control.SyncButton = L.Control.extend({
@@ -471,22 +480,22 @@
                     container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
                     options = this.options;
                 this.SyncButton = this._createButton(options.mergeText, options.mergeTitle,
-                        zoomName + '-in',  container, this.mergeButtonClick);
+                        zoomName + '-in',  container, this.SyncButtonClick);
                 return container;
             },
-            mergeButtonClick: function (e) {
-                OSMSync(e);
 
-                // Update merge mode
-                this.update();
+            updateStart: function () {
+                var col = "#FF0000";
+                this.SyncButton.style.backgroundColor = col;
             },
 
-            update: function () {
-                var col = "#FFFFFF";
-                if (mergeMode) {
-                    col = "#BBFFBB";
-                }
+            updateEnd: function () {
+                var col = "#FFFF00";
                 this.SyncButton.style.backgroundColor = col;
+            },
+
+            SyncButtonClick: function (e) {
+                OSMSync(e);
             },
 
             _createButton: function (html, title, className, container, fn) {
@@ -505,6 +514,8 @@
                 L.DomEvent.on(link, 'click', this._refocusOnMap, this);
                 return link;
             }
+
+
         });
 
         // Upload button constructor
