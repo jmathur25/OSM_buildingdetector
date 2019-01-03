@@ -61,3 +61,32 @@ def way_create_multiple(osm_api, all_rects_dict, comment, tag={"building": "yes"
 def find_way(osm_api, way):
     # see data on the way you just made
     return osm_api.WayGet(str(way["id"]))
+
+
+def see_map(osm_api, min_lon, min_lat, max_lon, max_lat):
+    # FORMAT: min lon, min lat, max lon, max lat
+    # returns a dictionary of the form [{'type': (one of node, way, changeset), 'data': dict}, ...]
+    # print(api.Map(-94.532408, 45.127431, -94.531071, 45.128568))
+    return api.Map(min_lon, min_lat, max_lon, max_lat)
+
+
+def parse_map(map_info):
+    # parses map, returns coordinates of buildings with each building an item of the return list
+    node_list_ids = []
+    render_buildings = []
+    for info in map_info:
+        if info['type'] == 'way':
+            node_list_ids.append(info['data']['nd'])
+    for node_list in node_list_ids:
+        way_coordinates = []
+        for info in map_info:
+            if info['type'] == 'node':
+                if info['data']['id'] in node_list:
+                    way_coordinates.append((info['data']['lat'], info['data']['lon']))
+        render_buildings.append(way_coordinates)
+    return render_buildings
+
+
+api = sign_in('https://api06.dev.openstreetmap.org', 'OSM_buildingdetector', 'fakepassword123')
+map_info = see_map(api, -94.532408, 45.127431, -94.531071, 45.128568)
+parse_map(map_info)
