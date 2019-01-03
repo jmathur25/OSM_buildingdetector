@@ -417,15 +417,21 @@
 
         // Sync with OSM map
         function OSMSync(e) {
-            // Currently sending precoded defaults
-            var params = "min_long=-94.532408&min_lat=45.127431&max_long=-94.531071&max_lat=45.128568"
+            // this function returns the NE and SW of the given image, returned as a dictionary
+            var bounds = map.getBounds();
+            var min_long = bounds['_southWest']['lng']
+            var min_lat = bounds['_southWest']['lat']
+            var max_lat = bounds['_northEast']['lat']
+            var max_long = bounds['_northEast']['lng']
+            var params = "min_long="+min_long+"&min_lat="+min_lat+"&max_long="+max_long+"&max_lat="+max_lat
+            console.log('Sync Pressed')
+            console.log('params: ' + params)
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./OSMSync", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             // Wait for a response
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-
                     // Parse the response
                     var responseJson = JSON.parse(xhr.responseText);
                     var rectsToUpdate = responseJson["rectsToAdd"];
@@ -436,12 +442,13 @@
                           var rect_nodes = rectsToUpdate[count];
                           // temporary until we can disentangle this from adding a clicked building
                           var rect_id = -count;
-                          addPolygon(rect_nodes, rect_id);
+                          addPolygonSync(rect_nodes, rect_id);
                         }
                     }
                 }
             }
             xhr.send(params);
+            console.log('Sync Finished')
         }
         // temporary, as it isn't related to the click but for now we'll make it so
         // map.on("click", OSMSync);
@@ -457,7 +464,7 @@
                 mergeText: 'S',
                 // @option mergeTitle: String = 'Zoom in'
                 // The title set on the 'zoom in' button.
-                mergeTitle: 'Sync OSM'
+                mergeTitle: 'Sync with OSM'
             },
             onAdd: function (map) {
                 var zoomName = 'leaflet-control-zoom',
@@ -507,6 +514,16 @@
 
         // Add the upload button to the map
         var syncButton = L.control.SyncButton({ position: "topleft" }).addTo(map);
+
+        polygonSync = {}
+
+        // Add a polygon to the map
+        function addPolygonSync(nodeList, id) {
+            polygonSync[id] = L.polygon(nodeList);
+            polygonSync[id].addTo(map);
+            // Change current polygon colors
+            polygonSync[id].setStyle({fillColor: '#A9A9A9', color: 	'#000000'});
+        }
 
     </script>
   </body>
