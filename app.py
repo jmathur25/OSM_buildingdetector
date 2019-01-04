@@ -83,6 +83,7 @@ def mapclick():
         zoom = int(info['zoom'])
 
         json_post = {}
+        print("MEMORY:", backend.get_ways_memory())
         possible_building_matches = backend.ways_binary_search((lat, long))
 
         for points in possible_building_matches:
