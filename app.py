@@ -98,7 +98,7 @@ def mapclick():
 
         json_post = {}
 
-        if backend.check_area(rect_points):
+        if backend.check_area(rect_points, sort=False):
             json_post = {"rectsToAdd": [],
                          "rectsToDelete": []
                          }

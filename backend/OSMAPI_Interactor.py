@@ -86,7 +86,7 @@ def parse_map(map_info):
             if info['type'] == 'node':
                 if info['data']['id'] in node_list:
                     way_coordinates.append((info['data']['lat'], info['data']['lon']))
-        if area_from_points(way_coordinates) <= AREA_THRESHOLD:
+        if not check_area(way_coordinates, sort=True):
             render_buildings.append(way_coordinates)
     return render_buildings
 
@@ -95,7 +95,6 @@ def parse_map(map_info):
 # points in the form [(lat1, long1), (lat2, long2), ...]
 # duplicate code right now, BuildingDetectionFromClick should move to backend and this will be accessible
 def area_from_points(points):
-    points = sort_points(points)
     n = len(points)  # of corners
     area = 0.0
     for i in range(n):
@@ -124,7 +123,9 @@ def sort_points(corners):
 
 
 # True if the area is too big
-def check_area(points):
+def check_area(points, sort=False):
+    if sort:
+        points = sort_points(points)
     if area_from_points(points) > AREA_THRESHOLD:
         return True
     return False
