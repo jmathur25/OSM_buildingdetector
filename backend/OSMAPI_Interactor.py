@@ -121,3 +121,10 @@ def sort_points(corners):
     # sort it using the angles
     cornersWithAngles.sort(key=lambda tup: tup[2])
     return cornersWithAngles
+
+
+# True if the area is too big
+def check_area(points):
+    if area_from_points(points) > AREA_THRESHOLD:
+        return True
+    return False

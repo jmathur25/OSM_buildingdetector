@@ -1,7 +1,6 @@
 import backend
 import imagery
 import os
-import BuildingDetectionFromClick as bdfc
 import geolocation
 import PIL.ImageOps
 import cv2
@@ -99,7 +98,7 @@ def mapclick():
 
         json_post = {}
 
-        if backend.area_from_points(rect_points) > 0.000001:
+        if backend.check_area(rect_points):
             json_post = {"rectsToAdd": [],
                          "rectsToDelete": []
                          }
