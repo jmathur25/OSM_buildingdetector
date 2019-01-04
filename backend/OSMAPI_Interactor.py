@@ -2,9 +2,13 @@
 # not a built-in library
 import osmapi
 import math
+import operator
 
 # a little bit of research suggested this number might be a good one
 AREA_THRESHOLD = 0.000001
+
+# a little bit of research suggested this number might be a good one
+SUM_THRESHOLD = 0.1
 
 # global variable to keep track of buildings synced
 ways_added = {}
@@ -116,7 +120,12 @@ def parse_map(map_info):
                         break
         # the method above should make sure way is already sorted
         if not check_area(way_coordinates, sort=False):
-            ways_added[way_id] = True
+            lats = [p[0] for p in way_coordinates]
+            longs = [p[1] for p in way_coordinates]
+            # makes ways_added keep track of the center of the building
+            center_lat = sum(lats) / len(way_coordinates)
+            center_long = sum(longs) / len(way_coordinates)
+            ways_added[way_id] = (center_lat + center_long, way_coordinates)
             render_buildings.append(way_coordinates)
     return render_buildings
 
@@ -171,8 +180,45 @@ def get_ways_memory():
     global ways_added
     return ways_added
 
+
+def sort_ways_memory():
+    global ways_added
+    sorted_ways = sorted(ways_added.items(), key=operator.itemgetter(1))
+    return sorted_ways
+
+
+recursion_memory = {}
+index_matches = []
+def ways_binary_search(coordinate):
+    # this function uses sort_ways_memory and binary_recursion
+    global ways_added, index_matches
+    sorted_ways = sort_ways_memory()
+    root_index = len(sorted_ways) // 2
+    search_val = sum(coordinate)
+    binary_recursion(root_index, 0, search_val, sorted_ways)
+    possible_matches = [sorted_ways[i][1][1] for i in range(min(index_matches), max(index_matches) + 1)]
+    return possible_matches
+
+
+def binary_recursion(current, old, search_val, sorted_ways):
+    global recursion_memory, index_matches
+    if current in recursion_memory:
+        return 'done'
+    recursion_memory[current] = 1
+    diff = sorted_ways[current][1][0] - search_val
+    if abs(diff) <= SUM_THRESHOLD:
+        index_matches.append(current)
+    if diff > 0:
+        new = current - math.ceil(abs(current - old) / 2)
+    else:
+        new = current + math.floor(abs(current - old) / 2)
+    old = current
+    binary_recursion(new, old, search_val, sorted_ways)
+
+
 # x = sign_in('https://api06.dev.openstreetmap.org', 'OSM_buildingdetector', 'fakepassword123')
 # map_info = see_map(x, min_lon=-94.535271, min_lat=45.126905, max_lon=-94.529356, max_lat=45.129200)
-# print(parse_map(map_info))
-# print(ways_added)
-
+# parse_map(map_info)
+# print(sort_ways_memory())
+# print(ways_binary_search((-49.40696684999999, 0)))
+# print(index_matches)

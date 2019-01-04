@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py" line="17" mnemonic="5" />
+    <bookmark url="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py" line="21" mnemonic="5" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ab60f4d-9eec-4e9e-ae70-07908af39ea8" name="Default Changelist" comment="rectangle integration with merge on, toggle merge with 'm'">
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/DisplayMap.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/DisplayMap.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/building_detection_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/building_detection_v2.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -79,7 +79,7 @@
         <counts>
           <entry key="dummy" value="8" />
           <entry key="html" value="2208" />
-          <entry key="py" value="6831" />
+          <entry key="py" value="8764" />
           <entry key="txt" value="55" />
         </counts>
       </usages-collector>
@@ -87,7 +87,7 @@
         <counts>
           <entry key="HTML" value="2208" />
           <entry key="PLAIN_TEXT" value="63" />
-          <entry key="Python" value="6831" />
+          <entry key="Python" value="8764" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -143,13 +143,42 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="134" column="28" lean-forward="true" selection-start-line="134" selection-start-column="28" selection-end-line="134" selection-end-column="28" />
+            <state relative-caret-position="272">
+              <caret line="91" column="21" selection-start-line="91" selection-start-column="21" selection-end-line="91" selection-end-column="21" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="170">
+              <caret line="10" column="18" lean-forward="true" selection-start-line="10" selection-start-column="18" selection-end-line="10" selection-end-column="18" />
+              <folding>
+                <element signature="e#114#127#0" expanded="true" />
+                <marker date="1546625102233" expanded="true" signature="2226:2265" ph="..." />
+                <marker date="1546625102233" expanded="true" signature="2322:2327" ph="..." />
+                <marker date="1546625102233" expanded="true" signature="3134:3139" ph="..." />
+                <marker date="1546625102233" expanded="true" signature="6114:6119" ph="..." />
+                <marker date="1546625102233" expanded="true" signature="7200:7494" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-3869">
+              <caret line="31" column="41" lean-forward="true" selection-start-line="31" selection-start-column="41" selection-end-line="31" selection-end-column="41" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -160,35 +189,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="464">
               <caret line="85" column="45" selection-start-line="85" selection-start-column="45" selection-end-line="85" selection-end-column="45" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-527">
-              <caret line="23" column="11" lean-forward="true" selection-start-line="23" selection-start-column="11" selection-end-line="23" selection-end-column="11" />
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="293">
-              <caret line="76" lean-forward="true" selection-start-line="76" selection-end-line="76" />
-              <folding>
-                <element signature="e#114#127#0" expanded="true" />
-                <marker date="1546619131790" expanded="true" signature="2120:2159" ph="..." />
-                <marker date="1546619131790" expanded="true" signature="2216:2221" ph="..." />
-                <marker date="1546619131790" expanded="true" signature="3028:3033" ph="..." />
-                <marker date="1546619131790" expanded="true" signature="5676:5681" ph="..." />
-                <marker date="1546619131790" expanded="true" signature="5906:5952" ph="..." />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -206,7 +206,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>uploadButtonClick</find>
       <find>SyncButtonClick</find>
       <find>x</find>
       <find>z</find>
@@ -236,6 +235,7 @@
       <find>find</find>
       <find>backend.sign</find>
       <find>mapclick</find>
+      <find>delete_all_rects</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -256,13 +256,13 @@
         <option value="$PROJECT_DIR$/imagery.py" />
         <option value="$PROJECT_DIR$/geolocation.py" />
         <option value="$PROJECT_DIR$/BuildingDetectionFromClick.py" />
-        <option value="$PROJECT_DIR$/building_detection_v2.py" />
         <option value="$PROJECT_DIR$/config_reader.py" />
         <option value="$PROJECT_DIR$/start.py" />
         <option value="$PROJECT_DIR$/backend/__init__.py" />
         <option value="$PROJECT_DIR$/templates/DisplayMap.html" />
-        <option value="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" />
+        <option value="$PROJECT_DIR$/building_detection_v2.py" />
         <option value="$PROJECT_DIR$/app.py" />
+        <option value="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" />
       </list>
     </option>
   </component>
@@ -468,8 +468,8 @@
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24880762" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49822065" visible="true" weight="0.24880762" />
+      <window_info id="Structure" order="1" sideWeight="0.5017794" side_tool="true" weight="0.24880762" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3283582" />
@@ -493,8 +493,8 @@
       <window_info anchor="right" id="Database" order="6" />
     </layout>
     <layout-to-restore>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24880762" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49822065" visible="true" weight="0.24880762" />
+      <window_info id="Structure" order="1" sideWeight="0.5017794" side_tool="true" weight="0.24880762" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3283582" />
@@ -502,13 +502,13 @@
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49920508" weight="0.3291815" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.22597864" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49920508" weight="0.22597864" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.37366548" />
-      <window_info anchor="bottom" id="Python Console" order="12" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5007949" side_tool="true" weight="0.5" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49920508" weight="0.5" />
+      <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.49920508" weight="0.3291815" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -624,21 +624,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="76" lean-forward="true" selection-start-line="76" selection-end-line="76" />
-          <folding>
-            <element signature="e#114#127#0" expanded="true" />
-            <marker date="1546619131790" expanded="true" signature="2120:2159" ph="..." />
-            <marker date="1546619131790" expanded="true" signature="2216:2221" ph="..." />
-            <marker date="1546619131790" expanded="true" signature="3028:3033" ph="..." />
-            <marker date="1546619131790" expanded="true" signature="5676:5681" ph="..." />
-            <marker date="1546619131790" expanded="true" signature="5906:5952" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/DisplayMap.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="464">
@@ -648,8 +633,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-527">
-          <caret line="23" column="11" lean-forward="true" selection-start-line="23" selection-start-column="11" selection-end-line="23" selection-end-column="11" />
+        <state relative-caret-position="-3869">
+          <caret line="31" column="41" lean-forward="true" selection-start-line="31" selection-start-column="41" selection-end-line="31" selection-end-column="41" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
@@ -658,10 +643,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="134" column="28" lean-forward="true" selection-start-line="134" selection-start-column="28" selection-end-line="134" selection-end-column="28" />
+        <state relative-caret-position="272">
+          <caret line="91" column="21" selection-start-line="91" selection-start-column="21" selection-end-line="91" selection-end-column="21" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="18" lean-forward="true" selection-start-line="10" selection-start-column="18" selection-end-line="10" selection-end-column="18" />
+          <folding>
+            <element signature="e#114#127#0" expanded="true" />
+            <marker date="1546625102233" expanded="true" signature="2226:2265" ph="..." />
+            <marker date="1546625102233" expanded="true" signature="2322:2327" ph="..." />
+            <marker date="1546625102233" expanded="true" signature="3134:3139" ph="..." />
+            <marker date="1546625102233" expanded="true" signature="6114:6119" ph="..." />
+            <marker date="1546625102233" expanded="true" signature="7200:7494" ph="..." />
           </folding>
         </state>
       </provider>

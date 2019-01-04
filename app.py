@@ -83,27 +83,17 @@ def mapclick():
         zoom = int(info['zoom'])
 
         json_post = {}
+        possible_building_matches = backend.ways_binary_search((lat, long))
 
-        upload_info = program_config["osmUpload"]
-        osm_api = backend.sign_in(upload_info["api"], upload_info["username"], upload_info["password"])
-        ways_added = backend.get_ways_memory()
-
-        for way_id in ways_added:
-            way_info = backend.find_way(osm_api, way_id)
-            # for the weird case where there's 5 points
-            if len(way_info['nd']) > 4:
-                way_info['nd'] = way_info['nd'][:4]
-            points = []
-            for node_id in way_info['nd']:
-                node_info = backend.find_node(osm_api, node_id)
-                points.append((node_info['lat'], node_info['lon']))
-            print(points)
-            synced_building_as_rect = building_detection_v2.Rectangle(points)
+        for points in possible_building_matches:
+            synced_building_as_rect = building_detection_v2.Rectangle(points, to_id=False)
             if synced_building_as_rect.has_point_inside((lat, long)):
                 json_post = {"rectsToAdd": [],
-                             "rectsToDelete": ['INSIDE']
+                             "rectsToDelete": ['INSIDEBUILDING']
                              }
                 return json.dumps(json_post)
+
+        # to get rid of unnecessary rectangles
         building_detection_v2.delete_all_rects()
 
 

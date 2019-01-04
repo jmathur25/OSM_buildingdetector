@@ -21,10 +21,12 @@ class Rectangle:
 
     tolerable_distance_to_combine_rectangles = 0.00005  # buildings need to be this (lat/long degrees) away to merge
 
-    def __init__(self, init_points):
+    def __init__(self, init_points, to_id=True):
         self.points = init_points  # a point is a list, in (lat, long) form
-        Rectangle.current_id += 1
-        self.id = Rectangle.current_id
+
+        if to_id:
+            Rectangle.current_id += 1
+            self.id = Rectangle.current_id
 
         if len(self.points) > 4:
             self.points = self.points[:4]
