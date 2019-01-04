@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ab60f4d-9eec-4e9e-ae70-07908af39ea8" name="Default Changelist" comment="rectangle integration with merge on, toggle merge with 'm'">
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/DisplayMap.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/DisplayMap.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -78,7 +77,7 @@
         <counts>
           <entry key="dummy" value="8" />
           <entry key="html" value="2208" />
-          <entry key="py" value="8910" />
+          <entry key="py" value="8933" />
           <entry key="txt" value="55" />
         </counts>
       </usages-collector>
@@ -86,7 +85,7 @@
         <counts>
           <entry key="HTML" value="2208" />
           <entry key="PLAIN_TEXT" value="63" />
-          <entry key="Python" value="8910" />
+          <entry key="Python" value="8933" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -145,8 +144,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="192">
-              <caret line="196" column="31" selection-start-line="196" selection-start-column="31" selection-end-line="196" selection-end-column="31" />
+            <state relative-caret-position="-250">
+              <caret line="86" column="75" selection-start-line="86" selection-start-column="75" selection-end-line="86" selection-end-column="75" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -157,15 +156,15 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="871">
-              <caret line="215" column="55" lean-forward="true" selection-start-line="215" selection-start-column="55" selection-end-line="215" selection-end-column="55" />
+            <state relative-caret-position="293">
+              <caret line="217" lean-forward="true" selection-start-line="217" selection-end-line="217" />
               <folding>
                 <element signature="e#114#127#0" expanded="true" />
-                <marker date="1546625269686" expanded="true" signature="2226:2265" ph="..." />
-                <marker date="1546625269686" expanded="true" signature="2322:2327" ph="..." />
-                <marker date="1546625269686" expanded="true" signature="3134:3139" ph="..." />
-                <marker date="1546625269686" expanded="true" signature="6114:6119" ph="..." />
-                <marker date="1546625269686" expanded="true" signature="7263:7557" ph="..." />
+                <marker date="1546627838685" expanded="true" signature="2226:2265" ph="..." />
+                <marker date="1546627838685" expanded="true" signature="2322:2327" ph="..." />
+                <marker date="1546627838685" expanded="true" signature="3134:3139" ph="..." />
+                <marker date="1546627838685" expanded="true" signature="6114:6119" ph="..." />
+                <marker date="1546627838685" expanded="true" signature="7263:7556" ph="..." />
               </folding>
             </state>
           </provider>
@@ -259,9 +258,9 @@
         <option value="$PROJECT_DIR$/start.py" />
         <option value="$PROJECT_DIR$/backend/__init__.py" />
         <option value="$PROJECT_DIR$/building_detection_v2.py" />
-        <option value="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" />
         <option value="$PROJECT_DIR$/templates/DisplayMap.html" />
         <option value="$PROJECT_DIR$/app.py" />
+        <option value="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" />
       </list>
     </option>
   </component>
@@ -642,8 +641,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="196" column="31" selection-start-line="196" selection-start-column="31" selection-end-line="196" selection-end-column="31" />
+        <state relative-caret-position="-250">
+          <caret line="86" column="75" selection-start-line="86" selection-start-column="75" selection-end-line="86" selection-end-column="75" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
           </folding>
@@ -652,15 +651,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="871">
-          <caret line="215" column="55" lean-forward="true" selection-start-line="215" selection-start-column="55" selection-end-line="215" selection-end-column="55" />
+        <state relative-caret-position="293">
+          <caret line="217" lean-forward="true" selection-start-line="217" selection-end-line="217" />
           <folding>
             <element signature="e#114#127#0" expanded="true" />
-            <marker date="1546625269686" expanded="true" signature="2226:2265" ph="..." />
-            <marker date="1546625269686" expanded="true" signature="2322:2327" ph="..." />
-            <marker date="1546625269686" expanded="true" signature="3134:3139" ph="..." />
-            <marker date="1546625269686" expanded="true" signature="6114:6119" ph="..." />
-            <marker date="1546625269686" expanded="true" signature="7263:7557" ph="..." />
+            <marker date="1546627838685" expanded="true" signature="2226:2265" ph="..." />
+            <marker date="1546627838685" expanded="true" signature="2322:2327" ph="..." />
+            <marker date="1546627838685" expanded="true" signature="3134:3139" ph="..." />
+            <marker date="1546627838685" expanded="true" signature="6114:6119" ph="..." />
+            <marker date="1546627838685" expanded="true" signature="7263:7556" ph="..." />
           </folding>
         </state>
       </provider>

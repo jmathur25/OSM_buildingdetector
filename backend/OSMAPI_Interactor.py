@@ -103,7 +103,6 @@ def parse_map(map_info):
         else:
             if info['type'] == 'node':
                 map_node_info.append(info)
-    # print(map_info)
     for node_list, way_id in node_list_ids:
         # OpenStreetMap has this incredibly weird thing where info['data']['id'] only seems to have 4 unique nodes
         # if there are any more spots, they are just repeats. Checkout changeset # 140834 online and use find_way
@@ -211,7 +210,7 @@ def binary_recursion(current, old, search_val, sorted_ways):
     if diff > 0:
         new = current - math.ceil(abs(current - old) / 2)
     else:
-        new = current + math.floor(abs(current - old) / 2)
+        new = current + math.ceil(abs(current - old) / 2)
     old = current
     binary_recursion(new, old, search_val, sorted_ways)
 

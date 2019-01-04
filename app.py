@@ -83,7 +83,6 @@ def mapclick():
         zoom = int(info['zoom'])
 
         json_post = {}
-        print("MEMORY:", backend.get_ways_memory())
         possible_building_matches = backend.ways_binary_search((lat, long))
 
         for points in possible_building_matches:
@@ -124,7 +123,6 @@ def mapclick():
                                     "points": rect_points}],
                      "rectsToDelete": {"ids": rectangles_id_to_remove}
                             }
-            print(json_post)
         return json.dumps(json_post)
 
 
