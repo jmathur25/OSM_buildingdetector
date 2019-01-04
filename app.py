@@ -82,6 +82,31 @@ def mapclick():
         long = float(info['long'])
         zoom = int(info['zoom'])
 
+        json_post = {}
+
+        upload_info = program_config["osmUpload"]
+        osm_api = backend.sign_in(upload_info["api"], upload_info["username"], upload_info["password"])
+        ways_added = backend.get_ways_memory()
+
+        for way_id in ways_added:
+            way_info = backend.find_way(osm_api, way_id)
+            # for the weird case where there's 5 points
+            if len(way_info['nd']) > 4:
+                way_info['nd'] = way_info['nd'][:4]
+            points = []
+            for node_id in way_info['nd']:
+                node_info = backend.find_node(osm_api, node_id)
+                points.append((node_info['lat'], node_info['lon']))
+            print(points)
+            synced_building_as_rect = building_detection_v2.Rectangle(points)
+            if synced_building_as_rect.has_point_inside((lat, long)):
+                json_post = {"rectsToAdd": [],
+                             "rectsToDelete": ['INSIDE']
+                             }
+                return json.dumps(json_post)
+        building_detection_v2.delete_all_rects()
+
+
         # find xtile, ytile
         xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
 
@@ -98,8 +123,6 @@ def mapclick():
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom)
 
-        json_post = {}
-
         if backend.check_area(rect_points, sort=False):
             json_post = {"rectsToAdd": [],
                          "rectsToDelete": []
@@ -110,6 +133,7 @@ def mapclick():
                                     "points": rect_points}],
                      "rectsToDelete": {"ids": rectangles_id_to_remove}
                             }
+            print(json_post)
         return json.dumps(json_post)
 
 

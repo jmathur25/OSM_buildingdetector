@@ -77,9 +77,15 @@
                           }
                       }
                       } else {
-                        popup.setLatLng(e.latlng);
-                        popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
-                        popup.openOn(map);
+                        if (rectsToDelete.length > 0) {
+                          popup.setLatLng(e.latlng);
+                          popup.setContent("You clicked inside a mapped building. Please click elsewhere");
+                          popup.openOn(map);
+                        } else {
+                          popup.setLatLng(e.latlng);
+                          popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
+                          popup.openOn(map);
+                        }
                       }
                   }
               }

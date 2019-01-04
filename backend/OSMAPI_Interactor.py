@@ -65,9 +65,14 @@ def way_create_multiple(osm_api, all_rects_dict, comment, tag={"building": "yes"
     return way_list
 
 
-def find_way(osm_api, way):
-    # see data on the way you just made
-    return osm_api.WayGet(str(way['id']))
+def find_way(osm_api, way_id):
+    # see data on the way given way id
+    return osm_api.WayGet(way_id)
+
+
+def find_node(osm_api, node_id):
+    # see data on the way given way id
+    return osm_api.NodeGet(node_id)
 
 
 def see_map(osm_api, min_lon, min_lat, max_lon, max_lat):
@@ -161,7 +166,13 @@ def clear_ways_memory():
     global ways_added
     ways_added = {}
 
+
+def get_ways_memory():
+    global ways_added
+    return ways_added
+
 # x = sign_in('https://api06.dev.openstreetmap.org', 'OSM_buildingdetector', 'fakepassword123')
 # map_info = see_map(x, min_lon=-94.535271, min_lat=45.126905, max_lon=-94.529356, max_lat=45.129200)
 # print(parse_map(map_info))
 # print(ways_added)
+

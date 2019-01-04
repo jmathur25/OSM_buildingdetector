@@ -55,39 +55,39 @@
           <entry key="PNG" value="1" />
           <entry key="css" value="1" />
           <entry key="gitignore" value="1" />
-          <entry key="html" value="3" />
+          <entry key="html" value="4" />
           <entry key="js" value="3" />
           <entry key="json" value="1" />
           <entry key="map" value="1" />
-          <entry key="py" value="36" />
+          <entry key="py" value="37" />
           <entry key="yml" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CSS" value="1" />
-          <entry key="HTML" value="3" />
+          <entry key="HTML" value="4" />
           <entry key="Image" value="1" />
           <entry key="JSON" value="1" />
           <entry key="JavaScript" value="3" />
           <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="36" />
+          <entry key="Python" value="37" />
           <entry key="YAML" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dummy" value="8" />
-          <entry key="html" value="2093" />
-          <entry key="py" value="6142" />
+          <entry key="html" value="2208" />
+          <entry key="py" value="6831" />
           <entry key="txt" value="55" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="HTML" value="2093" />
+          <entry key="HTML" value="2208" />
           <entry key="PLAIN_TEXT" value="63" />
-          <entry key="Python" value="6142" />
+          <entry key="Python" value="6831" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -143,11 +143,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="748">
-              <caret line="44" column="88" selection-start-line="44" selection-start-column="88" selection-end-line="44" selection-end-column="88" />
+            <state relative-caret-position="391">
+              <caret line="134" column="28" lean-forward="true" selection-start-line="134" selection-start-column="28" selection-end-line="134" selection-end-column="28" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -155,11 +155,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/DisplayMap.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="468" column="29" selection-start-line="468" selection-start-column="29" selection-end-line="468" selection-end-column="29" />
+            <state relative-caret-position="464">
+              <caret line="85" column="45" selection-start-line="85" selection-start-column="45" selection-end-line="85" selection-end-column="45" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-527">
+              <caret line="23" column="11" lean-forward="true" selection-start-line="23" selection-start-column="11" selection-end-line="23" selection-end-column="11" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -167,14 +179,15 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1462">
-              <caret line="86" selection-start-line="86" selection-end-line="86" />
+            <state relative-caret-position="293">
+              <caret line="76" lean-forward="true" selection-start-line="76" selection-end-line="76" />
               <folding>
                 <element signature="e#114#127#0" expanded="true" />
-                <marker date="1546601699172" expanded="true" signature="2112:2117" ph="..." />
-                <marker date="1546601699172" expanded="true" signature="2924:2929" ph="..." />
-                <marker date="1546601699172" expanded="true" signature="5572:5577" ph="..." />
-                <marker date="1546601699172" expanded="true" signature="5735:5779" ph="..." />
+                <marker date="1546619131790" expanded="true" signature="2120:2159" ph="..." />
+                <marker date="1546619131790" expanded="true" signature="2216:2221" ph="..." />
+                <marker date="1546619131790" expanded="true" signature="3028:3033" ph="..." />
+                <marker date="1546619131790" expanded="true" signature="5676:5681" ph="..." />
+                <marker date="1546619131790" expanded="true" signature="5906:5952" ph="..." />
               </folding>
             </state>
           </provider>
@@ -193,9 +206,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>control-z</find>
-      <find>undo</find>
-      <find>uploadClick</find>
       <find>uploadButtonClick</find>
       <find>SyncButtonClick</find>
       <find>x</find>
@@ -216,13 +226,16 @@
       <find>image</find>
       <find>click</find>
       <find>popup</find>
-      <find>mapclick</find>
       <find>upload</find>
       <find>Sync</find>
       <find>sync</find>
       <find>bound</find>
       <find>print</find>
       <find>bdfc</find>
+      <find>exact</find>
+      <find>find</find>
+      <find>backend.sign</find>
+      <find>mapclick</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -247,9 +260,9 @@
         <option value="$PROJECT_DIR$/config_reader.py" />
         <option value="$PROJECT_DIR$/start.py" />
         <option value="$PROJECT_DIR$/backend/__init__.py" />
-        <option value="$PROJECT_DIR$/app.py" />
-        <option value="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" />
         <option value="$PROJECT_DIR$/templates/DisplayMap.html" />
+        <option value="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" />
+        <option value="$PROJECT_DIR$/app.py" />
       </list>
     </option>
   </component>
@@ -566,16 +579,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BuildingDetectionFromClick.py" />
-    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/config_reader.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
@@ -623,32 +626,43 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1462">
-          <caret line="86" selection-start-line="86" selection-end-line="86" />
+        <state relative-caret-position="293">
+          <caret line="76" lean-forward="true" selection-start-line="76" selection-end-line="76" />
           <folding>
             <element signature="e#114#127#0" expanded="true" />
-            <marker date="1546601699172" expanded="true" signature="2112:2117" ph="..." />
-            <marker date="1546601699172" expanded="true" signature="2924:2929" ph="..." />
-            <marker date="1546601699172" expanded="true" signature="5572:5577" ph="..." />
-            <marker date="1546601699172" expanded="true" signature="5735:5779" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="748">
-          <caret line="44" column="88" selection-start-line="44" selection-start-column="88" selection-end-line="44" selection-end-column="88" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
+            <marker date="1546619131790" expanded="true" signature="2120:2159" ph="..." />
+            <marker date="1546619131790" expanded="true" signature="2216:2221" ph="..." />
+            <marker date="1546619131790" expanded="true" signature="3028:3033" ph="..." />
+            <marker date="1546619131790" expanded="true" signature="5676:5681" ph="..." />
+            <marker date="1546619131790" expanded="true" signature="5906:5952" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/DisplayMap.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="468" column="29" selection-start-line="468" selection-start-column="29" selection-end-line="468" selection-end-column="29" />
+        <state relative-caret-position="464">
+          <caret line="85" column="45" selection-start-line="85" selection-start-column="45" selection-end-line="85" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-527">
+          <caret line="23" column="11" lean-forward="true" selection-start-line="23" selection-start-column="11" selection-end-line="23" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="134" column="28" lean-forward="true" selection-start-line="134" selection-start-column="28" selection-end-line="134" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
