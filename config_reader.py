@@ -1,5 +1,5 @@
-
 import yaml
+
 
 def get_config():
     """Load the configuration file and return the dictionary containing

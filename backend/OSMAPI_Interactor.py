@@ -6,6 +6,9 @@ import math
 # a little bit of research suggested this number might be a good one
 AREA_THRESHOLD = 0.000001
 
+# global variable to keep track of buildings synced
+ways_added = {}
+
 def sign_in(web_api, username, password):
     osm_api = osmapi.OsmApi(api=web_api, username=username, password=password)
     return osm_api
@@ -63,7 +66,7 @@ def way_create_multiple(osm_api, all_rects_dict, comment, tag={"building": "yes"
 
 def find_way(osm_api, way):
     # see data on the way you just made
-    return osm_api.WayGet(str(way["id"]))
+    return osm_api.WayGet(str(way['id']))
 
 
 def see_map(osm_api, min_lon, min_lat, max_lon, max_lat):
@@ -75,18 +78,38 @@ def see_map(osm_api, min_lon, min_lat, max_lon, max_lat):
 
 def parse_map(map_info):
     # parses map, returns coordinates of buildings with each building an item of the return list
+    global ways_added
+    # stores a tuple in each index, where the first item is the list of node ids and the second is the way id
     node_list_ids = []
+    # ultimately passed to frontend, as a 2D list with each index being a list containing 4 (lat, long) coordinates
     render_buildings = []
+
+    # reduces runtime by remembering elements of map_info that are nodes in initial parsing
+    map_node_info = []
     for info in map_info:
         if info['type'] == 'way':
-            node_list_ids.append(info['data']['nd'])
-    for node_list in node_list_ids:
-        way_coordinates = []
-        for info in map_info:
+            if info['data']['id'] not in ways_added:
+                node_list_ids.append((info['data']['nd'], info['data']['id']))
+        else:
+            if info['type'] == 'node':
+                map_node_info.append(info)
+    # print(map_info)
+    for node_list, way_id in node_list_ids:
+        # OpenStreetMap has this incredibly weird thing where info['data']['id'] only seems to have 4 unique nodes
+        # if there are any more spots, they are just repeats. Checkout changeset # 140834 online and use find_way
+        # on way 4305299393 to see the difference. As far as I can tell, all node_lists over length 4 have length 5,
+        # with the last node being the first one repeated
+        # temporary solution caps way_coordinates at 4
+        way_coordinates = [0, 0, 0, 0]
+        for info in map_node_info:
             if info['type'] == 'node':
                 if info['data']['id'] in node_list:
-                    way_coordinates.append((info['data']['lat'], info['data']['lon']))
-        if not check_area(way_coordinates, sort=True):
+                    index = node_list.index(info['data']['id'])
+                    way_coordinates[index] = (info['data']['lat'], info['data']['lon'])
+                    if 0 not in way_coordinates:
+                        break
+        if not check_area(way_coordinates, sort=False):
+            ways_added[way_id] = True
             render_buildings.append(way_coordinates)
     return render_buildings
 
@@ -129,3 +152,9 @@ def check_area(points, sort=False):
     if area_from_points(points) > AREA_THRESHOLD:
         return True
     return False
+
+
+# x = sign_in('https://api06.dev.openstreetmap.org', 'OSM_buildingdetector', 'fakepassword123')
+# map_info = see_map(x, min_lon=-94.535271, min_lat=45.126905, max_lon=-94.529356, max_lat=45.129200)
+# print(parse_map(map_info))
+# print(ways_added)
