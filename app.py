@@ -42,6 +42,8 @@ def login():  # this method is called when the page starts up
 
 @app.route('/home/')
 def home():
+    # necessary so that if one refreshes, the way memory deletes with the drawn polygons
+    backend.clear_ways_memory()
     return render_template('DisplayMap.html')
 
 

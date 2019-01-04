@@ -9,6 +9,7 @@ AREA_THRESHOLD = 0.000001
 # global variable to keep track of buildings synced
 ways_added = {}
 
+
 def sign_in(web_api, username, password):
     osm_api = osmapi.OsmApi(api=web_api, username=username, password=password)
     return osm_api
@@ -104,10 +105,11 @@ def parse_map(map_info):
         for info in map_node_info:
             if info['type'] == 'node':
                 if info['data']['id'] in node_list:
-                    index = node_list.index(info['data']['id'])
+                    index = node_list.index(info['data']['id']) % 4
                     way_coordinates[index] = (info['data']['lat'], info['data']['lon'])
                     if 0 not in way_coordinates:
                         break
+        # the method above should make sure way is already sorted
         if not check_area(way_coordinates, sort=False):
             ways_added[way_id] = True
             render_buildings.append(way_coordinates)
@@ -153,6 +155,11 @@ def check_area(points, sort=False):
         return True
     return False
 
+
+# allows server to clear ways_added if necessary
+def clear_ways_memory():
+    global ways_added
+    ways_added = {}
 
 # x = sign_in('https://api06.dev.openstreetmap.org', 'OSM_buildingdetector', 'fakepassword123')
 # map_info = see_map(x, min_lon=-94.535271, min_lat=45.126905, max_lon=-94.529356, max_lat=45.129200)
