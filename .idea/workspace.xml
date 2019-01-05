@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py" line="188" mnemonic="5" />
-  </component>
   <component name="ChangeListManager">
     <list default="true" id="6ab60f4d-9eec-4e9e-ae70-07908af39ea8" name="Default Changelist" comment="rectangle integration with merge on, toggle merge with 'm'">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -79,7 +76,7 @@
         <counts>
           <entry key="dummy" value="8" />
           <entry key="html" value="2208" />
-          <entry key="py" value="10615" />
+          <entry key="py" value="10866" />
           <entry key="txt" value="55" />
         </counts>
       </usages-collector>
@@ -87,7 +84,7 @@
         <counts>
           <entry key="HTML" value="2208" />
           <entry key="PLAIN_TEXT" value="63" />
-          <entry key="Python" value="10615" />
+          <entry key="Python" value="10866" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -146,8 +143,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="296">
-              <caret line="223" column="26" lean-forward="true" selection-start-line="223" selection-start-column="26" selection-end-line="223" selection-end-column="26" />
+            <state relative-caret-position="243">
+              <caret line="187" column="33" lean-forward="true" selection-start-line="187" selection-start-column="33" selection-end-line="187" selection-end-column="33" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -158,12 +155,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="243">
-              <caret line="28" column="12" selection-start-line="28" selection-start-column="12" selection-end-line="28" selection-end-column="12" />
+            <state relative-caret-position="901">
+              <caret line="86" column="74" selection-start-line="86" selection-start-column="74" selection-end-line="86" selection-end-column="74" />
               <folding>
                 <element signature="e#114#127#0" expanded="true" />
-                <marker date="1546700452052" expanded="true" signature="379:8052" ph="..." />
-                <marker date="1546700452052" expanded="true" signature="840:983" ph="..." />
+                <marker date="1546701539378" expanded="true" signature="390:8083" ph="..." />
+                <marker date="1546701539378" expanded="true" signature="851:994" ph="..." />
               </folding>
             </state>
           </provider>
@@ -172,11 +169,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="31" column="41" lean-forward="true" selection-start-line="31" selection-start-column="41" selection-end-line="31" selection-end-column="41" />
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="51">
+              <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -203,7 +197,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>polygons</find>
       <find>L.Co</find>
       <find>update</find>
       <find>added</find>
@@ -218,7 +211,6 @@
       <find>exact</find>
       <find>find</find>
       <find>backend.sign</find>
-      <find>mapclick</find>
       <find>delete_all_rects</find>
       <find>addPoly</find>
       <find>sync</find>
@@ -233,6 +225,8 @@
       <find>ways_added</find>
       <find>THRESOLD</find>
       <find>node_</find>
+      <find>merge</find>
+      <find>mapclick</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -625,34 +619,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="296">
-          <caret line="223" column="26" lean-forward="true" selection-start-line="223" selection-start-column="26" selection-end-line="223" selection-end-column="26" />
+        <state relative-caret-position="243">
+          <caret line="187" column="33" lean-forward="true" selection-start-line="187" selection-start-column="33" selection-end-line="187" selection-end-column="33" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="31" column="41" lean-forward="true" selection-start-line="31" selection-start-column="41" selection-end-line="31" selection-end-column="41" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="243">
-          <caret line="28" column="12" selection-start-line="28" selection-start-column="12" selection-end-line="28" selection-end-column="12" />
+        <state relative-caret-position="901">
+          <caret line="86" column="74" selection-start-line="86" selection-start-column="74" selection-end-line="86" selection-end-column="74" />
           <folding>
             <element signature="e#114#127#0" expanded="true" />
-            <marker date="1546700452052" expanded="true" signature="379:8052" ph="..." />
-            <marker date="1546700452052" expanded="true" signature="840:983" ph="..." />
+            <marker date="1546701539378" expanded="true" signature="390:8083" ph="..." />
+            <marker date="1546701539378" expanded="true" signature="851:994" ph="..." />
           </folding>
         </state>
       </provider>
