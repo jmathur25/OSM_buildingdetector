@@ -1,5 +1,5 @@
 import cv2
-import numpy
+import numpy as np
 import geolocation
 import backend
 import math
@@ -206,7 +206,7 @@ class Rectangle:
 def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
     """ Tries to detect the rectangle at a given point on an image. """
 
-    im = numpy.array(pil_image_grayscale)
+    im = np.array(pil_image_grayscale)
 
     # Get the x,y coordinates of the click
     x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
@@ -235,6 +235,43 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
     # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
     return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
             Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))  # TODO!!!!!!!!!!!!
+
+
+# detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
+def detect_rectangle_RGB(pil_image_RGB, xtile, ytile, lat, long, zoom):
+    """ Tries to detect the rectangle at a given point on an image. """
+
+    im = np.array(pil_image_RGB)
+
+    # Get the x,y coordinates of the click
+    x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
+    print(x, y)
+
+    # Get the boundaries of the rectangle
+    left_loc_x, left_loc_y = get_next_RGB_change(im, x, y, -1, 0)
+    right_loc_x, right_loc_y = get_next_RGB_change(im, x, y, 1, 0)
+    up_loc_x, up_loc_y = get_next_RGB_change(im, x, y, 0, -1)
+    down_loc_x, down_loc_y = get_next_RGB_change(im, x, y, 0, 1)
+
+    # Calculate the geocoordinates of the rectangle
+    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, left_loc_x, up_loc_y)
+    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, right_loc_x, up_loc_y)
+    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, right_loc_x, down_loc_y)
+    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, left_loc_x, down_loc_y)
+
+    topleft = list(topleft)
+    topright = list(topright)
+    bottomright = list(bottomright)
+    bottomleft = list(bottomleft)
+
+    Rectangle([topleft, topright, bottomright, bottomleft])
+
+    retangles_to_add = Rectangle.get_added_rectangles()
+
+    # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
+    return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
+            Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))  # TODO!!!!!!!!!!!!
+
 
 """ Get the next major intensity change in a given direction. """
 def get_next_intensity_change(image, x, y, xstep, ystep):
@@ -278,6 +315,44 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
     return (x, y)
 
 
+def get_next_RGB_change(image, x, y, xstep, ystep):
+
+    def RGB_comparison(start_RGB, cur_RGB):
+        start_RGB = start_RGB.tolist()
+        cur_RGB = cur_RGB.tolist()
+        for i in range(len(start_RGB)):
+            dist = abs(start_RGB[i] - cur_RGB[i])
+            # print('dist:', dist)
+            if dist < 15:
+                continue
+            else:
+                return False
+        return True
+
+
+    lookahead = 5
+    width = image.shape[1]
+    height = image.shape[0]
+
+    start_RGB = image[y][x]
+
+    while (x >= 0 and x < width and y >= 0 and y < height):
+        if (x + xstep < 0 or x + xstep >= width or y + ystep < 0 or y + ystep >= height):
+            break
+        x += xstep
+        y += ystep
+        cur_RGB = image[y][x]
+        if not RGB_comparison(start_RGB, cur_RGB):
+            for i in range(lookahead):
+                downx = max(min(x + xstep * i, width - 1), 0)
+                downy = max(min(y + ystep * i, height - 1), 0)
+                intermediate_RGB = image[downy][downx]
+                if dist_checker(start_RGB, intermediate_RGB):
+                    return (downx, downy)
+            return (x, y)
+
+    return (x, y)
+
 # delete the rectangle manually (such as from undo-ing a click from the frontend)
 def delete_rect(rect_id):
     Rectangle.delete_rect(rect_id)
@@ -315,3 +390,36 @@ def get_all_rects_dictionary():
     for rect in Rectangle.all_rectangles:
         rect_dict[rect.get_id()] = rect.get_points()
     return rect_dict
+
+
+# USE THIS CODE TO TEST RGB VERSION
+# def detect_rectangle_RGB_TEST(pil_image_RGB, x, y):
+#     """ Tries to detect the rectangle at a given point on an image. """
+#
+#     im = np.array(pil_image_RGB)
+#
+#     # Get the boundaries of the rectangle
+#     left_loc_x, left_loc_y = get_next_RGB_change(im, x, y, -1, 0)
+#     right_loc_x, right_loc_y = get_next_RGB_change(im, x, y, 1, 0)
+#     up_loc_x, up_loc_y = get_next_RGB_change(im, x, y, 0, -1)
+#     down_loc_x, down_loc_y = get_next_RGB_change(im, x, y, 0, 1)
+#
+#     topleft = left_loc_x, up_loc_y
+#     topright = right_loc_x, up_loc_y
+#     bottomright = right_loc_x, down_loc_y
+#     bottomleft = left_loc_x, down_loc_y
+#
+#     Rectangle([topleft, topright, bottomright, bottomleft])
+#
+#     retangles_to_add = Rectangle.get_added_rectangles()
+#
+#     # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
+#     return retangles_to_add[0].get_points()  # TODO!!!!!!!!!!!!
+
+
+# from PIL import Image
+# image = Image.open('OSM_check.PNG')
+# # nparr = np.array(image)
+# # print(len(nparr[0]))
+# print(detect_rectangle_RGB_TEST(image, 485, 332))
+

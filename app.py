@@ -109,13 +109,14 @@ def mapclick():
 
         # Get those tiles
         backend_image = imd.get_tiles_around(xtile, ytile, zoom)
-        # backend_image.show()
+        # comment this out to use RGB version
         backend_image = PIL.ImageOps.grayscale(backend_image)
-        # backend_image.show()
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom)
+        # rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangleRGB(backend_image, xtile,
+        #                                                                                       ytile, lat, long, zoom)
 
         if osm.check_area(rect_points, sort=False):
             json_post = {"rectsToAdd": [],
