@@ -2,6 +2,7 @@ import cv2
 import numpy
 import geolocation
 import backend
+import math
 
 
 # all rectangles are parallel to the xy axis
@@ -237,7 +238,13 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
 
 """ Get the next major intensity change in a given direction. """
 def get_next_intensity_change(image, x, y, xstep, ystep):
-    threshold = 30
+
+    def threshold_slider(cur_intensity):
+        fit = math.ceil(0.2*cur_intensity - 10)
+        if fit < 0:
+            fit = 10
+        return fit
+
     lookahead = 5
     width = image.shape[1]
     height = image.shape[0]
@@ -256,6 +263,7 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
         
         cur_intensity = int(image[y, x])
         next_intensity = int(image[downy, downx])
+        threshold = threshold_slider(cur_intensity)
         
         if (abs(cur_intensity - next_intensity) > threshold):
             for i in range(lookahead):

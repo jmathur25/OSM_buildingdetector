@@ -184,9 +184,7 @@ def OSM_map_sync():
         max_lat = float(info['max_lat'])
 
         global osm
-        print('syncing')
         mappable_results = osm.sync_map(min_long, min_lat, max_long, max_lat)
-        print(mappable_results)
         # note that this is in a different format as the other json_post for a map click
         # mappable_results is a list with each index a building containing tuples for the coordinates of the corners
         json_post = {"rectsToAdd": mappable_results}
