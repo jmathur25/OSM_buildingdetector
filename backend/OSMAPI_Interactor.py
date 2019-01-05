@@ -9,7 +9,7 @@ class OSM_Interactor:
     # a little bit of research suggested this number might be a good one
     AREA_THRESHOLD = 0.000001
     # a little bit of research suggested this number might be a good one
-    SUM_THRESHOLD = 0.1
+    SUM_THRESHOLD = 0.01
 
     def __init__(self, web_api, username, password):
         osm_api = osmapi.OsmApi(api=web_api, username=username, password=password)
@@ -177,6 +177,8 @@ class OSM_Interactor:
         root_index = len(sorted_ways) // 2
         search_val = sum(coordinate)
         binary_recursion(root_index, 0, search_val, sorted_ways)
+        if len(index_matches) == 0:
+            return []
         possible_matches = [sorted_ways[i][1][1] for i in range(min(index_matches), max(index_matches) + 1)]
         return possible_matches
 

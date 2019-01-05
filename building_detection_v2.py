@@ -211,17 +211,57 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
     # Get the x,y coordinates of the click
     x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
 
-    # Get the boundaries of the rectangle
-    left_loc_x, left_loc_y = get_next_intensity_change(im, x, y, -1, 0)
-    right_loc_x, right_loc_y = get_next_intensity_change(im, x, y, 1, 0)
-    up_loc_x, up_loc_y = get_next_intensity_change(im, x, y, 0, -1)
-    down_loc_x, down_loc_y = get_next_intensity_change(im, x, y, 0, 1)
+    angles = [0, 30 * math.pi / 180, 60 * math.pi / 180]
+    building_list = []
+    for angle in angles:
+        # Get the boundaries of the rectangle
+        quad_one = get_next_intensity_change(im, x, y, math.cos(angle), math.sin(angle))
+        quad_four = get_next_intensity_change(im, x, y, math.sin(angle), -math.cos(angle))
+        quad_two = get_next_intensity_change(im, x, y, -math.cos(angle), math.sin(angle))
+        quad_three = get_next_intensity_change(im, x, y, -math.sin(angle), math.cos(angle))
+
+        # print((quad_one_x, quad_one_y), (quad_four_x, quad_four_y), (quad_two_x, quad_two_y), (quad_three_x, quad_three_y))
+        # top right
+
+        # pass the (point, slope) for each info
+        def point_slope_intersect(info1, info2):
+            x_1 = info1[0][0]
+            y_1 = info1[0][1]
+            m_1 = info1[1]
+            x_2 = info2[0][0]
+            y_2 = info2[0][1]
+            m_2 = info2[1]
+
+            x = (y_2 - y_1 + m_1 * x_1 - x_2 * m_2) / (m_1 - m_2)
+            y = y_1 + m_1 * (x - x_1)
+            return x, y
+
+        slope2 = math.tan(angle)
+        if slope2 == 0:
+            building_list.append([(quad_one[0], quad_three[1]), (quad_one[0], quad_four[1]),
+                                  (quad_two[0], quad_four[1]), (quad_two[0], quad_three[1])])
+        else:
+            slope1 = -1 / slope2
+            corner1 = point_slope_intersect((quad_one, slope1), (quad_two, slope2))
+            # bottom right
+            corner2 = point_slope_intersect((quad_one, slope1), (quad_four, slope2))
+            # bottom left
+            corner3 = point_slope_intersect((quad_three, slope1), (quad_four, slope2))
+            # top left
+            corner4 = point_slope_intersect((quad_three, slope1), (quad_two, slope2))
+            building_list.append([corner1, corner2, corner3, corner4])
+
+    best_map = mapping_scorer(im, building_list, x, y)
+    corner1 = best_map[0]
+    corner2 = best_map[1]
+    corner3 = best_map[2]
+    corner4 = best_map[3]
 
     # Calculate the geocoordinates of the rectangle
-    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, left_loc_x, up_loc_y)
-    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, right_loc_x, up_loc_y)
-    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, right_loc_x, down_loc_y)
-    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, left_loc_x, down_loc_y)
+    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
+    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
+    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
+    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
 
     topleft = list(topleft)
     topright = list(topright)
@@ -245,24 +285,41 @@ def detect_rectangle_RGB(pil_image_RGB, xtile, ytile, lat, long, zoom):
 
     # Get the x,y coordinates of the click
     x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
-    print(x, y)
 
-    # Get the boundaries of the rectangle
-    left_loc_x, left_loc_y = get_next_RGB_change(im, x, y, -1, 0)
-    right_loc_x, right_loc_y = get_next_RGB_change(im, x, y, 1, 0)
-    up_loc_x, up_loc_y = get_next_RGB_change(im, x, y, 0, -1)
-    down_loc_x, down_loc_y = get_next_RGB_change(im, x, y, 0, 1)
+    angles = [10*x*math.pi/180 for x in range(0, 10)]
+    building_list = []
+    for angle in angles:
+        # Get the boundaries of the rectangle
+        quad_one_x, quad_one_y = get_next_RGB_change(im, x, y, math.cos(angle), math.sin(angle))
+        quad_four_x, quad_four_y = get_next_RGB_change(im, x, y, math.sin(angle), -math.cos(angle))
+        quad_two_x, quad_two_y = get_next_RGB_change(im, x, y, -math.cos(angle), math.sin(angle))
+        quad_three_x, quad_three_y = get_next_RGB_change(im, x, y, -math.sin(angle), -math.cos(angle))
+        # top right
+        corner1 = ((quad_one_x - quad_three_x) / 2 + quad_two_x, (quad_one_y - quad_three_y) / 2 + quad_two_y)
+        # bottom right
+        corner2 = ((quad_one_x - quad_three_x) / 2 + quad_four_x, (quad_one_y - quad_three_y) / 2 + quad_four_y)
+        # bottom left
+        corner3 = (-(quad_one_x - quad_three_x) / 2 + quad_four_x, -(quad_one_y - quad_three_y) / 2 + quad_four_y)
+        # top left
+        corner4 = (-(quad_one_x - quad_three_x) / 2 + quad_two_x, -(quad_one_y - quad_three_y) / 2 + quad_two_y)
+        building_list.append([corner1, corner2, corner3, corner4])
+
+    best_map = mapping_scorer_RGB(image, building_list, x, y)
+    corner1 = best_map[0]
+    corner2 = best_map[1]
+    corner3 = best_map[2]
+    corner4 = best_map[3]
 
     # Calculate the geocoordinates of the rectangle
-    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, left_loc_x, up_loc_y)
-    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, right_loc_x, up_loc_y)
-    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, right_loc_x, down_loc_y)
-    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, left_loc_x, down_loc_y)
+    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
+    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
+    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
+    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
 
-    topleft = list(topleft)
     topright = list(topright)
     bottomright = list(bottomright)
     bottomleft = list(bottomleft)
+    topleft = list(topleft)
 
     Rectangle([topleft, topright, bottomright, bottomleft])
 
@@ -286,6 +343,7 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
     width = image.shape[1]
     height = image.shape[0]
 
+
     while (x >= 0 and x < width and y >= 0 and y < height):
         
         if (x + xstep < 0 or x + xstep >= width or y + ystep < 0 or y + ystep >= height):
@@ -295,17 +353,17 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
         y += ystep
 
         # keeps the x coordinates and y coordinates bounded by 0 and width / height respectively
-        downx = max(min(x + xstep * lookahead, width - 1), 0)
-        downy = max(min(y + ystep * lookahead, height - 1), 0)
+        downx = max(min(int(x + xstep * lookahead), width - 1), 0)
+        downy = max(min(int(y + ystep * lookahead), height - 1), 0)
         
-        cur_intensity = int(image[y, x])
+        cur_intensity = int(image[int(y), int(x)])
         next_intensity = int(image[downy, downx])
         threshold = threshold_slider(cur_intensity)
         
         if (abs(cur_intensity - next_intensity) > threshold):
             for i in range(lookahead):
-                downx = max(min(x + xstep * i, width - 1), 0)
-                downy = max(min(y + ystep * i, height - 1), 0)
+                downx = max(min(int(x + xstep * i), width - 1), 0)
+                downy = max(min(int(y + ystep * i), height - 1), 0)
                 
                 next_intensity = int(image[downy, downx])
                 if (abs(cur_intensity - next_intensity) > threshold):
@@ -313,6 +371,22 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
             return (downx, downy)
     
     return (x, y)
+
+
+def mapping_scorer(image, building_list, click_x, click_y):
+    min_error = 0
+    min_index = 0
+    for x_y_points in range(len(building_list)):
+        error = 0
+        for x,y in building_list[x_y_points]:
+            error += abs(int(image[int(y)][int(x)]) - int(image[int(click_y)][int(click_x)]))
+        if x_y_points == 0:
+            min_error = error
+            min_index = x_y_points
+        elif error < min_error:
+            min_error = error
+            min_index = x_y_points
+    return building_list[min_index]
 
 
 def get_next_RGB_change(image, x, y, xstep, ystep):
@@ -416,10 +490,80 @@ def get_all_rects_dictionary():
 #     # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
 #     return retangles_to_add[0].get_points()  # TODO!!!!!!!!!!!!
 
+# detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
+def detect_rectangle_TEST(pil_image_grayscale, x, y):
+    """ Tries to detect the rectangle at a given point on an image. """
 
-# from PIL import Image
+    im = np.array(pil_image_grayscale)
+
+    angles = [0, 30*math.pi/180, 60*math.pi/180]
+    building_list = []
+    for angle in angles:
+        # Get the boundaries of the rectangle
+        quad_one = get_next_intensity_change(im, x, y, math.cos(angle), math.sin(angle))
+        quad_four = get_next_intensity_change(im, x, y, math.sin(angle), -math.cos(angle))
+        quad_two = get_next_intensity_change(im, x, y, -math.cos(angle), math.sin(angle))
+        quad_three = get_next_intensity_change(im, x, y, -math.sin(angle), math.cos(angle))
+        #print((quad_one_x, quad_one_y), (quad_four_x, quad_four_y), (quad_two_x, quad_two_y), (quad_three_x, quad_three_y))
+        # top right
+
+        # pass the (point, slope) for each info
+        def point_slope_intersect(info1, info2):
+            x_1 = info1[0][0]
+            y_1 = info1[0][1]
+            m_1 = info1[1]
+            x_2 = info2[0][0]
+            y_2 = info2[0][1]
+            m_2 = info2[1]
+
+            x = (y_2 - y_1 + m_1 * x_1 - x_2 * m_2) / (m_1 - m_2)
+            y = y_1 + m_1 * (x - x_1)
+            return x, y
+
+        slope2 = math.tan(angle)
+        if slope2 == 0:
+            building_list.append([(quad_one[0], quad_three[1]), (quad_one[0], quad_four[1]),
+                                  (quad_two[0], quad_four[1]), (quad_two[0], quad_three[1])])
+        else:
+            slope1 = -1/slope2
+            corner1 = point_slope_intersect((quad_one, slope1), (quad_two, slope2))
+            # bottom right
+            corner2 = point_slope_intersect((quad_one, slope1), (quad_four, slope2))
+            # bottom left
+            corner3 = point_slope_intersect((quad_three, slope1), (quad_four, slope2))
+            # top left
+            corner4 = point_slope_intersect((quad_three, slope1), (quad_two, slope2))
+            building_list.append([corner1, corner2, corner3, corner4])
+
+    best_map = mapping_scorer(im, building_list, x, y)
+    corner1 = best_map[0]
+    corner2 = best_map[1]
+    corner3 = best_map[2]
+    corner4 = best_map[3]
+    print(corner1, corner2, corner3, corner4)
+
+    # Calculate the geocoordinates of the rectangle
+    # topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
+    # bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
+    # bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
+    # topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
+
+    # topleft = list(topleft)
+    # topright = list(topright)
+    # bottomright = list(bottomright)
+    # bottomleft = list(bottomleft)
+    #
+    # Rectangle([topleft, topright, bottomright, bottomleft])
+    #
+    # retangles_to_add = Rectangle.get_added_rectangles()
+    #
+    # # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
+    # return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
+    #         Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))  # TODO!!!!!!!!!!!!
+
+
+# from PIL import Image, ImageOps
 # image = Image.open('OSM_check.PNG')
 # # nparr = np.array(image)
 # # print(len(nparr[0]))
-# print(detect_rectangle_RGB_TEST(image, 485, 332))
-
+# print(detect_rectangle_TEST(ImageOps.grayscale(image), 485, 332))
