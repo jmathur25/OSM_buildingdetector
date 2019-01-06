@@ -3,6 +3,7 @@ import numpy as np
 import geolocation
 import backend
 import math
+import PIL.ImageOps
 
 
 # all rectangles are parallel to the xy axis
@@ -203,46 +204,63 @@ class Rectangle:
 
 
 # detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
-def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
+def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, grayscale=True):
     """ Tries to detect the rectangle at a given point on an image. """
 
-    im = np.array(pil_image_grayscale)
+    # chooses right get_intensity or get_RGB function
+    def point_finder(im, x, y, step_x, step_y, grayscale):
+        if grayscale:
+            return get_next_intensity_change(im, x, y, step_x, step_y)
+        else:
+            return get_next_RGB_change(im, x, y, step_x, step_y)
+
+    # to choose the right scoring function
+    def scorer(im, building_list, click_x, click_y, grayscale):
+        if grayscale:
+            return mapping_scorer(im, building_list, click_x, click_y)
+        else:
+            return mapping_scorer_RGB(im, building_list, click_x, click_y)
+
+    # used to find the corners given the results of the get_next functions
+    # info is formatted as ((point_x, point_y), slope_n)
+    def point_slope_intersect(info1, info2):
+        x_1 = info1[0][0]
+        y_1 = info1[0][1]
+        m_1 = info1[1]
+        x_2 = info2[0][0]
+        y_2 = info2[0][1]
+        m_2 = info2[1]
+
+        x = (y_2 - y_1 + m_1 * x_1 - x_2 * m_2) / (m_1 - m_2)
+        y = y_1 + m_1 * (x - x_1)
+        return x, y
+
+    if grayscale:
+        pil_image = PIL.ImageOps.grayscale(pil_image)
+
+    im = np.array(pil_image)
 
     # Get the x,y coordinates of the click
     x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
-    print(x, y)
 
-    angles = [10*x*math.pi/180 for x in range(0, 9)]
+    # default is to search for every 15 degrees
+    angles = [15*x*math.pi/180 for x in range(0, 6)]
     building_list = []
     for angle in angles:
         # Get the boundaries of the rectangle
-        quad_one = get_next_intensity_change(im, x, y, math.cos(angle), math.sin(angle))
-        quad_four = get_next_intensity_change(im, x, y, math.sin(angle), -math.cos(angle))
-        quad_two = get_next_intensity_change(im, x, y, -math.sin(angle), math.cos(angle))
-        quad_three = get_next_intensity_change(im, x, y, -math.cos(angle), -math.sin(angle))
-        print(quad_one, quad_four, quad_three, quad_two)
-        # print((quad_one_x, quad_one_y), (quad_four_x, quad_four_y), (quad_two_x, quad_two_y), (quad_three_x, quad_three_y))
-        # top right
-
-        # pass the (point, slope) for each info
-        def point_slope_intersect(info1, info2):
-            x_1 = info1[0][0]
-            y_1 = info1[0][1]
-            m_1 = info1[1]
-            x_2 = info2[0][0]
-            y_2 = info2[0][1]
-            m_2 = info2[1]
-
-            x = (y_2 - y_1 + m_1 * x_1 - x_2 * m_2) / (m_1 - m_2)
-            y = y_1 + m_1 * (x - x_1)
-            return x, y
+        quad_one = point_finder(im, x, y, math.cos(angle), math.sin(angle), grayscale)
+        quad_four = point_finder(im, x, y, math.sin(angle), -math.cos(angle), grayscale)
+        quad_two = point_finder(im, x, y, -math.sin(angle), math.cos(angle), grayscale)
+        quad_three = point_finder(im, x, y, -math.cos(angle), -math.sin(angle), grayscale)
 
         slope2 = math.tan(angle)
         if slope2 == 0:
+            # hard coded because slope_point_intersect doesn't work when slope is 0
             building_list.append([(quad_one[0], quad_two[1]), (quad_one[0], quad_four[1]),
                                   (quad_three[0], quad_four[1]), (quad_three[0], quad_two[1])])
         else:
             slope1 = -1 / slope2
+            # top right
             corner1 = point_slope_intersect((quad_one, slope1), (quad_two, slope2))
             # bottom right
             corner2 = point_slope_intersect((quad_one, slope1), (quad_four, slope2))
@@ -252,7 +270,7 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
             corner4 = point_slope_intersect((quad_three, slope1), (quad_two, slope2))
             building_list.append([corner1, corner2, corner3, corner4])
 
-    best_map = mapping_scorer(im, building_list, x, y)
+    best_map = scorer(im, building_list, x, y, grayscale)
     corner1 = best_map[0]
     corner2 = best_map[1]
     corner3 = best_map[2]
@@ -275,64 +293,10 @@ def detect_rectangle(pil_image_grayscale, xtile, ytile, lat, long, zoom):
 
     # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
     return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
-            Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))  # TODO!!!!!!!!!!!!
+            Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
 
 
-# detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
-def detect_rectangle_RGB(pil_image_RGB, xtile, ytile, lat, long, zoom):
-    """ Tries to detect the rectangle at a given point on an image. """
-
-    im = np.array(pil_image_RGB)
-
-    # Get the x,y coordinates of the click
-    x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
-    print(x, y)
-
-    angles = [10*x*math.pi/180 for x in range(0, 10)]
-    building_list = []
-    for angle in angles:
-        # Get the boundaries of the rectangle
-        quad_one_x, quad_one_y = get_next_RGB_change(im, x, y, math.cos(angle), math.sin(angle))
-        quad_four_x, quad_four_y = get_next_RGB_change(im, x, y, math.sin(angle), -math.cos(angle))
-        quad_two_x, quad_two_y = get_next_RGB_change(im, x, y, -math.cos(angle), math.sin(angle))
-        quad_three_x, quad_three_y = get_next_RGB_change(im, x, y, -math.sin(angle), -math.cos(angle))
-        # top right
-        corner1 = ((quad_one_x - quad_three_x) / 2 + quad_two_x, (quad_one_y - quad_three_y) / 2 + quad_two_y)
-        # bottom right
-        corner2 = ((quad_one_x - quad_three_x) / 2 + quad_four_x, (quad_one_y - quad_three_y) / 2 + quad_four_y)
-        # bottom left
-        corner3 = (-(quad_one_x - quad_three_x) / 2 + quad_four_x, -(quad_one_y - quad_three_y) / 2 + quad_four_y)
-        # top left
-        corner4 = (-(quad_one_x - quad_three_x) / 2 + quad_two_x, -(quad_one_y - quad_three_y) / 2 + quad_two_y)
-        building_list.append([corner1, corner2, corner3, corner4])
-
-    best_map = mapping_scorer_RGB(image, building_list, x, y)
-    corner1 = best_map[0]
-    corner2 = best_map[1]
-    corner3 = best_map[2]
-    corner4 = best_map[3]
-
-    # Calculate the geocoordinates of the rectangle
-    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
-    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
-    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
-    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
-
-    topright = list(topright)
-    bottomright = list(bottomright)
-    bottomleft = list(bottomleft)
-    topleft = list(topleft)
-
-    Rectangle([topleft, topright, bottomright, bottomleft])
-
-    retangles_to_add = Rectangle.get_added_rectangles()
-
-    # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
-    return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
-            Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))  # TODO!!!!!!!!!!!!
-
-
-""" Get the next major intensity change in a given direction. """
+# Get the next major intensity change in a given direction.
 def get_next_intensity_change(image, x, y, xstep, ystep):
 
     def threshold_slider(cur_intensity):
@@ -363,7 +327,7 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
         threshold = threshold_slider(cur_intensity)
         
         if (abs(cur_intensity - next_intensity) > threshold):
-            for i in range(lookahead):
+            for i in range(lookahead, -1, -1):
                 downx = max(min(int(x + xstep * i), width - 1), 0)
                 downy = max(min(int(y + ystep * i), height - 1), 0)
                 
@@ -373,29 +337,6 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
             return (downx, downy)
     
     return (x, y)
-
-
-def mapping_scorer(image, building_list, click_x, click_y):
-    min_error = 0
-    min_index = 0
-    for x_y_points in range(len(building_list)):
-        print(building_list[x_y_points])
-        area = backend.area_from_points(building_list[x_y_points])
-        print('area', area)
-        error = 0
-        for x,y in building_list[x_y_points]:
-            error += abs(int(image[math.floor(y)][math.floor(x)]) - int(image[click_y][click_x]))
-            print('error', error)
-        print(' ')
-        error = error / math.sqrt(area)
-        if x_y_points == 0:
-            min_error = error
-            min_index = x_y_points
-        elif error < min_error:
-            min_error = error
-            min_index = x_y_points
-    print('best index', min_index)
-    return building_list[min_index]
 
 
 def get_next_RGB_change(image, x, y, xstep, ystep):
@@ -424,17 +365,68 @@ def get_next_RGB_change(image, x, y, xstep, ystep):
             break
         x += xstep
         y += ystep
-        cur_RGB = image[y][x]
+        cur_RGB = image[math.floor(y)][math.floor(x)]
         if not RGB_comparison(start_RGB, cur_RGB):
-            for i in range(lookahead):
+            for i in range(lookahead, -1, -1):
                 downx = max(min(x + xstep * i, width - 1), 0)
                 downy = max(min(y + ystep * i, height - 1), 0)
-                intermediate_RGB = image[downy][downx]
-                if dist_checker(start_RGB, intermediate_RGB):
+                intermediate_RGB = image[math.floor(downy)][math.floor(downx)]
+                if RGB_comparison(start_RGB, intermediate_RGB):
                     return (downx, downy)
             return (x, y)
 
     return (x, y)
+
+
+def mapping_scorer(image, building_list, click_x, click_y):
+    min_error = 0
+    min_index = 0
+    for x_y_points in range(len(building_list)):
+        # print(building_list[x_y_points])
+        area = backend.area_from_points(building_list[x_y_points])
+        # print('area', area)
+        error = 0
+        for x,y in building_list[x_y_points]:
+            error += abs(int(image[math.floor(y)][math.floor(x)]) - int(image[click_y][click_x]))
+            # print('error', error)
+        # print(' ')
+        error = error / math.sqrt(area)
+        if x_y_points == 0:
+            min_error = error
+            min_index = x_y_points
+        elif error < min_error:
+            min_error = error
+            min_index = x_y_points
+    # print('best index', min_index)
+    return building_list[min_index]
+
+
+def mapping_scorer_RGB(image, building_list, click_x, click_y):
+
+    def RGB_comparison(start_RGB, cur_RGB):
+        start_RGB = start_RGB.tolist()
+        cur_RGB = cur_RGB.tolist()
+        error = 0
+        for i in range(len(start_RGB)):
+            error += abs(start_RGB[i] - cur_RGB[i])
+        return error
+
+    min_error = 0
+    min_index = 0
+    for x_y_points in range(len(building_list)):
+        area = backend.area_from_points(building_list[x_y_points])
+        error = 0
+        for x, y in building_list[x_y_points]:
+            error += RGB_comparison(image[math.floor(y)][math.floor(x)], image[click_y][click_x])
+        error = error / math.sqrt(area)
+        if x_y_points == 0:
+            min_error = error
+            min_index = x_y_points
+        elif error < min_error:
+            min_error = error
+            min_index = x_y_points
+    return building_list[min_index]
+
 
 # delete the rectangle manually (such as from undo-ing a click from the frontend)
 def delete_rect(rect_id):
@@ -475,7 +467,7 @@ def get_all_rects_dictionary():
     return rect_dict
 
 
-# USE THIS CODE TO TEST RGB VERSION
+# USE THIS CODE TO TEST THE ABOVE FUNCTIONS
 # def detect_rectangle_RGB_TEST(pil_image_RGB, x, y):
 #     """ Tries to detect the rectangle at a given point on an image. """
 #
@@ -498,10 +490,6 @@ def get_all_rects_dictionary():
 #
 #     # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
 #     return retangles_to_add[0].get_points()  # TODO!!!!!!!!!!!!
-
-
-
-
 
 
 # detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
