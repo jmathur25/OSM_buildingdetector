@@ -111,6 +111,7 @@ def mapclick():
         backend_image = imd.get_tiles_around(xtile, ytile, zoom)
         # comment this out to use RGB version
         backend_image = PIL.ImageOps.grayscale(backend_image)
+        # backend_image.save('OSM_check' + str(x) + '.PNG')
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
