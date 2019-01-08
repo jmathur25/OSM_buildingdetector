@@ -6,6 +6,8 @@ def query_location(query):
     @param query Query to search, such as "Illinois" or "Six Flags Great America"
     @return The JSON object containing Nominatim's results for that search term,
         or None if the request was unsuccessful.
+    
+    See https://wiki.openstreetmap.org/wiki/Nominatim for more information.   
     """
     nom_url = "https://nominatim.openstreetmap.org/search"
     params = {
