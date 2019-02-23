@@ -77,9 +77,15 @@
                           }
                       }
                       } else {
-                        popup.setLatLng(e.latlng);
-                        popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
-                        popup.openOn(map);
+                        if (rectsToDelete.length > 0) {
+                          popup.setLatLng(e.latlng);
+                          popup.setContent("You clicked inside a mapped building. Please click elsewhere");
+                          popup.openOn(map);
+                        } else {
+                          popup.setLatLng(e.latlng);
+                          popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
+                          popup.openOn(map);
+                        }
                       }
                   }
               }
@@ -96,13 +102,6 @@
         var polygons = {}
 
         var polygonStack = [];
-
-        function addStuff() {
-            addPolygon([[45.12735370724504, -94.5264905691147],
-            [45.12736127276118, -94.52608287334444],
-            [45.127221310550375, -94.5260775089264],
-            [45.127225093317335, -94.5264905691147]], 0);
-        }
 
         // Add a polygon to the map
         function addPolygon(nodeList, id) {
@@ -440,38 +439,33 @@
             var max_lat = bounds['_northEast']['lat']
             var max_long = bounds['_northEast']['lng']
             var coords = (min_long, min_lat, max_lat, max_long)
-            if (!(coords in syncMemory)) {
-              syncMemory[coords] = 1
-              var params = "min_long="+min_long+"&min_lat="+min_lat+"&max_long="+max_long+"&max_lat="+max_lat
-              console.log('params: ' + params)
-              var xhr = new XMLHttpRequest();
-              xhr.open("POST", "./OSMSync", true);
-              xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-              // Wait for a response
-              xhr.onreadystatechange = function() {
-                  if (xhr.readyState == 4 && xhr.status == 200) {
-                      // Parse the response
-                      var responseJson = JSON.parse(xhr.responseText);
-                      var rectsToUpdate = responseJson["rectsToAdd"];
+            var params = "min_long="+min_long+"&min_lat="+min_lat+"&max_long="+max_long+"&max_lat="+max_lat
+            console.log('params: ' + params)
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "./OSMSync", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            // Wait for a response
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Parse the response
+                    var responseJson = JSON.parse(xhr.responseText);
+                    var rectsToUpdate = responseJson["rectsToAdd"];
 
-                      // Add polygon(s)
-                      if (rectsToUpdate.length > 0) {
-                          for (var count = 1; count < rectsToUpdate.length; count++) {
-                            var rect_nodes = rectsToUpdate[count];
-                            // temporary until we can disentangle this from adding a clicked building
-                            var rect_id = -count;
-                            addPolygonSync(rect_nodes, rect_id);
-                          }
-                      }
+                    // Add polygon(s)
+                    if (rectsToUpdate.length > 0) {
+                        for (var count = 1; count < rectsToUpdate.length; count++) {
+                          var rect_nodes = rectsToUpdate[count];
+                          // temporary until we can disentangle this from adding a clicked building
+                          var rect_id = -count;
+                          addPolygonSync(rect_nodes, rect_id);
+                        }
+                    }
 
-                      console.log('Sync Finished')
-                      syncButton.updateEnd();
-                  }
-              }
-              xhr.send(params);
-            } else {
-            console.log('This exact spot was already synced')
+                    console.log('Sync Finished')
+                    syncButton.updateEnd();
+                }
             }
+            xhr.send(params);
         }
 
         // Add upload control

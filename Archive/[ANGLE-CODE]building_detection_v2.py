@@ -214,6 +214,27 @@ def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, grayscale=True):
         else:
             return get_next_RGB_change(im, x, y, step_x, step_y)
 
+    # to choose the right scoring function
+    def scorer(im, building_list, click_x, click_y, grayscale):
+        if grayscale:
+            return mapping_scorer(im, building_list, click_x, click_y)
+        else:
+            return mapping_scorer_RGB(im, building_list, click_x, click_y)
+
+    # used to find the corners given the results of the get_next functions
+    # info is formatted as ((point_x, point_y), slope_n)
+    def point_slope_intersect(info1, info2):
+        x_1 = info1[0][0]
+        y_1 = info1[0][1]
+        m_1 = info1[1]
+        x_2 = info2[0][0]
+        y_2 = info2[0][1]
+        m_2 = info2[1]
+
+        x = (y_2 - y_1 + m_1 * x_1 - x_2 * m_2) / (m_1 - m_2)
+        y = y_1 + m_1 * (x - x_1)
+        return x, y
+
     if grayscale:
         pil_image = PIL.ImageOps.grayscale(pil_image)
 
@@ -222,15 +243,38 @@ def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, grayscale=True):
     # Get the x,y coordinates of the click
     x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
 
-    quad_one = point_finder(im, x, y, 1, 0, grayscale)
-    quad_four = point_finder(im, x, y, 0, -1, grayscale)
-    quad_two = point_finder(im, x, y, 0, 1, grayscale)
-    quad_three = point_finder(im, x, y, -1, 0, grayscale)
+    # default is to search for every 15 degrees
+    angles = [15*x*math.pi/180 for x in range(0, 6)]
+    building_list = []
+    for angle in angles:
+        # Get the boundaries of the rectangle
+        quad_one = point_finder(im, x, y, math.cos(angle), math.sin(angle), grayscale)
+        quad_four = point_finder(im, x, y, math.sin(angle), -math.cos(angle), grayscale)
+        quad_two = point_finder(im, x, y, -math.sin(angle), math.cos(angle), grayscale)
+        quad_three = point_finder(im, x, y, -math.cos(angle), -math.sin(angle), grayscale)
 
-    corner1 = quad_one[0], quad_two[1]
-    corner2 = quad_one[0], quad_four[1]
-    corner3 = quad_three[0], quad_four[1]
-    corner4 = quad_three[0], quad_two[1]
+        slope2 = math.tan(angle)
+        if slope2 == 0:
+            # hard coded because slope_point_intersect doesn't work when slope is 0
+            building_list.append([(quad_one[0], quad_two[1]), (quad_one[0], quad_four[1]),
+                                  (quad_three[0], quad_four[1]), (quad_three[0], quad_two[1])])
+        else:
+            slope1 = -1 / slope2
+            # top right
+            corner1 = point_slope_intersect((quad_one, slope1), (quad_two, slope2))
+            # bottom right
+            corner2 = point_slope_intersect((quad_one, slope1), (quad_four, slope2))
+            # bottom left
+            corner3 = point_slope_intersect((quad_three, slope1), (quad_four, slope2))
+            # top left
+            corner4 = point_slope_intersect((quad_three, slope1), (quad_two, slope2))
+            building_list.append([corner1, corner2, corner3, corner4])
+
+    best_map = scorer(im, building_list, x, y, grayscale)
+    corner1 = best_map[0]
+    corner2 = best_map[1]
+    corner3 = best_map[2]
+    corner4 = best_map[3]
 
     # Calculate the geocoordinates of the rectangle
     topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
@@ -332,6 +376,56 @@ def get_next_RGB_change(image, x, y, xstep, ystep):
             return (x, y)
 
     return (x, y)
+
+
+def mapping_scorer(image, building_list, click_x, click_y):
+    min_error = 0
+    min_index = 0
+    for x_y_points in range(len(building_list)):
+        # print(building_list[x_y_points])
+        area = backend.area_from_points(building_list[x_y_points])
+        # print('area', area)
+        error = 0
+        for x,y in building_list[x_y_points]:
+            error += abs(int(image[math.floor(y)][math.floor(x)]) - int(image[click_y][click_x]))
+            # print('error', error)
+        # print(' ')
+        error = error / math.sqrt(area)
+        if x_y_points == 0:
+            min_error = error
+            min_index = x_y_points
+        elif error < min_error:
+            min_error = error
+            min_index = x_y_points
+    # print('best index', min_index)
+    return building_list[min_index]
+
+
+def mapping_scorer_RGB(image, building_list, click_x, click_y):
+
+    def RGB_comparison(start_RGB, cur_RGB):
+        start_RGB = start_RGB.tolist()
+        cur_RGB = cur_RGB.tolist()
+        error = 0
+        for i in range(len(start_RGB)):
+            error += abs(start_RGB[i] - cur_RGB[i])
+        return error
+
+    min_error = 0
+    min_index = 0
+    for x_y_points in range(len(building_list)):
+        area = backend.area_from_points(building_list[x_y_points])
+        error = 0
+        for x, y in building_list[x_y_points]:
+            error += RGB_comparison(image[math.floor(y)][math.floor(x)], image[click_y][click_x])
+        error = error / math.sqrt(area)
+        if x_y_points == 0:
+            min_error = error
+            min_index = x_y_points
+        elif error < min_error:
+            min_error = error
+            min_index = x_y_points
+    return building_list[min_index]
 
 
 # delete the rectangle manually (such as from undo-ing a click from the frontend)
