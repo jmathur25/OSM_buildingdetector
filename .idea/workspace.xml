@@ -74,7 +74,7 @@
         <counts>
           <entry key="dummy" value="8" />
           <entry key="html" value="2208" />
-          <entry key="py" value="18307" />
+          <entry key="py" value="19063" />
           <entry key="txt" value="55" />
         </counts>
       </usages-collector>
@@ -82,7 +82,7 @@
         <counts>
           <entry key="HTML" value="2208" />
           <entry key="PLAIN_TEXT" value="63" />
-          <entry key="Python" value="18307" />
+          <entry key="Python" value="19063" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -155,22 +155,16 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/fillTest.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="327">
-              <caret line="64" column="33" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
+            <state relative-caret-position="-578">
+              <caret line="44" column="28" lean-forward="true" selection-start-line="44" selection-start-column="28" selection-end-line="44" selection-end-column="28" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
-                <marker date="1550909746662" expanded="true" signature="61:182" ph="..." />
-                <marker date="1550909746662" expanded="true" signature="198:200" ph="..." />
-                <marker date="1550909746662" expanded="true" signature="250:323" ph="..." />
-                <marker date="1550909746662" expanded="true" signature="392:397" ph="..." />
+                <marker date="1550943480655" expanded="true" signature="70:72" ph="..." />
+                <marker date="1550943480655" expanded="true" signature="122:195" ph="..." />
+                <marker date="1550943480655" expanded="true" signature="264:269" ph="..." />
               </folding>
             </state>
           </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test_building.PNG">
-          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -288,9 +282,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-12" />
-    <option name="width" value="1932" />
-    <option name="height" value="1032" />
+    <option name="x" value="-8" />
+    <option name="width" value="1288" />
+    <option name="height" value="688" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -315,11 +309,6 @@
             <path>
               <item name="OSM_buildingdetector" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
               <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
-            </path>
-            <path>
-              <item name="OSM_buildingdetector" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
-              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
-              <item name="backend" type="9f88c78c:ScopeViewTreeModel$FileNode" />
             </path>
           </expand>
           <select />
@@ -498,10 +487,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49822065" visible="true" weight="0.24801272" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49822065" visible="true" weight="0.16438356" />
       <window_info id="Structure" order="1" sideWeight="0.5017794" side_tool="true" weight="0.24880762" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -703,14 +692,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/fillTest.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="327">
-          <caret line="64" column="33" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
+        <state relative-caret-position="-578">
+          <caret line="44" column="28" lean-forward="true" selection-start-line="44" selection-start-column="28" selection-end-line="44" selection-end-column="28" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
-            <marker date="1550909746662" expanded="true" signature="61:182" ph="..." />
-            <marker date="1550909746662" expanded="true" signature="198:200" ph="..." />
-            <marker date="1550909746662" expanded="true" signature="250:323" ph="..." />
-            <marker date="1550909746662" expanded="true" signature="392:397" ph="..." />
+            <marker date="1550943480655" expanded="true" signature="70:72" ph="..." />
+            <marker date="1550943480655" expanded="true" signature="122:195" ph="..." />
+            <marker date="1550943480655" expanded="true" signature="264:269" ph="..." />
           </folding>
         </state>
       </provider>
