@@ -50,7 +50,7 @@ def register_click(event,x,y,flags,param):
         x_global = int(x)
         y_global = int(y)
 
-image = cv2.imread('diff_hue.PNG')
+image = cv2.imread('slanted_1.PNG')
 cv2.namedWindow('image')
 cv2.setMouseCallback('image', register_click)
 cv2.imshow('image', image)

@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ab60f4d-9eec-4e9e-ae70-07908af39ea8" name="Default Changelist" comment="rectangle integration with merge on, toggle merge with 'm'">
+      <change afterPath="$PROJECT_DIR$/Archive/[ANGLE-CODE]building_detection_v2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fillTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/fillTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/building_detection_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/building_detection_v2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/floodFillPrototype.py" beforeDir="false" afterPath="$PROJECT_DIR$/floodFillPrototype.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -51,39 +53,39 @@
           <entry key="PNG" value="3" />
           <entry key="css" value="1" />
           <entry key="gitignore" value="1" />
-          <entry key="html" value="4" />
-          <entry key="js" value="3" />
+          <entry key="html" value="5" />
+          <entry key="js" value="8" />
           <entry key="json" value="1" />
-          <entry key="map" value="1" />
-          <entry key="py" value="44" />
+          <entry key="map" value="2" />
+          <entry key="py" value="45" />
           <entry key="yml" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CSS" value="1" />
-          <entry key="HTML" value="4" />
+          <entry key="HTML" value="5" />
           <entry key="Image" value="3" />
           <entry key="JSON" value="1" />
-          <entry key="JavaScript" value="3" />
-          <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="44" />
+          <entry key="JavaScript" value="8" />
+          <entry key="PLAIN_TEXT" value="3" />
+          <entry key="Python" value="45" />
           <entry key="YAML" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dummy" value="8" />
+          <entry key="dummy" value="30" />
           <entry key="html" value="2208" />
-          <entry key="py" value="19147" />
+          <entry key="py" value="19249" />
           <entry key="txt" value="55" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="HTML" value="2208" />
-          <entry key="PLAIN_TEXT" value="63" />
-          <entry key="Python" value="19147" />
+          <entry key="PLAIN_TEXT" value="85" />
+          <entry key="Python" value="19249" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -94,12 +96,12 @@
           <entry key="project.open.time.12" value="1" />
           <entry key="project.open.time.15" value="1" />
           <entry key="project.open.time.4" value="2" />
-          <entry key="project.open.time.5" value="2" />
+          <entry key="project.open.time.5" value="3" />
           <entry key="project.open.time.6" value="3" />
           <entry key="project.open.time.7" value="1" />
           <entry key="project.open.time.8" value="7" />
           <entry key="project.open.time.9" value="2" />
-          <entry key="project.opened" value="24" />
+          <entry key="project.opened" value="25" />
         </counts>
       </usages-collector>
     </session>
@@ -144,8 +146,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1700">
-              <caret line="110" column="18" selection-start-line="110" selection-start-column="18" selection-end-line="110" selection-end-column="18" />
+            <state relative-caret-position="357">
+              <caret line="153" column="29" selection-start-line="153" selection-start-column="29" selection-end-line="153" selection-end-column="29" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -153,30 +155,30 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/fillTest.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/floodFillPrototype.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="52" column="28" selection-start-line="52" selection-start-column="28" selection-end-line="52" selection-end-column="28" />
+            <state relative-caret-position="-707">
+              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
-                <marker date="1550949213542" expanded="true" signature="70:72" ph="..." />
-                <marker date="1550949213542" expanded="true" signature="122:195" ph="..." />
-                <marker date="1550949213542" expanded="true" signature="264:269" ph="..." />
+                <marker date="1550951405931" expanded="true" signature="70:72" ph="..." />
+                <marker date="1550951405931" expanded="true" signature="122:195" ph="..." />
+                <marker date="1550951405931" expanded="true" signature="264:269" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="467" selection-start-line="467" selection-end-line="467" />
+            <state relative-caret-position="381">
+              <caret line="333" column="17" selection-start-line="333" selection-start-column="17" selection-end-line="333" selection-end-column="17" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
-                <marker date="1550896722208" expanded="true" signature="8722:9355" ph="..." />
-                <marker date="1550896722208" expanded="true" signature="12284:12394" ph="..." />
+                <marker date="1550954244337" expanded="true" signature="8614:8620" ph="..." />
+                <marker date="1550954244337" expanded="true" signature="10335:10445" ph="..." />
               </folding>
             </state>
           </provider>
@@ -270,9 +272,10 @@
         <option value="$PROJECT_DIR$/backend/__init__.py" />
         <option value="$PROJECT_DIR$/templates/DisplayMap.html" />
         <option value="$PROJECT_DIR$/backend/OSMAPI_Interactor.py" />
-        <option value="$PROJECT_DIR$/building_detection_v2.py" />
         <option value="$PROJECT_DIR$/app.py" />
         <option value="$PROJECT_DIR$/fillTest.py" />
+        <option value="$PROJECT_DIR$/floodFillPrototype.py" />
+        <option value="$PROJECT_DIR$/building_detection_v2.py" />
       </list>
     </option>
   </component>
@@ -311,6 +314,11 @@
               <item name="OSM_buildingdetector" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
               <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
             </path>
+            <path>
+              <item name="OSM_buildingdetector" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="Archive" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -320,13 +328,14 @@
   <component name="PropertiesComponent">
     <property name="Git.Branch.Popup.ShowAllRemotes" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../OpenCV_TEST" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Archive" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jatin\PycharmProjects\OSM_buildingdetector\Archive" />
       <recent name="C:\Users\james\OSM_buildingdetector" />
     </key>
   </component>
@@ -398,7 +407,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fillTest.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\jatin\PycharmProjects\OSM_buildingdetector\floodFillPrototype.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -489,6 +498,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49822065" visible="true" weight="0.24801272" />
       <window_info id="Structure" order="1" sideWeight="0.5017794" side_tool="true" weight="0.24880762" />
@@ -573,9 +583,6 @@
         <state relative-caret-position="-2295" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/leaflet/leaflet-src.js">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/leaflet/leaflet.js.map">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -583,13 +590,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="59" selection-start-line="4" selection-start-column="59" selection-end-line="4" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/leaflet/leaflet.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="3" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
         </state>
       </provider>
     </entry>
@@ -625,13 +625,6 @@
     <entry file="file://$PROJECT_DIR$/Archive/Grayscale_Convert.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/DisplayMap.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1853">
-          <caret line="109" column="18" lean-forward="true" selection-start-line="109" selection-start-column="18" selection-end-line="109" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/config.yml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="391">
@@ -647,15 +640,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1700">
-          <caret line="110" column="18" selection-start-line="110" selection-start-column="18" selection-end-line="110" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/test_building.PNG">
+      <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -675,30 +661,72 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
+    <entry file="file://$PROJECT_DIR$/static/leaflet/leaflet.js.map">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/leaflet/leaflet-src.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="467" selection-start-line="467" selection-end-line="467" />
+        <state relative-caret-position="-3009" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/DisplayMap.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="503">
+          <caret line="109" column="18" lean-forward="true" selection-start-line="109" selection-start-column="18" selection-end-line="109" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/leaflet/leaflet.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="3" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/leaflet/leaflet-src.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/leaflet/leaflet.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="153" column="29" selection-start-line="153" selection-start-column="29" selection-end-line="153" selection-end-column="29" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
-            <marker date="1550896722208" expanded="true" signature="8722:9355" ph="..." />
-            <marker date="1550896722208" expanded="true" signature="12284:12394" ph="..." />
+            <element signature="e#0#14#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test_building.PNG">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fillTest.py">
+    <entry file="file://$PROJECT_DIR$/floodFillPrototype.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="52" column="28" selection-start-line="52" selection-start-column="28" selection-end-line="52" selection-end-column="28" />
+        <state relative-caret-position="-707">
+          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
-            <marker date="1550949213542" expanded="true" signature="70:72" ph="..." />
-            <marker date="1550949213542" expanded="true" signature="122:195" ph="..." />
-            <marker date="1550949213542" expanded="true" signature="264:269" ph="..." />
+            <marker date="1550951405931" expanded="true" signature="70:72" ph="..." />
+            <marker date="1550951405931" expanded="true" signature="122:195" ph="..." />
+            <marker date="1550951405931" expanded="true" signature="264:269" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Archive/[ANGLE-CODE]building_detection_v2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-255">
+          <caret line="23" column="46" selection-start-line="23" selection-start-column="46" selection-end-line="23" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="381">
+          <caret line="333" column="17" selection-start-line="333" selection-start-column="17" selection-end-line="333" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <marker date="1550954244337" expanded="true" signature="8614:8620" ph="..." />
+            <marker date="1550954244337" expanded="true" signature="10335:10445" ph="..." />
           </folding>
         </state>
       </provider>
