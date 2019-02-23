@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ab60f4d-9eec-4e9e-ae70-07908af39ea8" name="Default Changelist" comment="rectangle integration with merge on, toggle merge with 'm'">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/building_detection_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/building_detection_v2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fillTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/fillTest.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -76,7 +74,7 @@
         <counts>
           <entry key="dummy" value="8" />
           <entry key="html" value="2208" />
-          <entry key="py" value="18130" />
+          <entry key="py" value="18307" />
           <entry key="txt" value="55" />
         </counts>
       </usages-collector>
@@ -84,7 +82,7 @@
         <counts>
           <entry key="HTML" value="2208" />
           <entry key="PLAIN_TEXT" value="63" />
-          <entry key="Python" value="18130" />
+          <entry key="Python" value="18307" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -157,14 +155,14 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/fillTest.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="37" column="93" selection-start-line="37" selection-start-column="93" selection-end-line="37" selection-end-column="93" />
+            <state relative-caret-position="327">
+              <caret line="64" column="33" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
-                <marker date="1550908925733" expanded="true" signature="61:176" ph="..." />
-                <marker date="1550908925733" expanded="true" signature="192:194" ph="..." />
-                <marker date="1550908925733" expanded="true" signature="244:317" ph="..." />
-                <marker date="1550908925733" expanded="true" signature="386:391" ph="..." />
+                <marker date="1550909746662" expanded="true" signature="61:182" ph="..." />
+                <marker date="1550909746662" expanded="true" signature="198:200" ph="..." />
+                <marker date="1550909746662" expanded="true" signature="250:323" ph="..." />
+                <marker date="1550909746662" expanded="true" signature="392:397" ph="..." />
               </folding>
             </state>
           </provider>
@@ -178,7 +176,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7854">
+            <state relative-caret-position="480">
               <caret line="467" selection-start-line="467" selection-end-line="467" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -503,7 +501,7 @@
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49822065" visible="true" weight="0.24801272" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49822065" visible="true" weight="0.24801272" />
       <window_info id="Structure" order="1" sideWeight="0.5017794" side_tool="true" weight="0.24880762" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -670,21 +668,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test_building.PNG">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7854">
-          <caret line="467" selection-start-line="467" selection-end-line="467" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-            <marker date="1550896722208" expanded="true" signature="8722:9355" ph="..." />
-            <marker date="1550896722208" expanded="true" signature="12284:12394" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/backend/OSMAPI_Interactor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2006">
@@ -703,16 +686,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fillTest.py">
+    <entry file="file://$PROJECT_DIR$/building_detection_v2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="37" column="93" selection-start-line="37" selection-start-column="93" selection-end-line="37" selection-end-column="93" />
+        <state relative-caret-position="480">
+          <caret line="467" selection-start-line="467" selection-end-line="467" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
-            <marker date="1550908925733" expanded="true" signature="61:176" ph="..." />
-            <marker date="1550908925733" expanded="true" signature="192:194" ph="..." />
-            <marker date="1550908925733" expanded="true" signature="244:317" ph="..." />
-            <marker date="1550908925733" expanded="true" signature="386:391" ph="..." />
+            <marker date="1550896722208" expanded="true" signature="8722:9355" ph="..." />
+            <marker date="1550896722208" expanded="true" signature="12284:12394" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test_building.PNG">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fillTest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="327">
+          <caret line="64" column="33" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <marker date="1550909746662" expanded="true" signature="61:182" ph="..." />
+            <marker date="1550909746662" expanded="true" signature="198:200" ph="..." />
+            <marker date="1550909746662" expanded="true" signature="250:323" ph="..." />
+            <marker date="1550909746662" expanded="true" signature="392:397" ph="..." />
           </folding>
         </state>
       </provider>
