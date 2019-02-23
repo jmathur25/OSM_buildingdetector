@@ -114,6 +114,7 @@ def mapclick():
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(
                                                         backend_image,xtile, ytile, lat, long, zoom, grayscale=True)
+        # if area too big
         if osm.check_area(rect_points, sort=False):
             json_post = {"rectsToAdd": [],
                          "rectsToDelete": []
