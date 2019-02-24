@@ -4,7 +4,7 @@ import geolocation
 import backend
 import math
 import PIL.ImageOps
-
+from .FloodFill_To_Edges_Actual import run_all
 
 # all rectangles are parallel to the xy axis
 class Rectangle:
@@ -29,15 +29,13 @@ class Rectangle:
         if to_id:
             Rectangle.current_id += 1
             self.id = Rectangle.current_id
-
-        if len(self.points) > 4:
-            self.points = self.points[:4]
-            print('TOO MANY POINTS IN A RECTANGLE')
-
-        Rectangle.add_rectangle(self)
+            Rectangle.add_rectangle(self)
 
         # try to merge with all other rectangles, but if close enough
-        if Rectangle.merge_mode == True:
+        # print('making new rectangle, merge status:', Rectangle.merge_mode)
+        # print('all rects:', Rectangle.all_rectangles)
+        # print('current rects:', Rectangle.added_rectangles)
+        if Rectangle.merge_mode:
             for i in range(0, len(Rectangle.all_rectangles) - 1):
                 if Rectangle.all_rectangles[i].merge_with(self):
                     # the merge is done and the Rectangles class is accordingly adjusted
@@ -204,52 +202,69 @@ class Rectangle:
 
 
 # detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
-def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, grayscale=True):
+def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, complex, threshold=None):
     """ Tries to detect the rectangle at a given point on an image. """
 
-    # chooses right get_intensity or get_RGB function
-    def point_finder(im, x, y, step_x, step_y, grayscale):
-        if grayscale:
-            return get_next_intensity_change(im, x, y, step_x, step_y)
-        else:
-            return get_next_RGB_change(im, x, y, step_x, step_y)
-
-    if grayscale:
+    if not complex:
         pil_image = PIL.ImageOps.grayscale(pil_image)
 
-    im = np.array(pil_image)
+        im = np.array(pil_image)
 
-    # Get the x,y coordinates of the click
-    x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
+        # Get the x,y coordinates of the click
+        x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
 
-    quad_one = point_finder(im, x, y, 1, 0, grayscale)
-    quad_four = point_finder(im, x, y, 0, -1, grayscale)
-    quad_two = point_finder(im, x, y, 0, 1, grayscale)
-    quad_three = point_finder(im, x, y, -1, 0, grayscale)
+        quad_one = get_next_intensity_change(im, x, y, 1, 0)
+        quad_four = get_next_intensity_change(im, x, y, 0, -1)
+        quad_two = get_next_intensity_change(im, x, y, 0, 1)
+        quad_three = get_next_intensity_change(im, x, y, -1, 0)
 
-    corner1 = quad_one[0], quad_two[1]
-    corner2 = quad_one[0], quad_four[1]
-    corner3 = quad_three[0], quad_four[1]
-    corner4 = quad_three[0], quad_two[1]
+        corner1 = quad_one[0], quad_two[1]
+        corner2 = quad_one[0], quad_four[1]
+        corner3 = quad_three[0], quad_four[1]
+        corner4 = quad_three[0], quad_two[1]
 
-    # Calculate the geocoordinates of the rectangle
-    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
-    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
-    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
-    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
+        # Calculate the geocoordinates of the rectangle
+        topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
+        bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
+        bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
+        topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
 
-    topleft = list(topleft)
-    topright = list(topright)
-    bottomright = list(bottomright)
-    bottomleft = list(bottomleft)
+        topleft = list(topleft)
+        topright = list(topright)
+        bottomright = list(bottomright)
+        bottomleft = list(bottomleft)
 
-    Rectangle([topleft, topright, bottomright, bottomleft])
+        Rectangle([topleft, topright, bottomright, bottomleft])
 
-    retangles_to_add = Rectangle.get_added_rectangles()
+        retangles_to_add = Rectangle.get_added_rectangles()
 
-    # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
-    return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
-            Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
+        # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
+        return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
+                Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
+
+    else:
+        """ Tries to detect the rectangle at a given point on an image. """
+        if threshold == None:
+            threshold = 25
+
+        # Get the x,y coordinates of the click
+        x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
+
+        pil_image = np.array(pil_image)
+        building_points = run_all(pil_image, x, y, threshold)
+        vertex_list = []
+        # corners are already structured
+        for corner in building_points:
+            next_vertex = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner[0], corner[1])
+            vertex_list.append(list(next_vertex))
+
+        Rectangle(vertex_list)
+
+        retangles_to_add = Rectangle.get_added_rectangles()
+
+        # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
+        return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
+                Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
 
 
 # Get the next major intensity change in a given direction.
@@ -293,46 +308,6 @@ def get_next_intensity_change(image, x, y, xstep, ystep):
             return (downx, downy)
     
     return (x, y)
-
-
-def get_next_RGB_change(image, x, y, xstep, ystep):
-
-    def RGB_comparison(start_RGB, cur_RGB):
-        start_RGB = start_RGB.tolist()
-        cur_RGB = cur_RGB.tolist()
-        for i in range(len(start_RGB)):
-            dist = abs(start_RGB[i] - cur_RGB[i])
-            # print('dist:', dist)
-            if dist < 15:
-                continue
-            else:
-                return False
-        return True
-
-
-    lookahead = 5
-    width = image.shape[1]
-    height = image.shape[0]
-
-    start_RGB = image[y][x]
-
-    while (x >= 0 and x < width and y >= 0 and y < height):
-        if (x + xstep < 0 or x + xstep >= width or y + ystep < 0 or y + ystep >= height):
-            break
-        x += xstep
-        y += ystep
-        cur_RGB = image[math.floor(y)][math.floor(x)]
-        if not RGB_comparison(start_RGB, cur_RGB):
-            for i in range(lookahead, -1, -1):
-                downx = max(min(x + xstep * i, width - 1), 0)
-                downy = max(min(y + ystep * i, height - 1), 0)
-                intermediate_RGB = image[math.floor(downy)][math.floor(downx)]
-                if RGB_comparison(start_RGB, intermediate_RGB):
-                    return (downx, downy)
-            return (x, y)
-
-    return (x, y)
-
 
 # delete the rectangle manually (such as from undo-ing a click from the frontend)
 def delete_rect(rect_id):
