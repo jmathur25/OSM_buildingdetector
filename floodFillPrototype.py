@@ -3,15 +3,13 @@ import queue
 import numpy as np
 import math
 
-THRESHOLD = 10
+THRESHOLD = 25
 
-FILENAME = 'champaign2'
-
-# img = cv2.imread(FILENAME + '.png')
-# cv2.imwrite(FILENAME + 'compressed.png', img,  [cv2.IMWRITE_PNG_COMPRESSION, 0])
+FILENAME = 'diff_hue'
 image = cv2.imread(FILENAME + '.png')
 height = image.shape[0]
 width = image.shape[1]
+
 # used for smoothing out image.
 kernel = np.ones((5, 5), np.float32) / 25
 
@@ -82,8 +80,6 @@ def register_click(event,x,y,flags,param):
         replace_color = np.array([0, 255, 0])
 
         image2 = flood_fill(image, x_global, y_global, target_color, replace_color)
-        # smoothed = cv2.filter2D(image2, -1, kernel)
-
 
         cv2.imshow('image2', image2)
         cv2.imwrite(FILENAME + 'detected.PNG', image2)
