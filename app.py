@@ -94,13 +94,14 @@ def mapclick():
         possible_building_matches = osm.ways_binary_search((lat, long))
 
         # consider moving this to a function inside the OSM_Interactor class, and copy the Rectangle has point inside code
-        for points in possible_building_matches:
-            synced_building_as_rect = building_detection_combined.Rectangle(points, to_id=False)
-            if synced_building_as_rect.has_point_inside((lat, long)):
-                json_post = {"rectsToAdd": [],
-                             "rectsToDelete": ['INSIDEBUILDING']
-                             }
-                return json.dumps(json_post)
+        if possible_building_matches != None:
+            for points in possible_building_matches:
+                synced_building_as_rect = building_detection_combined.Rectangle(points, to_id=False)
+                if synced_building_as_rect.has_point_inside((lat, long)):
+                    json_post = {"rectsToAdd": [],
+                                "rectsToDelete": ['INSIDEBUILDING']
+                                }
+                    return json.dumps(json_post)
 
 
         # find xtile, ytile
@@ -186,6 +187,9 @@ def OSM_map_sync():
 
         global osm
         mappable_results = osm.sync_map(min_long, min_lat, max_long, max_lat)
+        if mappable_results == None or len(mappable_results) == 0:
+            json_post = {'rectsToAdd': []}
+            return json.dumps(json_post)
         # note that this is in a different format as the other json_post for a map click
         # mappable_results is a list with each index a building containing tuples for the coordinates of the corners
         json_post = {"rectsToAdd": mappable_results}

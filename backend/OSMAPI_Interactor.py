@@ -12,7 +12,8 @@ class OSM_Interactor:
     SUM_THRESHOLD = 0.01
 
     def __init__(self, web_api, username, password):
-        osm_api = osmapi.OsmApi(api=web_api, username=username, password=password)
+        osm_api = osmapi.OsmApi(
+            api=web_api, username=username, password=password)
         self.osm_api = osm_api
         # variable to keep track of buildings synced
         self.ways_added = {}
@@ -20,13 +21,15 @@ class OSM_Interactor:
     # ideally not used as signing is taking care of during __init__
     # could be used in a feature where the user can change the access token while mapping
     def sign_in(self, web_api, username, password):
-        osm_api = osmapi.OsmApi(api=web_api, username=username, password=password)
+        osm_api = osmapi.OsmApi(
+            api=web_api, username=username, password=password)
         self.osm_api = osm_api
         return osm_api
 
     # tag must be as a dict, like {"Corner": "1"}
     def node_create(self, latitude, longitude, comment, tag={}):
-        node = self.osm_api.NodeCreate({"lat": latitude, "lon": longitude, "tag": tag})
+        node = self.osm_api.NodeCreate(
+            {"lat": latitude, "lon": longitude, "tag": tag})
         return node
 
     # tag must be as a dict, like {"Way": "new way!"}
@@ -59,7 +62,8 @@ class OSM_Interactor:
             # If there are at least three nodes, create the area
             if len(node_list) >= 3:
                 node_list.append(node_list[0])
-                this_way = self.osm_api.WayCreate({"nd": node_list, "tag": tag})
+                this_way = self.osm_api.WayCreate(
+                    {"nd": node_list, "tag": tag})
                 way_list.append(this_way)
 
         # Close the changeset
@@ -75,7 +79,6 @@ class OSM_Interactor:
         return self.osm_api.NodeGet(node_id)
 
     def sync_map(self, min_lon, min_lat, max_lon, max_lat):
-
         """
         FIRST FUNCTION LOOKS AT MAP AND RETURNS A DICTIONARY OF INFO ON NODES AND WAYS
         SECOND FUNCTION LOOKS AT INFO AND PARSES TO GET A 2D LIST OF BUILDINGS TO SYNC
@@ -85,7 +88,9 @@ class OSM_Interactor:
             # FORMAT: min lon, min lat, max lon, max lat
             # returns a dictionary of the form [{'type': (one of node, way, changeset), 'data': dict}, ...]
             # print(api.Map(-94.532408, 45.127431, -94.531071, 45.128568))
-            return self.osm_api.Map(min_lon, min_lat, max_lon, max_lat)
+            result = self.osm_api.Map(min_lon, min_lat, max_lon, max_lat)
+            print(result)
+            return result
 
         def parse_map(self, map_info):
             # parses map, returns coordinates of buildings with each building an item of the return list
@@ -114,7 +119,8 @@ class OSM_Interactor:
                     if info['type'] == 'node':
                         if info['data']['id'] in node_list:
                             index = node_list.index(info['data']['id']) % 4
-                            way_coordinates[index] = (info['data']['lat'], info['data']['lon'])
+                            way_coordinates[index] = (
+                                info['data']['lat'], info['data']['lon'])
                             if 0 not in way_coordinates:
                                 break
                 # the method above should make sure way is already sorted
@@ -124,7 +130,8 @@ class OSM_Interactor:
                     # makes ways_added keep track of the center of the building
                     center_lat = sum(lats) / len(way_coordinates)
                     center_long = sum(longs) / len(way_coordinates)
-                    self.ways_added[way_id] = (center_lat + center_long, way_coordinates)
+                    self.ways_added[way_id] = (
+                        center_lat + center_long, way_coordinates)
                     render_buildings.append(way_coordinates)
             return render_buildings
 
@@ -150,10 +157,12 @@ class OSM_Interactor:
     def sort_ways_memory(self):
         return sorted(self.ways_added.items(), key=operator.itemgetter(1))
 
-
     def ways_binary_search(self, coordinate):
+        if self.ways_added == None or len(self.ways_added) == 0:
+            return None
         recursion_memory = {}
         index_matches = []
+
         def binary_recursion(current, old, search_val, sorted_ways):
             if current in recursion_memory:
                 return 'done'
@@ -179,7 +188,8 @@ class OSM_Interactor:
         binary_recursion(root_index, 0, search_val, sorted_ways)
         if len(index_matches) == 0:
             return []
-        possible_matches = [sorted_ways[i][1][1] for i in range(min(index_matches), max(index_matches) + 1)]
+        possible_matches = [sorted_ways[i][1][1]
+                            for i in range(min(index_matches), max(index_matches) + 1)]
         return possible_matches
 
 
@@ -199,7 +209,7 @@ def area_from_points(points):
 
 def sort_points(corners):
     # calculate centroid of the polygon
-    n = len(corners) # of corners
+    n = len(corners)  # of corners
     cx = float(sum(x for x, y in corners)) / n
     cy = float(sum(y for x, y in corners)) / n
     # create a new list of corners which includes angles
@@ -212,3 +222,16 @@ def sort_points(corners):
     # sort it using the angles
     cornersWithAngles.sort(key=lambda tup: tup[2])
     return cornersWithAngles
+
+
+# osm = OSM_Interactor('https://api06.dev.openstreetmap.org',
+#                      'OSM_buildingdetector', 'fakepassword123')
+# min_lon = -87.662720
+# min_lat = 41.851285
+# max_lon = -87.618584
+# max_lat = 41.875175
+
+# print(osm.sync_map(min_lon, min_lat, max_lon, max_lat))
+# osm_api = osmapi.OsmApi(api='https://api06.dev.openstreetmap.org',
+#                         username='OSM_buildingdetector', password='fakepassword123')
+# print(osm_api.Map(min_lon, min_lat, max_lon, max_lat))
