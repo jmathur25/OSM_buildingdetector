@@ -4,7 +4,7 @@ import geolocation
 import backend
 import math
 import PIL.ImageOps
-from FloodFill_To_Edges_Actual import run_all
+from .floodFillActual import run_all
 
 # detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
 def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, threshold=None):

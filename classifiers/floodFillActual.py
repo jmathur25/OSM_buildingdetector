@@ -2,7 +2,7 @@ import cv2
 import queue
 import numpy as np
 import math
-from GreenFill import run_all2
+from .GreenFill import run_all2
 
 # default threshold, frontend can change this
 THRESHOLD = 25

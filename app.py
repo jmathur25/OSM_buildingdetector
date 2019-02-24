@@ -6,9 +6,7 @@ import PIL.ImageOps
 import cv2
 import numpy
 import json
-import building_detection_v2
-import building_detection_v3
-import building_detection_v4
+from classifiers import building_detection_v2, building_detection_v3, building_detection_v4
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
@@ -141,18 +139,19 @@ def mapclick():
 
 @app.route('/home/uploadchanges', methods=['POST'])
 def upload_changes():
+    print('uploading to OSM...')
     global osm
     
-    if (len(building_detection_v2.get_all_rects()) == 0):
+    if (len(building_detection_v4.get_all_rects()) == 0):
         return "0"
     
     # Create the way using the list of nodes
-    changeset_comment = "Added " + str(len(building_detection_v2.get_all_rects())) + " buildings."
-    ways_created = osm.way_create_multiple(building_detection_v2.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
+    changeset_comment = "Added " + str(len(building_detection_v4.get_all_rects())) + " buildings."
+    ways_created = osm.way_create_multiple(building_detection_v4.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
     
     # Clear the rectangle list
-    building_detection_v2.delete_all_rects()
-    
+    building_detection_v4.delete_all_rects()
+    print('finished!')
     return str(len(ways_created))
 
 
