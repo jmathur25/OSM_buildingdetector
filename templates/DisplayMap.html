@@ -60,37 +60,37 @@
               xhr.onreadystatechange = function() {
                   if (xhr.readyState == 4 && xhr.status == 200) {
 
-                      // Parse the response
-                      var responseJson = JSON.parse(xhr.responseText);
-                      var rectsToUpdate = responseJson["rectsToAdd"];
-                      var rectsToDelete = responseJson["rectsToDelete"];
+                    // Parse the response
+                    var responseJson = JSON.parse(xhr.responseText);
+                    var rectsToUpdate = responseJson["rectsToAdd"];
+                    var rectsToDelete = responseJson["rectsToDelete"];
 
-                      // Add polygon(s)
-                      if (rectsToUpdate.length > 0) {
-                          var rect = rectsToUpdate[0];
-                          var rect_nodes = rect["points"];
-                          var rect_id = rect["id"];
-                          addPolygon(rect_nodes, rect_id);
-                          // Delete polygon(s)
-                          if (rectsToDelete["ids"].length > 0) {
-                          for (var i = 0; i < rectsToDelete["ids"].length; i++) {
-                              removePolygon(rectsToDelete["ids"][i]);
-                          }
-                      }
-                      } else {
-                        if (rectsToDelete.length > 0) {
-                          popup.setLatLng(e.latlng);
-                          popup.setContent("You clicked inside a mapped building. Please click elsewhere");
-                          popup.openOn(map);
-                        } else {
-                          popup.setLatLng(e.latlng);
-                          popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
-                          popup.openOn(map);
+                    // Add polygon(s)
+                    if (rectsToUpdate.length > 0) {
+                            var rect = rectsToUpdate[0];
+                            var rect_nodes = rect["points"];
+                            var rect_id = rect["id"];
+                            addPolygon(rect_nodes, rect_id);
+                            // Delete polygon(s)
+                            if (rectsToDelete["ids"].length > 0) {
+                            for (var i = 0; i < rectsToDelete["ids"].length; i++) {
+                                removePolygon(rectsToDelete["ids"][i]);
+                            }
                         }
-                      }
-                  }
-              }
-              xhr.send(params);
+                    } else {
+                        if (rectsToDelete.length > 0) {
+                            popup.setLatLng(e.latlng);
+                            popup.setContent("You clicked inside a mapped building. Please click elsewhere");
+                            popup.openOn(map);
+                        } else {
+                            popup.setLatLng(e.latlng);
+                            popup.setContent("You clicked the map at a spot which our algorithm indicates is likely not a building. Please try again somewhere else on the map.");
+                            popup.openOn(map);
+                        }
+                    }
+                }
+            }
+            xhr.send(params)
             } else {
               popup.setLatLng(e.latlng);
               popup.setContent("You need to enable Sync before mapping to see what is already mapped!");
@@ -511,9 +511,7 @@
                 link.innerHTML = html;
                 link.href = '#';
                 link.title = title;
-                /*
-                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-                 */
+ 
                 link.setAttribute('role', 'button');
                 link.setAttribute('aria-label', title);
                 L.DomEvent.disableClickPropagation(link);
@@ -526,12 +524,12 @@
 
         });
 
-        // Upload button constructor
+        // sync constructor
         L.control.SyncButton = function(opts) {
             return new L.Control.SyncButton(opts);
         }
 
-        // Add the upload button to the map
+        // Add the sync button to the map
         var syncButton = L.control.SyncButton({ position: "topleft" }).addTo(map);
 
         polygonSync = {}
@@ -554,15 +552,9 @@
 
         // Add merge control
         L.Control.ComplexButton = L.Control.extend({
-            // @section
-            // @aka Control.Zoom options
             options: {
                 position: 'topleft',
-                // @option mergeText: String = '+'
-                // The text set on the 'merge' button.
                 complexText: 'C',
-                // @option mergeTitle: String = 'Zoom in'
-                // The title set on the 'zoom in' button.
                 complexTitle: 'Toggle Merge'
             },
             onAdd: function (map) {
@@ -615,17 +607,11 @@
 
         var current_threshold = '25';
 
-        // Add upload control
+        // Add threshold slider control
         L.Control.ThresholdSlider = L.Control.extend({
-            // @section
-            // @aka Control.Zoom options
             options: {
                 position: 'topleft',
-                // @option mergeText: String = '+'
-                // The text set on the 'merge' button.
                 sliderText: '25',
-                // @option mergeTitle: String = 'Zoom in'
-                // The title set on the 'zoom in' button.
                 sliderTitle: 'Slider'
             },
             onAdd: function (map) {
@@ -637,20 +623,7 @@
                 return container;
             },
 
-            // updateStart: function () {
-            //     var col = "#FF0000";
-            //     this.SyncButton.style.backgroundColor = col;
-            // },
-
-            // updateEnd: function () {
-            //     var col = "#FFFF00";
-            //     this.SyncButton.style.backgroundColor = col;
-            // },
-
             ThresholdSliderClick: function (e) {
-                // console.log('here')
-                // console.log(this.ThresholdSlider.value)
-                // sliderText = this.ThresholdSlider.value;
                 current_threshold = this.ThresholdSlider.value;
             },
 
@@ -677,35 +650,13 @@
 
         });
 
-        // Upload button constructor
+        // Threshold constructor
         L.control.ThresholdSlider = function(opts) {
             return new L.Control.ThresholdSlider(opts);
         }
 
-        // Add the upload button to the map
+        // Add the threshold button to the map
         var ThresholdSlider = L.control.ThresholdSlider({ position: "topleft" }).addTo(map);
-
-        // var src = '';
-        // var xmlhttp = new XMLHttpRequest();
-        // xmlhttp.onreadystatechange = function(){
-        // if(xmlhttp.status == 200 && xmlhttp.readyState == 4){
-        //     src = xmlhttp.responseText;
-        //     show_local_image(src, 100, 100, 'Image is not showing')
-        // }
-        // };
-        // xmlhttp.open("GET","slanted_1.PNG",true);
-        // xmlhttp.send();
-
-        // function show_local_image(src, width, height, alt) {
-        //     var img = document.createElement("img");
-        //     img.src = src;
-        //     img.width = width;
-        //     img.height = height;
-        //     img.alt = alt;
-
-        //     // This next line will just add it to the <body> tag
-        //     document.body.appendChild(img);
-        // }
 
     </script>
   </body>
