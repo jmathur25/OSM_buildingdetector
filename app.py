@@ -83,6 +83,7 @@ def mapclick():
         lat = float(info['lat'])
         long = float(info['long'])
         zoom = int(info['zoom'])
+        threshold = int(info['threshold'])
 
         json_post = {}
         global osm
@@ -113,7 +114,7 @@ def mapclick():
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(
-                                                        backend_image,xtile, ytile, lat, long, zoom)
+                                                        backend_image,xtile, ytile, lat, long, zoom, threshold)
         print(rect_points)
         # if area too big
         if osm.check_area(rect_points, sort=False):

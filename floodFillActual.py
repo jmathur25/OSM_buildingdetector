@@ -4,6 +4,7 @@ import numpy as np
 import math
 from GreenFill import run_all2
 
+# default threshold, frontend can change this
 THRESHOLD = 25
 
 def RGB_distance_threshold(first_rgb, second_rgb):
@@ -60,8 +61,10 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
     return image, x_max, y_max, x_min, y_min
 
 
-def run_all(image, click_x, click_y):
-    THRESHOLD = 25
+def run_all(image, click_x, click_y, threshold_passed=None):
+    global THRESHOLD
+    if threshold_passed != None:
+        THRESHOLD = threshold_passed
 
     # used for smoothing out image.
     kernel = np.ones((5, 5), np.float32) / 25
