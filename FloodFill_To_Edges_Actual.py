@@ -6,10 +6,10 @@ from floodFillActual import flood_fill
 from scipy.spatial import ConvexHull
 from scipy.ndimage.interpolation import rotate
 
-RGB_THRESHOLD = 25
+THRESHOLD = 25
 
 def RGB_distance_threshold(first_rgb, second_rgb):
-    return math.sqrt(np.sum((np.absolute(first_rgb - second_rgb))**2)) < RGB_THRESHOLD
+    return math.sqrt(np.sum((np.absolute(first_rgb - second_rgb))**2)) < THRESHOLD
 
 def check_pixels_in_one_direction(image, target_color, cur_x, cur_y, iterations, isNegative, checkY=True):
     for i in range(iterations):
@@ -34,15 +34,15 @@ def flood_fill_edge_finder(image, x_loc, y_loc, target_color, replacement_color)
     right_edge_list = []
 
     while current_y > 0:
-        if not check_pixels_in_one_direction(image, target_color, current_x, current_y, 5, True):
+        if not check_pixels_in_one_direction(image, target_color, current_x, current_y, 3, True):
             break
         current_y -= 1
-        while current_x > 0 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 5, True, True):
+        while current_x > 0 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 3, True, True):
             current_x -= 1
         image[current_y][current_x] = replacement_color
         left_edge_list.append((current_x, current_y))
         current_x = x_loc
-        while current_x < width - 1 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 5, False, True):
+        while current_x < width - 1 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 3, False, True):
             current_x += 1
         image[current_y][current_x] = replacement_color
         right_edge_list.append((current_x, current_y))
@@ -64,15 +64,15 @@ def flood_fill_edge_finder(image, x_loc, y_loc, target_color, replacement_color)
     # -----------------------------------------
 
     while current_y < height - 1:
-        if not check_pixels_in_one_direction(image, target_color, current_x, current_y, 5, False):
+        if not check_pixels_in_one_direction(image, target_color, current_x, current_y, 3, False):
             break
         current_y += 1
-        while current_x > 0 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 5, True, True):
+        while current_x > 0 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 3, True, True):
             current_x -= 1
         image[current_y][current_x] = replacement_color
         left_edge_list.append((current_x, current_y))
         current_x = x_loc
-        while current_x < width - 1 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 5, False, True):
+        while current_x < width - 1 and check_pixels_in_one_direction(image, target_color, current_x, current_y, 3, False, True):
             current_x += 1
         image[current_y][current_x] = replacement_color
         right_edge_list.append((current_x, current_y))
@@ -151,6 +151,7 @@ def run_all(image, click_x, click_y, threshold_passed=None):
     global THRESHOLD
     if threshold_passed != None:
         THRESHOLD = threshold_passed
+        print('new threshold: ', THRESHOLD)
 
     target_color = np.array(image[click_y][click_x].tolist())
     replace_color = np.array([0, 255, 0])
@@ -162,7 +163,6 @@ def run_all(image, click_x, click_y, threshold_passed=None):
     total_edge_list = np.array(total_edge_list)
     total_edge_list = total_edge_list.reshape(len(total_edge_list), 2)
 
-    print('total edge list:', total_edge_list)
     best_points = minimum_bounding_rectangle(total_edge_list)
 
     return best_points
