@@ -29,7 +29,6 @@
     <script>
         // Create map
         var map = L.map('map').setView([45.1269, -94.5266], 13);
-
         L.tileLayer('imagery/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
@@ -294,6 +293,7 @@
                 L.DomEvent.on(link, 'click', this._refocusOnMap, this);
                 return link;
             },
+
             _updateDisabled: function (disabled = (polygonStack.length == 0)) {
                 var map = this._map,
                     className = 'leaflet-disabled';
@@ -543,8 +543,82 @@
         }
 
         /**
+        ----------------------------------------------------------------------------------
         ADDITIONS
+        ----------------------------------------------------------------------------------
         */
+
+        // Add upload control
+        L.Control.ThresholdSlider = L.Control.extend({
+            // @section
+            // @aka Control.Zoom options
+            options: {
+                position: 'topleft',
+                // @option mergeText: String = '+'
+                // The text set on the 'merge' button.
+                sliderText: '25',
+                // @option mergeTitle: String = 'Zoom in'
+                // The title set on the 'zoom in' button.
+                sliderTitle: 'Slider'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.ThresholdSlider = this._createSlider(options.mergeText, options.mergeTitle,
+                        zoomName + '-in',  container, this.ThresholdSliderClick);
+                return container;
+            },
+
+            // updateStart: function () {
+            //     var col = "#FF0000";
+            //     this.SyncButton.style.backgroundColor = col;
+            // },
+
+            // updateEnd: function () {
+            //     var col = "#FFFF00";
+            //     this.SyncButton.style.backgroundColor = col;
+            // },
+
+            ThresholdSliderClick: function (e) {
+                // doesn't really need to do anything
+                
+                // console.log('here')
+                // console.log(this.ThresholdSlider.value)
+                // sliderText = this.ThresholdSlider.value;
+            },
+
+            _createSlider: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('input', className, container);
+                link.type = 'range';
+                link.min = '0';
+                link.max = '50';
+                link.innerHTML = html;
+                link.href = '#';
+                link.className = className
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'slider');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            },
+
+        });
+
+        // Upload button constructor
+        L.control.ThresholdSlider = function(opts) {
+            return new L.Control.ThresholdSlider(opts);
+        }
+
+        // Add the upload button to the map
+        var ThresholdSlider = L.control.ThresholdSlider({ position: "topleft" }).addTo(map);
+
         // var src = '';
         // var xmlhttp = new XMLHttpRequest();
         // xmlhttp.onreadystatechange = function(){
