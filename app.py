@@ -195,6 +195,23 @@ def OSM_map_sync():
         json_post = {"rectsToAdd": mappable_results}
         return json.dumps(json_post)
 
+@app.route('/home/citySearch', methods=['POST'])
+def citySearch():
+    if request.method == 'POST':
+        result = request.form
+        info = result_to_dict(result)
+        print('info', info)
+        city_name = info['query']
+        coords = backend.search_city(city_name)
+
+        if coords != None:
+            json_post = {'lat': coords[0],
+                          'lng': coords[1]}
+            return json.dumps(json_post)
+
+        json_post = {'lat': '-1000'}
+        return json.dumps(json_post)
+
 
 def start_webapp(config):
     """Starts the Flask server."""

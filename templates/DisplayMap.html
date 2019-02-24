@@ -658,6 +658,84 @@
         // Add the threshold button to the map
         var ThresholdSlider = L.control.ThresholdSlider({ position: "topleft" }).addTo(map);
 
+        var search = '';
+        // Add search bar
+        L.Control.SearchBar = L.Control.extend({
+            options: {
+                position: 'topright',
+                searchText: 'T',
+                searchText: 'Search'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.SearchBar = this._createBar(options.searchText, options.searchTitle,
+                        zoomName + '-in',  container, this.SearchBarClick);
+                return container;
+            },
+
+            SearchBarClick: function (e) {
+                search = prompt('Where would you like to go?')
+                console.log('searching ' + search)
+                var params = "query="+search
+                console.log('params: ' + params)
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "./citySearch", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                // Wait for a response
+                xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Parse the response
+                    var responseJson = JSON.parse(xhr.responseText);
+                    if (responseJson["lat"] != '-1000') {
+
+                        var newLat = responseJson["lat"];
+                        var newLng = responseJson["lng"];
+
+                        console.log('new lat: ' + newLat)
+                        console.log('new lng: ' + newLng)
+                        map.panTo(new L.LatLng(newLat, newLng));
+                        console.log('Moved to new location')
+                    }
+                }
+            }
+                xhr.send(params);
+
+            },
+
+            _createBar: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('input', className, container);
+                link.type = 'text';
+                link.value = 'Search here!';
+                link.style.fontfamily = 'Arial'
+                link.style.fontsize = 'small'
+                link.innerHTML = html;
+                link.href = '#';
+                link.className = className
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'search bar');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            },
+
+        });
+
+        // Search constructor
+        L.control.SearchBar = function(opts) {
+            return new L.Control.SearchBar(opts);
+        }
+
+        // Add the search button to the map
+        var searchBar = L.control.SearchBar({ position: "topright" }).addTo(map);
+
     </script>
   </body>
 </html>

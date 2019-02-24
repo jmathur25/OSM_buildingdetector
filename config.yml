@@ -19,6 +19,6 @@ imageryURL: "https://a.tiles.mapbox.com/v4/digitalglobe.316c9a2e/{zoom}/{x}/{y}.
 # | OpenStreetMap login information | #
 osmUpload:
     # API location. The full v0.6 OpenStreetMap database API is https://api.openstreetmap.org/api/0.6
-    api: https://api06.dev.openstreetmap.org
+    api: https://api06.dev.openstreetmap.org 
     username: OSM_buildingdetector
     password: fakepassword123
