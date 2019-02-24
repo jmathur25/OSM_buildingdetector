@@ -4,6 +4,7 @@ import geolocation
 import backend
 import math
 import PIL.ImageOps
+from floodFillActual import run_all
 
 
 # all rectangles are parallel to the xy axis
@@ -30,9 +31,9 @@ class Rectangle:
             Rectangle.current_id += 1
             self.id = Rectangle.current_id
 
-        if len(self.points) > 4:
-            self.points = self.points[:4]
-            print('TOO MANY POINTS IN A RECTANGLE')
+        # if len(self.points) > 4:
+        #     self.points = self.points[:4]
+        #     print('TOO MANY POINTS IN A RECTANGLE')
 
         Rectangle.add_rectangle(self)
 
@@ -204,46 +205,19 @@ class Rectangle:
 
 
 # detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
-def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, grayscale=True):
+def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom):
     """ Tries to detect the rectangle at a given point on an image. """
-
-    # chooses right get_intensity or get_RGB function
-    def point_finder(im, x, y, step_x, step_y, grayscale):
-        if grayscale:
-            return get_next_intensity_change(im, x, y, step_x, step_y)
-        else:
-            return get_next_RGB_change(im, x, y, step_x, step_y)
-
-    if grayscale:
-        pil_image = PIL.ImageOps.grayscale(pil_image)
-
-    im = np.array(pil_image)
 
     # Get the x,y coordinates of the click
     x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
 
-    quad_one = point_finder(im, x, y, 1, 0, grayscale)
-    quad_four = point_finder(im, x, y, 0, -1, grayscale)
-    quad_two = point_finder(im, x, y, 0, 1, grayscale)
-    quad_three = point_finder(im, x, y, -1, 0, grayscale)
+    building_points = run_all(pil_image, x, y)
+    vertex_list = []
+    for corner in building_points:
+        next_vertex = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner[0], corner[1])
+        vertex_list.append(list(next_vertex))
 
-    corner1 = quad_one[0], quad_two[1]
-    corner2 = quad_one[0], quad_four[1]
-    corner3 = quad_three[0], quad_four[1]
-    corner4 = quad_three[0], quad_two[1]
-
-    # Calculate the geocoordinates of the rectangle
-    topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
-    bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
-    bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
-    topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
-
-    topleft = list(topleft)
-    topright = list(topright)
-    bottomright = list(bottomright)
-    bottomleft = list(bottomleft)
-
-    Rectangle([topleft, topright, bottomright, bottomleft])
+    Rectangle(vertex_list)
 
     retangles_to_add = Rectangle.get_added_rectangles()
 
