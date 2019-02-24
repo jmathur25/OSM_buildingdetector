@@ -5,8 +5,11 @@ import math
 
 THRESHOLD = 25
 
-FILENAME = 'diff_hue'
-image = cv2.imread(FILENAME + '.PNG')
+FILENAME = 'slanted_1'
+
+# img = cv2.imread(FILENAME + '.png')
+# cv2.imwrite(FILENAME + 'compressed.png', img,  [cv2.IMWRITE_PNG_COMPRESSION, 0])
+image = cv2.imread(FILENAME + '.png')
 height = image.shape[0]
 width = image.shape[1]
 # used for smoothing out image.
