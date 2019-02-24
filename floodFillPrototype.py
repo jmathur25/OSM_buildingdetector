@@ -5,10 +5,16 @@ import math
 
 THRESHOLD = 25
 
+FILENAME = 'slanted_1'
+
+# used for smoothing out image.
+kernel = np.ones((5, 5), np.float32) / 25
+
 def RGB_distance_threshold(first_rgb, second_rgb):
     return math.sqrt(np.sum((np.absolute(first_rgb - second_rgb))**2))
 
 def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
+    image[y_loc, x_loc] = replacement_color;
     pixel_queue = queue.Queue()
     pixel_queue.put((x_loc, y_loc))
     width = len(image[0])
@@ -49,23 +55,34 @@ def register_click(event,x,y,flags,param):
         global x_global, y_global
         x_global = int(x)
         y_global = int(y)
+        print(x_global, y_global)
 
-image = cv2.imread('slanted_1.PNG')
+        # image indexing returns something weird so this fixed it
+        target_color = np.array(image[y_global][x_global].tolist())
+        # green color
+        replace_color = np.array([0, 255, 0])
+
+        image2 = flood_fill(image, x_global, y_global, target_color, replace_color)
+        # smoothed = cv2.filter2D(image2, -1, kernel)
+
+
+        cv2.imshow('image2', image2)
+        cv2.imwrite(FILENAME + 'detected.PNG', image2)
+
+image = cv2.imread(FILENAME + '.PNG')
+
 cv2.namedWindow('image')
 cv2.setMouseCallback('image', register_click)
 cv2.imshow('image', image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# while 1:
+#     cv2.imshow('image', image)
+#     if cv2.waitKey(20) & 0xFF == 27:
+#         break
+# cv2.destroyAllWindows()
 
 print(x_global, y_global)
 
-# image indexing returns something weird so this fixed it
-target_color = np.array(image[y_global][x_global].tolist())
-# green color
-replace_color = np.array([0, 255, 0])
 
-image = flood_fill(image, x_global, y_global, target_color, replace_color)
-cv2.imshow('image', image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
