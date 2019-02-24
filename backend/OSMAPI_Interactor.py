@@ -88,9 +88,7 @@ class OSM_Interactor:
             # FORMAT: min lon, min lat, max lon, max lat
             # returns a dictionary of the form [{'type': (one of node, way, changeset), 'data': dict}, ...]
             # print(api.Map(-94.532408, 45.127431, -94.531071, 45.128568))
-            result = self.osm_api.Map(min_lon, min_lat, max_lon, max_lat)
-            print(result)
-            return result
+            return self.osm_api.Map(min_lon, min_lat, max_lon, max_lat)
 
         def parse_map(self, map_info):
             # parses map, returns coordinates of buildings with each building an item of the return list
