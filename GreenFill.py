@@ -54,7 +54,11 @@ gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 corners = cv2.goodFeaturesToTrack(gray,12,0.1,10)
 corners = np.int0(corners)
-print(corners)
+coord = []
+for corner in corners:
+    coord.append((corner[0][0], corner[0][1]))
+
+print(coord)
 for i in corners:
     x,y = i.ravel()
     cv2.circle(img,(x,y),3,255,-1)
