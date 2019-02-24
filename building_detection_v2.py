@@ -9,12 +9,14 @@ from floodFillActual import run_all
 # detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
 def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom):
     """ Tries to detect the rectangle at a given point on an image. """
-    
+
     # Get the x,y coordinates of the click
     x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
 
+    pil_image = np.array(pil_image)
     building_points = run_all(pil_image, x, y)
     vertex_list = []
+    # corners are already structured
     for corner in building_points:
         next_vertex = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner[0], corner[1])
         vertex_list.append(list(next_vertex))

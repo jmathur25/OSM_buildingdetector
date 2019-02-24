@@ -5,6 +5,9 @@ Feature: Fills out whitespace between green pixels
 """
 import cv2
 import numpy as np
+import operator
+from functools import reduce
+import math
 
 
 RGB_GREEN = np.array([0, 255, 0])
@@ -51,9 +54,16 @@ def run_all2(image, x_min, y_min, x_max, y_max):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     corners = cv2.goodFeaturesToTrack(gray,12,0.1,10)
-    corners = np.int0(corners)
-    coord = []
+
+    temp = []
     for corner in corners:
-        coord.append((corner[0][0], corner[0][1]))
+        temp.append((corner[0][0], corner[0][1]))
+
+    center = tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), temp), [len(temp)] * 2))
+    tcoord = (sorted(temp, key=lambda coord: (-135 - math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))) % 360))
+
+    coord = []
+    for c in tcoord:
+        coord.append((int(c[0]), int(c[1])))
 
     return coord
