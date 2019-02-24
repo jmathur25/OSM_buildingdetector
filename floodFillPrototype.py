@@ -3,9 +3,9 @@ import queue
 import numpy as np
 import math
 
-THRESHOLD = 25
+THRESHOLD = 10
 
-FILENAME = 'slanted_1'
+FILENAME = 'champaign2'
 
 # img = cv2.imread(FILENAME + '.png')
 # cv2.imwrite(FILENAME + 'compressed.png', img,  [cv2.IMWRITE_PNG_COMPRESSION, 0])

@@ -68,11 +68,11 @@ full[np.where((full != [0,255,0]).all(axis = 2))] = [255,255,255]
 # plt.subplot(122),plt.imshow(full)
 # plt.title('Full Image'), plt.xticks([]), plt.yticks([])
 # plt.show()
-kernel = np.ones((7, 7), np.float32) / 25
+kernel = np.ones((20, 20), np.float32) / 25
 img = cv2.filter2D(full, -1, kernel)
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-corners = cv2.goodFeaturesToTrack(gray,4,0.01,10)
+corners = cv2.goodFeaturesToTrack(gray,12,0.1,10)
 corners = np.int0(corners)
 print(corners)
 for i in corners:
@@ -80,7 +80,7 @@ for i in corners:
     cv2.circle(img,(x,y),3,255,-1)
 
 plt.imshow(img),plt.show()
-
+# cv2.imwrite(FILENAME + "edited.png", img)
 #################Harris Corner Detector############################################
 
 # kernel = np.ones((5, 5), np.float32) / 25
