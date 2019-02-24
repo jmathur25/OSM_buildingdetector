@@ -60,7 +60,7 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
                 image[current_y - 1][current_x] = replacement_color
                 pixel_queue.put((current_x, current_y - 1))
                 if (y_min > current_y - 1):
-                    y_max = current_y - 1
+                    y_min = current_y - 1
     return image
 
 
@@ -91,7 +91,7 @@ cv2.namedWindow('image')
 cv2.setMouseCallback('image', register_click)
 cv2.imshow('image', image)
 
-print(x_global, y_global)
+#print(x_global, y_global)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

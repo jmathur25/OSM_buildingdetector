@@ -3,7 +3,7 @@ Written by james on 2/23/2019
 
 Feature: Fills out whitespace between green pixels
 """
-
+from floodFillPrototype import x_min, x_max, y_min, y_max
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
@@ -17,34 +17,50 @@ height = image.shape[0]
 width = image.shape[1]
 
 RGB_GREEN = np.array([0, 255, 0])
-distance = 20
+distance = 10
 def change_color(image):
-    for x in range(width):
-        for y in range(height):
+    for x in range(x_min, x_max):
+        for y in range(y_min, y_max):
 
             rgb = image[y][x]
-            yNext = y + distance if y + distance < height else height - 1
+            #yNext = y + distance if y + distance < height else height - 1
             xNext = x + distance if x + distance < width else width - 1
             xPrev = x - distance if x - distance > 0 else 0
-            compareDownRgb = image[yNext][x]
+            #compareDownRgb = image[yNext][x]
             compareRightRgb = image[y][xNext]
             compareLeftRgb = image[y][xPrev]
 
-            if ((np.array_equal(rgb, RGB_GREEN) and np.array_equal(compareDownRgb, RGB_GREEN))
-                    and (np.array_equal(compareLeftRgb, RGB_GREEN) and np.array_equal(compareRightRgb, RGB_GREEN))):
-                for yTemp in range(y, yNext):
+            if np.array_equal(compareLeftRgb, RGB_GREEN) and np.array_equal(compareRightRgb, RGB_GREEN):
+                for xTemp in range(xPrev, xNext):
+                    rgbTemp = image[y][xTemp]
+                    if not np.array_equal(rgbTemp, RGB_GREEN) and x_min > xTemp > x_max:
+                        image[y][xTemp] = RGB_GREEN
+
+    for y in range(y_min, y_max):
+        for x in range(x_min, x_max):
+
+            rgb = image[y][x]
+            # yNext = y + distance if y + distance < height else height - 1
+            yNext = x + distance if x + distance < height else height - 1
+            yPrev = x - distance if x - distance > 0 else 0
+            #compareDownRgb = image[yNext][x]
+            compareRightRgb = image[y][yNext]
+            compareLeftRgb = image[y][yPrev]
+
+            if np.array_equal(compareLeftRgb, RGB_GREEN) and np.array_equal(compareRightRgb, RGB_GREEN):
+                for yTemp in range(yPrev, yNext):
                     rgbTemp = image[yTemp][x]
-                    if not np.array_equal(rgbTemp, RGB_GREEN):
+                    if not np.array_equal(rgbTemp, RGB_GREEN) and y_min > yTemp > y_max:
                         image[yTemp][x] = RGB_GREEN
 
     return image
 
 
 full = change_color(image)
-
-# full[np.where((full == [0,255,0]).all(axis = 2))] = [0,0,0]
+#
+# # full[np.where((full == [0,255,0]).all(axis = 2))] = [0,0,0]
 full[np.where((full != [0,255,0]).all(axis = 2))] = [255,255,255]
-# cv2.imwrite(FILENAME + 'fullGreen.PNG', full)
+# # cv2.imwrite(FILENAME + 'fullGreen.PNG', full)
 
 
 kernel = np.ones((7, 7), np.float32) / 25
