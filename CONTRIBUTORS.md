@@ -7,6 +7,6 @@ James Wei (jamesw7@illinois.edu) - Algorithm implementation
 
 Vivek Bhatt (vivekb2@illinois.edu) - Frontend work
 
-Aaron Aftab (aaronaa2@illinois.edu) - Algorithm design, presentation/documentation
+Aaron Aftab (aaronaa2@illinois.edu) - Algorithm design, presentation, documentation
 
-Anmol Agrawal (anmola3@illinois.edu) - Frontend work, presentation/documentation
+Anmol Agrawal (anmola3@illinois.edu) - Frontend work, presentation
