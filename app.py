@@ -7,6 +7,7 @@ import cv2
 import numpy
 import json
 import building_detection_v2
+import building_detection_v3
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
@@ -83,6 +84,9 @@ def mapclick():
         lat = float(info['lat'])
         long = float(info['long'])
         zoom = int(info['zoom'])
+        complex = False
+        if info['complex'] == 'true':
+            complex = True
         threshold = int(info['threshold'])
 
         json_post = {}
@@ -113,9 +117,13 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(
-                                                        backend_image,xtile, ytile, lat, long, zoom, threshold)
-        print(rect_points)
+        if complex:
+            rect_id, rect_points, rectangles_id_to_remove = building_detection_v3.detect_rectangle(
+                                                            backend_image,xtile, ytile, lat, long, zoom, threshold)
+        else:
+            rect_id, rect_points, rectangles_id_to_remove = building_detection_v2.detect_rectangle(
+                                                            backend_image,xtile, ytile, lat, long, zoom)
+        
         # if area too big
         if osm.check_area(rect_points, sort=False):
             json_post = {"rectsToAdd": [],

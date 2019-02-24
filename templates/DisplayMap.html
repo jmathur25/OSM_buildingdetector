@@ -52,7 +52,7 @@
               // Send the map click
               console.log('map click');
               console.log(current_threshold);
-              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom()) + "&threshold="+current_threshold;
+              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom()) + "&complex=" + complex + "&threshold="+current_threshold;
               var xhr = new XMLHttpRequest();
               xhr.open("POST", "./mapclick", true);
               xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -549,6 +549,70 @@
         ADDITIONS
         ----------------------------------------------------------------------------------
         */
+
+        var complex = 'false';
+
+        // Add merge control
+        L.Control.ComplexButton = L.Control.extend({
+            // @section
+            // @aka Control.Zoom options
+            options: {
+                position: 'topleft',
+                // @option mergeText: String = '+'
+                // The text set on the 'merge' button.
+                complexText: 'C',
+                // @option mergeTitle: String = 'Zoom in'
+                // The title set on the 'zoom in' button.
+                complexTitle: 'Toggle Merge'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.ComplexButton = this._createButton(options.complexText, options.complexTitle,
+                        zoomName + '-in',  container, this.ComplexButtonClick);
+                return container;
+            },
+            ComplexButtonClick: function (e) {
+                // update complex
+                if (complex == 'false') {
+                    complex = 'true'
+                } else {
+                    complex = 'false'
+                }
+                console.log('updating complex to ' + complex)
+
+                var col = "#FFFFFF";
+                if (complex == 'true') {
+                    col = "#0000ff";
+                }
+                this.ComplexButton.style.backgroundColor = col;
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
+
+        // Complex button constructor
+        L.control.ComplexButton = function(opts) {
+            return new L.Control.ComplexButton(opts);
+        }
+
+        // Add the complex button to the map
+        var complexButton = L.control.ComplexButton({ position: "topleft" }).addTo(map);
+
+
         var current_threshold = '25';
 
         // Add upload control
