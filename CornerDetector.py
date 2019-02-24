@@ -3,7 +3,7 @@ import cv2
 from matplotlib import pyplot as plt
 
 
-image = cv2.imread('slanted_1detectedfullGreen.png')
+image = cv2.imread('diff_huedetectedfullGreen.png')
 kernel = np.ones((5, 5), np.float32) / 25
 img = cv2.filter2D(image, -1, kernel)
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
