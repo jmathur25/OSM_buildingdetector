@@ -131,6 +131,8 @@ def flood_fill_edge_finder(image, x_loc, y_loc, target_color, replacement_color)
 
 def line_from_points(point1, point2):
     # format: Ay + Bx + C = 0
+    if point2[0] == point1[0]:
+        return (None, point1)
     slope = (point2[1] - point1[1]) / (point2[0] - point1[0])
     A = point2[0] - point1[0]
     B = -(point2[1] - point1[1])
@@ -144,17 +146,19 @@ def line_from_points(point1, point2):
     return A, B, C
 
 def perpendicular_distance(point, line):
+    if len(line) == 2:
+        return abs(point[0]-line[1][0])
     A = line[0]
     B = line[1]
     C = line[2]
-    d = (A*point[0] + B*point[1] + C) / math.sqrt(A**2 + B**2)
+    d = abs(A*point[0] + B*point[1] + C) / math.sqrt(A**2 + B**2)
     return d
 
 def DouglasPecker(points, epsilon):
     dmax = 0
     index = 0
     end = len(points) - 1
-    for i in range(1, end + 1):
+    for i in range(1, end):
         d = perpendicular_distance(points[i], line_from_points(points[0], points[end]))
         if d > dmax:
             index = i
@@ -169,11 +173,11 @@ def DouglasPecker(points, epsilon):
         # Build the result list
         result = recResults1 + recResults2
     else:
-        result = [points[1], points[end]]
+        result = [points[0], points[end]]
     return result
 
 # points = [(1,2), (3,4), (10, 0), (8, 3), (5, -1), (7, 9)]
-# print(DouglasPecker(points, 2))
+# print(DouglasPecker(points, 1))
 
 def plot_vertices(image, corners, color):
     for corner in corners:
@@ -200,17 +204,16 @@ def run_all(image, click_x, click_y, threshold_passed=None):
 
     image_name = "../test_building.PNG"
     image = cv2.imread(image_name)
-    print("about to show edges")
     edge_image = plot_vertices(image, total_edge_list, replace_color)
     cv2.imshow('image', edge_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
-    total_edge_list = np.array(total_edge_list)
-    total_edge_list = total_edge_list.reshape(len(total_edge_list), 2)
-    print(total_edge_list)
-    best_points = DouglasPecker(total_edge_list, 10)
-
+    # total_edge_list = np.array(total_edge_list)
+    # total_edge_list = total_edge_list.reshape(len(total_edge_list), 2)
+    print("edge length: ", len(total_edge_list))
+    best_points = DouglasPecker(total_edge_list, 20)
+    print("new edge length: ", len(best_points))
     return best_points
 
 x_global = 0
@@ -235,8 +238,9 @@ target_color = np.array(image[y_global][x_global].tolist())
 replace_color = np.array([0, 255, 0])
 
 best_points = run_all(image, x_global, y_global)
-print(" ")
-print(best_points)
+# print(" ")
+# print(best_points)
+image = cv2.imread(image_name)
 image = plot_vertices(image, best_points, replace_color)
 cv2.imshow('image', image)
 cv2.waitKey(0)
