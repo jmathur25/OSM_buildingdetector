@@ -2,9 +2,6 @@ import cv2
 import queue
 import numpy as np
 import math
-from .floodFillActual import flood_fill
-from scipy.spatial import ConvexHull
-from scipy.ndimage.interpolation import rotate
 
 THRESHOLD = 25
 
@@ -22,6 +19,56 @@ def check_pixels_in_one_direction(image, target_color, cur_x, cur_y, iterations,
             if RGB_distance_threshold(image[cur_y][cur_x + i], target_color):
                 return True
     return False
+
+def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
+    width = len(image[0])
+    height = len(image)
+    x_max = 0
+    y_max = 0
+    x_min = width - 1
+    y_min = height - 1
+
+    image[y_loc, x_loc] = replacement_color
+    pixel_queue = queue.Queue()
+    pixel_queue.put((x_loc, y_loc))
+    width = len(image[0])
+    height = len(image)
+    while not pixel_queue.empty():
+        current_x, current_y = pixel_queue.get()
+
+        if current_x > 0:
+            left_rgb = image[current_y][current_x - 1]
+            if RGB_distance_threshold(left_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x - 1], replacement_color):
+                image[current_y][current_x - 1] = replacement_color
+                pixel_queue.put((current_x - 1, current_y))
+                if (x_min > current_x - 1):
+                    x_min = current_x - 1
+
+        if current_x < width - 1:
+            right_rgb = image[current_y][current_x + 1]
+            if RGB_distance_threshold(right_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x + 1], replacement_color):
+                image[current_y][current_x + 1] = replacement_color
+                pixel_queue.put((current_x + 1, current_y))
+                if (x_max < current_x + 1):
+                    x_max = current_x + 1
+
+        if current_y < height - 1:
+            up_rgb = image[current_y + 1][current_x]
+            if RGB_distance_threshold(up_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y + 1][current_x], replacement_color):
+                image[current_y + 1][current_x] = replacement_color
+                pixel_queue.put((current_x, current_y + 1))
+                if (y_max < current_y + 1):
+                    y_max = current_y + 1
+
+        if current_y > 0:
+            down_rgb = image[current_y - 1][current_x]
+            if RGB_distance_threshold(down_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y - 1][current_x], replacement_color):
+                image[current_y - 1][current_x] = replacement_color
+                pixel_queue.put((current_x, current_y - 1))
+                if (y_min > current_y - 1):
+                    y_min = current_y - 1
+
+    return image, x_max, y_max, x_min, y_min
 
 def flood_fill_edge_finder(image, x_loc, y_loc, target_color, replacement_color):
     width = len(image[0])
@@ -87,16 +134,21 @@ def line_from_points(point1, point2):
     slope = (point2[1] - point1[1]) / (point2[0] - point1[0])
     A = point2[0] - point1[0]
     B = -(point2[1] - point1[1])
-    C = -(point2[0] - point1[0])(-point1[1] - (point1[1] - slope*point1[0]) + point1[0])
+    C = -(point2[0] - point1[0])*(point1[1]-slope*point1[0])
+
+    if (A < 0):
+        A = -A
+        B = -B
+        C = -C
 
     return A, B, C
 
-print(line_from_points((1,2), (0,3)))
-
 def perpendicularDistance(point, line):
-    slope = line[0]
-    point_on_line = line[1]
-
+    A = line[0]
+    B = line[1]
+    C = line[2]
+    d = (A*point[0] + B*point[1] + C) / math.sqrt(A**2 + B**2)
+    return d
 
 
 def DouglasPecker(points, error):
