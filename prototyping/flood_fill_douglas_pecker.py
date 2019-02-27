@@ -38,7 +38,7 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
 
         if current_x > 0:
             left_rgb = image[current_y][current_x - 1]
-            if RGB_distance_threshold(left_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x - 1], replacement_color):
+            if RGB_distance_threshold(left_rgb, target_color) and not np.array_equal(image[current_y][current_x - 1], replacement_color):
                 image[current_y][current_x - 1] = replacement_color
                 pixel_queue.put((current_x - 1, current_y))
                 if (x_min > current_x - 1):
@@ -46,7 +46,7 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
 
         if current_x < width - 1:
             right_rgb = image[current_y][current_x + 1]
-            if RGB_distance_threshold(right_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x + 1], replacement_color):
+            if RGB_distance_threshold(right_rgb, target_color) and not np.array_equal(image[current_y][current_x + 1], replacement_color):
                 image[current_y][current_x + 1] = replacement_color
                 pixel_queue.put((current_x + 1, current_y))
                 if (x_max < current_x + 1):
@@ -54,7 +54,7 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
 
         if current_y < height - 1:
             up_rgb = image[current_y + 1][current_x]
-            if RGB_distance_threshold(up_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y + 1][current_x], replacement_color):
+            if RGB_distance_threshold(up_rgb, target_color) and not np.array_equal(image[current_y + 1][current_x], replacement_color):
                 image[current_y + 1][current_x] = replacement_color
                 pixel_queue.put((current_x, current_y + 1))
                 if (y_max < current_y + 1):
@@ -62,7 +62,7 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
 
         if current_y > 0:
             down_rgb = image[current_y - 1][current_x]
-            if RGB_distance_threshold(down_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y - 1][current_x], replacement_color):
+            if RGB_distance_threshold(down_rgb, target_color) and not np.array_equal(image[current_y - 1][current_x], replacement_color):
                 image[current_y - 1][current_x] = replacement_color
                 pixel_queue.put((current_x, current_y - 1))
                 if (y_min > current_y - 1):
@@ -143,23 +143,46 @@ def line_from_points(point1, point2):
 
     return A, B, C
 
-def perpendicularDistance(point, line):
+def perpendicular_distance(point, line):
     A = line[0]
     B = line[1]
     C = line[2]
     d = (A*point[0] + B*point[1] + C) / math.sqrt(A**2 + B**2)
     return d
 
-
-def DouglasPecker(points, error):
+def DouglasPecker(points, epsilon):
     dmax = 0
     index = 0
     end = len(points) - 1
     for i in range(1, end + 1):
-        d = perpendicularDistance(points[i], line_from_points(points[0], points[end]))
+        d = perpendicular_distance(points[i], line_from_points(points[0], points[end]))
         if d > dmax:
             index = i
             dmax = d
+    result = []
+    # If max distance is greater than epsilon, recursively simplify
+    if ( dmax > epsilon ):
+        # Recursive call
+        recResults1 = DouglasPecker(points[:index], epsilon)
+        recResults2 = DouglasPecker(points[index:], epsilon)
+
+        # Build the result list
+        result = recResults1 + recResults2
+    else:
+        result = [points[1], points[end]]
+    return result
+
+# points = [(1,2), (3,4), (10, 0), (8, 3), (5, -1), (7, 9)]
+# print(DouglasPecker(points, 2))
+
+def plot_vertices(image, corners, color):
+    for corner in corners:
+        corner = (int(corner[0]), int(corner[1]))
+        for i in range(-5, 5):
+            image[corner[1] + i][corner[0]] = color
+        for i in range(-5, 5):
+            image[corner[1]][corner[0] + i] = color
+    return image
 
 def run_all(image, click_x, click_y, threshold_passed=None):
     global THRESHOLD
@@ -171,14 +194,50 @@ def run_all(image, click_x, click_y, threshold_passed=None):
     replace_color = np.array([0, 255, 0])
 
     cv2.imwrite('preImage.PNG', image)
-    image, _, _, _, _ = flood_fill(image, click_x, click_y, target_color, replace_color)
-    cv2.imwrite('floodFill.PNG', image)
-    total_edge_list, image = flood_fill_edge_finder(image, click_x, click_y, replace_color, np.array([0, 0, 0]))
+    flood_image, _, _, _, _ = flood_fill(image, click_x, click_y, target_color, replace_color)
+    cv2.imwrite('floodFill.PNG', flood_image)
+    total_edge_list, edge_image = flood_fill_edge_finder(flood_image, click_x, click_y, replace_color, np.array([0, 0, 0]))
+
+    image_name = "../test_building.PNG"
+    image = cv2.imread(image_name)
+    print("about to show edges")
+    edge_image = plot_vertices(image, total_edge_list, replace_color)
+    cv2.imshow('image', edge_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
     total_edge_list = np.array(total_edge_list)
     total_edge_list = total_edge_list.reshape(len(total_edge_list), 2)
-
-    best_points = minimum_bounding_rectangle(total_edge_list)
+    print(total_edge_list)
+    best_points = DouglasPecker(total_edge_list, 10)
 
     return best_points
 
+x_global = 0
+y_global = 0
+def register_click(event,x,y,flags,param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        global x_global, y_global
+        x_global = int(x)
+        y_global = int(y)
 
+image_name = "../test_building.PNG"
+
+image = cv2.imread(image_name)
+cv2.namedWindow('image')
+cv2.setMouseCallback('image', register_click)
+cv2.imshow('image', image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+print(x_global, y_global)
+target_color = np.array(image[y_global][x_global].tolist())
+replace_color = np.array([0, 255, 0])
+
+best_points = run_all(image, x_global, y_global)
+print(" ")
+print(best_points)
+image = plot_vertices(image, best_points, replace_color)
+cv2.imshow('image', image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
