@@ -151,15 +151,17 @@ def perpendicular_distance(point, line):
     A = line[0]
     B = line[1]
     C = line[2]
-    d = abs(A*point[0] + B*point[1] + C) / math.sqrt(A**2 + B**2)
+    d = abs(A*point[1] + B*point[0] + C) / math.sqrt(A**2 + B**2)
     return d
 
 def DouglasPecker(points, epsilon):
+    # print("points:", points)
     dmax = 0
     index = 0
     end = len(points) - 1
+    line = line_from_points(points[0], points[end])
     for i in range(1, end):
-        d = perpendicular_distance(points[i], line_from_points(points[0], points[end]))
+        d = perpendicular_distance(points[i], line)
         if d > dmax:
             index = i
             dmax = d
@@ -167,17 +169,22 @@ def DouglasPecker(points, epsilon):
     # If max distance is greater than epsilon, recursively simplify
     if ( dmax > epsilon ):
         # Recursive call
-        recResults1 = DouglasPecker(points[:index], epsilon)
+        # print("calling recursively, index, distance:", index, " ", dmax)
+        # print(" ")
+        recResults1 = DouglasPecker(points[:index+1], epsilon)
         recResults2 = DouglasPecker(points[index:], epsilon)
 
-        # Build the result list
+        # Build the result list, and makes sure [1,2,3]+[3,4,5] =[1,2,3,4,5]
+        if (recResults1[-1] == recResults2[0]):
+            recResults1.pop()
         result = recResults1 + recResults2
     else:
         result = [points[0], points[end]]
     return result
 
-# points = [(1,2), (3,4), (10, 0), (8, 3), (5, -1), (7, 9)]
+# points = [(0, 0), (1, 1), (2, 2), (3, 3), (4,3), (5,3), (6,3), (5,2), (4,1), (3, 0), (2, 0), (1, 0)]
 # print(DouglasPecker(points, 1))
+# print(perpendicular_distance((3, 3), line_from_points((0, 0), (6, 3))))
 
 def plot_vertices(image, corners, color):
     for corner in corners:
@@ -212,7 +219,7 @@ def run_all(image, click_x, click_y, threshold_passed=None):
     # total_edge_list = np.array(total_edge_list)
     # total_edge_list = total_edge_list.reshape(len(total_edge_list), 2)
     print("edge length: ", len(total_edge_list))
-    best_points = DouglasPecker(total_edge_list, 20)
+    best_points = DouglasPecker(total_edge_list, 5)
     print("new edge length: ", len(best_points))
     return best_points
 
