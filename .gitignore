@@ -1,8 +1,9 @@
 __pycache__/*
 backend/__pycache__/*
+classifiers/__pycache__/*
 imgcache/*
 mydatabase.db
-config.yml
+# config.yml <-- eventually will need to white this out
 
 .idea
 *.PNG

@@ -73,7 +73,6 @@ def run_all(image, click_x, click_y, threshold_passed=None):
     replace_color = np.array([0, 255, 0])
 
     image, x_max, y_max, x_min, y_min = flood_fill(image, click_x, click_y, target_color, replace_color)
-    cv2.imwrite('test.PNG', image)
 
     points = run_all2(image, x_min, y_min, x_max, y_max)
     return points

@@ -243,7 +243,7 @@ def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, complex, threshol
                 Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
 
     else:
-        """ Tries to detect the rectangle at a given point on an image. """
+        """COMPLEX MODE: Tries to detect the rectangle at a given point on an image. """
         if threshold == None:
             threshold = 25
 
