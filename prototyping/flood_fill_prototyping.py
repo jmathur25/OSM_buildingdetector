@@ -140,7 +140,7 @@ def register_click(event,x,y,flags,param):
         x_global = int(x)
         y_global = int(y)
 
-image_name = "diff_hue.PNG"
+image_name = "../cs225.png"
 
 image = cv2.imread(image_name)
 cv2.namedWindow('image')
@@ -148,7 +148,7 @@ cv2.setMouseCallback('image', register_click)
 cv2.imshow('image', image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
+print(x_global, y_global)
 target_color = np.array(image[y_global][x_global].tolist())
 replace_color = np.array([0, 255, 0])
 

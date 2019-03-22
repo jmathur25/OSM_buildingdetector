@@ -585,7 +585,6 @@
                 link.innerHTML = html;
                 link.href = '#';
                 link.title = title;
-
                 link.setAttribute('role', 'button');
                 link.setAttribute('aria-label', title);
                 L.DomEvent.disableClickPropagation(link);
@@ -685,23 +684,35 @@
                 xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 // Wait for a response
                 xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Parse the response
-                    var responseJson = JSON.parse(xhr.responseText);
-                    if (responseJson["lat"] != '-1000') {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        // Parse the response
+                        var responseJson = JSON.parse(xhr.responseText);
+                        if (responseJson["lat"] != '-1000') {
 
-                        var newLat = responseJson["lat"];
-                        var newLng = responseJson["lng"];
+                            var newLat = responseJson["lat"];
+                            var newLng = responseJson["lng"];
 
-                        console.log('new lat: ' + newLat)
-                        console.log('new lng: ' + newLng)
-                        map.panTo(new L.LatLng(newLat, newLng));
-                        console.log('Moved to new location')
+                            console.log('new lat: ' + newLat)
+                            console.log('new lng: ' + newLng)
+                            map.panTo(new L.LatLng(newLat, newLng));
+                            console.log('Moved to new location')
+                        }
                     }
                 }
-            }
+                
                 xhr.send(params);
-
+                
+                var xhrLocal = new XMLHttpRequest();
+                xhrLocal.open("GET", "./yeet", true);
+                xhrLocal.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhrLocal.onreadystatechange = function() {
+                    console.log('RESPONSE: ' + xhrLocal.responseText);
+                    if (xhrLocal.readyState == 4 && xhrLocal.status == 200) {
+                        // var result = xhrLocal.responseText;
+                        // searchBar.value = result;
+                    }
+                }
+                xhrLocal.send();
             },
 
             _createBar: function (html, title, className, container, fn) {

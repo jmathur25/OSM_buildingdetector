@@ -62,6 +62,12 @@ def delete_rect():
     return "Success"
 
 
+@app.route('/home/yeet/', methods=['GET'])
+def yeet():
+    print('here')
+    return send_file('./test.txt')
+
+
 @app.route('/home/mergetoggle', methods=['POST'])
 def merge_toggle():
     if request.method == 'POST':
@@ -194,6 +200,7 @@ def OSM_map_sync():
         # mappable_results is a list with each index a building containing tuples for the coordinates of the corners
         json_post = {"rectsToAdd": mappable_results}
         return json.dumps(json_post)
+
 
 @app.route('/home/citySearch', methods=['POST'])
 def citySearch():
