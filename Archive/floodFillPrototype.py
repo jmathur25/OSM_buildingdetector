@@ -5,7 +5,7 @@ import math
 
 THRESHOLD = 25
 
-FILENAME = 'slanted_1'
+FILENAME = 'diff_hue'
 image = cv2.imread(FILENAME + '.png')
 height = image.shape[0]
 width = image.shape[1]
