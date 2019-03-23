@@ -17,7 +17,6 @@ distance = 10
 def change_color(image):
     for x in range(x_min, x_max):
         for y in range(y_min, y_max):
-
             rgb = image[y][x]
             xNext = x + distance if x + distance < width else width - 1
             xPrev = x - distance if x - distance > 0 else 0
@@ -43,13 +42,11 @@ def change_color(image):
 
     return image
 
-
 full = change_color(image)
-full[np.where((full != [0,255,0]).all(axis = 2))] = [255,255,255]
+full[np.where((full != [0, 255, 0]).all(axis = 2))] = [255, 255, 255]
 
-kernel = np.ones((20, 20), np.float32) / 25
-img = cv2.filter2D(full, -1, kernel)
-gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img2 = cv2.blur(full, (4, 4))
+gray = cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
 
 corners = cv2.goodFeaturesToTrack(gray,12,0.1,10)
 corners = np.int0(corners)
@@ -60,6 +57,6 @@ for corner in corners:
 print(coord)
 for i in corners:
     x,y = i.ravel()
-    cv2.circle(img,(x,y),3,255,-1)
+    cv2.circle(img2,(x,y),3,255,-1)
 
-plt.imshow(img),plt.show()
+plt.imshow(img2), plt.show()

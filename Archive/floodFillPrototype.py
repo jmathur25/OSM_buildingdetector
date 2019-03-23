@@ -69,6 +69,7 @@ x_global = 0
 y_global = 0
 def register_click(event,x,y,flags,param):
     if event == cv2.EVENT_LBUTTONDOWN:
+        print(x,y)
         global x_global, y_global
         x_global = int(x)
         y_global = int(y)
