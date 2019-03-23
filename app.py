@@ -62,6 +62,11 @@ def delete_rect():
     return "Success"
 
 
+@app.route('/home/backendWindow/', methods=['POST', 'GET'])
+def backend_window():
+    return send_from_directory('./classifiers/backendImages/', 'floodFill.PNG')
+
+
 @app.route('/home/mergetoggle', methods=['POST'])
 def merge_toggle():
     if request.method == 'POST':
@@ -115,7 +120,7 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        rect_id, rect_points, rectangles_id_to_remove = building_detection_combined.detect_rectangle(backend_image,xtile, ytile, lat, long, zoom, complex, threshold)
+        rect_id, rect_points, rectangles_id_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, threshold)
         
         # if area too big
         if osm.check_area(rect_points, sort=False):
@@ -194,6 +199,7 @@ def OSM_map_sync():
         # mappable_results is a list with each index a building containing tuples for the coordinates of the corners
         json_post = {"rectsToAdd": mappable_results}
         return json.dumps(json_post)
+
 
 @app.route('/home/citySearch', methods=['POST'])
 def citySearch():
