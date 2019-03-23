@@ -40,12 +40,12 @@ def run_all2(image, x_min, y_min, x_max, y_max):
 
         return image
 
-
     full = change_color(image)
     full[np.where((full != [0,255,0]).all(axis = 2))] = [255,255,255]
 
-    kernel = np.ones((20, 20), np.float32) / 25
-    img = cv2.filter2D(full, -1, kernel)
+    # kernel = np.ones((20, 20), np.float32) / 25
+    # img = cv2.filter2D(full, -1, kernel)
+    img = cv2.blur(full, (4, 4))
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     corners = cv2.goodFeaturesToTrack(gray,12,0.1,10)
