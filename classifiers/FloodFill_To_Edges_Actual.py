@@ -156,9 +156,25 @@ def run_all(image, click_x, click_y, threshold_passed=None):
     target_color = np.array(image[click_y][click_x].tolist())
     replace_color = np.array([0, 255, 0])
 
-    cv2.imwrite('preImage.PNG', image)
-    image, _, _, _, _ = flood_fill(image, click_x, click_y, target_color, replace_color)
-    cv2.imwrite('floodFill.PNG', image)
+    cv2.imwrite('classifiers/backendImages/preImage.PNG', image)
+    image, x_max, y_max, x_min, y_min = flood_fill(image, click_x, click_y, target_color, replace_color)
+
+    # crops the images for good viewing
+    save_xmax = x_max + 20
+    save_xmin = x_min - 20
+    save_ymax = y_max + 20
+    save_ymin = y_min - 20
+    if save_xmax > len(image[0]) - 1:
+        save_xmax = len(image[0]) - 1
+    if save_xmin < 0:
+        save_xmin = 0
+    if save_ymax > len(image) - 1:
+        save_ymax = len(image) - 1
+    if save_ymin < 0:
+        save_ymin = 0
+
+    image_to_save = image[save_ymin:save_ymax, save_xmin:save_xmax]
+    cv2.imwrite('classifiers/backendImages/floodFill.PNG', image_to_save)
     total_edge_list, image = flood_fill_edge_finder(image, click_x, click_y, replace_color, np.array([0, 0, 0]))
     total_edge_list = np.array(total_edge_list)
     total_edge_list = total_edge_list.reshape(len(total_edge_list), 2)
