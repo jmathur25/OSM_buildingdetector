@@ -10,7 +10,7 @@ DARKEN_THRESHOLD = 30
 # This is the sigma for the gaussian filter.
 # Raise for less detail
 RESOLUTION = 3
-FILE = 'diff_hue'
+FILE = './diff_hue'
 
 def dodge(front,back):
     result=front*255/(255-back)

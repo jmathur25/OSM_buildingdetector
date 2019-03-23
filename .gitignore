@@ -1,6 +1,7 @@
 __pycache__/*
 backend/__pycache__/*
 classifiers/__pycache__/*
+Archive/__pycache__/*
 imgcache/*
 mydatabase.db
 # config.yml <-- eventually will need to white this out

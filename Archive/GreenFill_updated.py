@@ -43,6 +43,7 @@ def change_color(image):
     return image
 
 full = change_color(image)
+print('finished changing color')
 full[np.where((full != [0, 255, 0]).all(axis = 2))] = [255, 255, 255]
 
 img2 = cv2.blur(full, (4, 4))
