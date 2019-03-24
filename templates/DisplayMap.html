@@ -54,7 +54,8 @@
               // Send the map click
               console.log('map click');
               console.log('threshold:', current_threshold);
-              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom()) + "&complex=" + complex + "&threshold="+current_threshold;
+              console.log('multi click: ', multiClick);
+              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom()) + "&complex=" + complex + "&threshold="+current_threshold + "&multiclick=" + multiClick;
               var xhr = new XMLHttpRequest();
               xhr.open("POST", "./mapclick", true);
               xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -772,6 +773,77 @@
         }
         var img;
         var backendWindow = L.control.BackendWindow({ position: 'topright' }).addTo(map);
+
+
+        // -------------------------------------------------------------------------------------------
+        // Multi-Click
+        // -------------------------------------------------------------------------------------------
+
+        var multiClick = 'false';
+        
+        // Add merge control
+        L.Control.MultiClickButton = L.Control.extend({
+            // @section
+            // @aka Control.Zoom options
+            options: {
+                position: 'topleft',
+                // @option mergeText: String = '+'
+                // The text set on the 'merge' button.
+                multiClickText: 'MC',
+                // @option mergeTitle: String = 'Zoom in'
+                // The title set on the 'zoom in' button.
+                multiClickTitle: 'Toggle Multi Click'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.multiClickButton = this._createButton(options.multiClickText, options.multiClickTitle,
+                        zoomName + '-in',  container, this.multiClickButton);
+                return container;
+            },
+            multiClickButton: function (e) {
+                if (multiClick == 'false') {
+                    multiClick = 'true';
+                } else {
+                    multiClick = 'false';
+                }
+                // Update multiClick mode
+                console.log('multiClick:', multiClick);
+                this.update();
+            },
+            update: function () {
+                var col = "#FFFFFF";
+                if (multiClick == 'true') {
+                    col = "#BBFFBB";
+                }
+                this.multiClickButton.style.backgroundColor = col;
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            }
+        });
+
+        // Merge button constructor
+        L.Control.multiClickButton = function(opts) {
+            return new L.Control.MultiClickButton(opts);
+        }
+
+        // Add the merge button to the map
+        var multiClickButton = L.Control.multiClickButton({ position: "topleft" }).addTo(map);
 
     </script>
   </body>

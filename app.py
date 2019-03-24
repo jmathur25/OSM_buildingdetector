@@ -15,6 +15,7 @@ app = Flask(__name__)
 imd = None
 program_config = {}
 osm = None
+multi_click_count = 0
 
 
 # useful function for turning request data into usable dictionaries
@@ -64,7 +65,7 @@ def delete_rect():
 
 @app.route('/home/backendWindow/', methods=['POST', 'GET'])
 def backend_window():
-    return send_from_directory('./classifiers/backendImages/', 'floodFill.PNG')
+    return send_from_directory('./classifiers/backendImages/', 'floodFill_Display.PNG')
 
 
 @app.route('/home/mergetoggle', methods=['POST'])
@@ -94,6 +95,14 @@ def mapclick():
             complex = True
         threshold = int(info['threshold'])
 
+        global multi_click_count
+        multiClick = False
+        if (info['multiclick'] == 'true'):
+            multiClick = True
+            multi_click_count += 1
+        else:
+            multi_click_count = 0
+
         json_post = {}
         global osm
         possible_building_matches = osm.ways_binary_search((lat, long))
@@ -120,7 +129,7 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        rect_id, rect_points, rectangles_id_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, threshold)
+        rect_id, rect_points, rectangles_id_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold)
         
         # if area too big
         if osm.check_area(rect_points, sort=False):

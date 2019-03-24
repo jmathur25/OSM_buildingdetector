@@ -5,6 +5,7 @@ import backend
 import math
 import PIL.ImageOps
 from .FloodFill_To_Edges_Actual import run_all
+from .floodFill2 import run_all3
 
 # all rectangles are parallel to the xy axis
 class Rectangle:
@@ -12,6 +13,9 @@ class Rectangle:
 
     # do rectangles try to merge with neighboring rectangles?
     merge_mode = False
+
+    # allowing multiple clicks?
+    multi_click = False
 
     # list of all rectangles in existence
     all_rectangles = []
@@ -202,7 +206,7 @@ class Rectangle:
 
 
 # detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
-def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, complex, threshold=None):
+def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold=None):
     """ Tries to detect the rectangle at a given point on an image. """
 
     if not complex:
@@ -251,7 +255,11 @@ def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, complex, threshol
         x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
 
         pil_image = np.array(pil_image)
-        building_points = run_all(pil_image, x, y, threshold)
+
+        if not multiClick or multi_click_count == 0:
+            building_points = run_all(pil_image, x, y, threshold)
+        else:
+            building_points = run_all3(x, y, threshold)
         vertex_list = []
         # corners are already structured
         for corner in building_points:
@@ -346,4 +354,3 @@ def get_all_rects_dictionary():
     for rect in Rectangle.all_rectangles:
         rect_dict[rect.get_id()] = rect.get_points()
     return rect_dict
-    

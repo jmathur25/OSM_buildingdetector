@@ -173,8 +173,11 @@ def run_all(image, click_x, click_y, threshold_passed=None):
     if save_ymin < 0:
         save_ymin = 0
 
-    image_to_save = image[save_ymin:save_ymax, save_xmin:save_xmax]
-    cv2.imwrite('classifiers/backendImages/floodFill.PNG', image_to_save)
+    # to show the current state in the context of the original image
+    cv2.imwrite('classifiers/backendImages/floodFill.PNG', image)
+    # for displaying on the frontend
+    image_crop = image[save_ymin:save_ymax, save_xmin:save_xmax]
+    cv2.imwrite('classifiers/backendImages/floodFill_Display.PNG', image_crop)
     total_edge_list, image = flood_fill_edge_finder(image, click_x, click_y, replace_color, np.array([0, 0, 0]))
     total_edge_list = np.array(total_edge_list)
     total_edge_list = total_edge_list.reshape(len(total_edge_list), 2)
