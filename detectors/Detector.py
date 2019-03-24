@@ -12,6 +12,7 @@ class Detector:
         self.strategy = detection_strategy
         self.detector = None
         self.merge_mode = merge_mode
+        self.rects_to_delete = []
         if (self.strategy == 'simple_detect'):
             self.detector = SimpleDetect(image, lat, long, zoom, threshold)
     
@@ -23,9 +24,13 @@ class Detector:
             for rect_id in Detector.strategy_to_id[self.strategy]:
                 possible_rect = Detector.id_to_rect[rect_id].merge_with(new_rect)
                 if possible_rect is not None:
-                    print('found match!')
-                    new_rect = possible_rect
-                    break
+                    # gets rid of the old rectangle and updated the rects_to_delete message
+                    # note that inn this implementation we don't need to delete new_rect as it has not been added
+                    # this will merge ALL possible matches, not just the first one
+                    Detector.delete_rect(rect_id)
+                    self.rects_to_delete.append(rect_id)
+                    # reassigns new_rect
+                    new_rect = Rectangle(possible_rect)
 
         # updates id_to_rect, id_to_strategy, strategy_to_id with the current rectangle
         Detector.id_to_rect[new_rect.get_id()] = new_rect
@@ -35,7 +40,7 @@ class Detector:
         else:
             Detector.strategy_to_id[self.strategy] = [new_rect.get_id()]
 
-        return new_rect.get_id(), new_rect.get_points(), [] # new_rect.get_deleted_rects()
+        return new_rect.get_id(), new_rect.get_points(), self.rects_to_delete
 
     @staticmethod
     def reset():

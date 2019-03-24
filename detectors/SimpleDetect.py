@@ -14,12 +14,6 @@ class SimpleDetect:
         self.long = long
         self.zoom = zoom
         self.threshold = threshold
-
-    def delete_rect(self):
-        if len(SimpleDetect.all_rect_ids) != 0:
-            Rectangle.delete_rect(SimpleDetect.all_rect_ids.pop())
-            return True
-        return False
     
     # slides the threshold depending on the current intensity
     def __threshold_slider(self, cur_intensity):

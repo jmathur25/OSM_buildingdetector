@@ -19,12 +19,8 @@ class Rectangle:
                 right = max(self.get_right_bound(), other_rectangle.get_right_bound())
                 left = min(self.get_left_bound(), other_rectangle.get_left_bound())
 
-                # delete both rectangles
-                # Rectangle.delete_rect(other_rectangle.get_id())
-                # Rectangle.delete_rect(self.get_id())
-
-                # make a new merged rectangle
-                return Rectangle([[right, top], [left, top], [left, bot], [right, bot]])
+                # returns the coordinates of the merged rectangles
+                return [(left, top), (right, top), (right, bot), (left, bot)]
         return None
 
     # Checks if a point is inside/on the borders

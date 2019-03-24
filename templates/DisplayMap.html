@@ -145,10 +145,11 @@
             }
         }
 
-        // Remove a polygon (external only)
+        // Remove a polygon, from cntrl-z or merge_mode
         function removePolygon(id, updateStack=true, sendChange=false) {
             // Remove from map
             console.log(polygons);
+            console.log('removing:', id);
             polygons[id].remove();
           
             // Remove from dictionary
