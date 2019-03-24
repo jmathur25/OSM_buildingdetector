@@ -51,7 +51,7 @@ def home():
 
 @app.route('/home/backendWindow/', methods=['POST', 'GET'])
 def backend_window():
-    return send_from_directory('./detectors/runtime_images/', 'floodFill_Display.PNG')
+    return send_from_directory('./detectors/runtime_images/', 'flood_fill_display.png')
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
@@ -104,8 +104,11 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        # rect_id, rect_points, rect_ids_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold)
-        detection = Detector('simple_detect', backend_image, lat, long, zoom, threshold, merge_mode)
+        detection = None
+        if complex:
+            detection = Detector('complex_detect', backend_image, lat, long, zoom, threshold, merge_mode)
+        else:
+            detection = Detector('simple_detect', backend_image, lat, long, zoom, threshold, merge_mode)
         rect_id, rect_points, rect_ids_to_remove = detection.detect_building()
         print('current rects:', Detector.id_to_strategy)
         print("rect ids to remove:", rect_ids_to_remove)

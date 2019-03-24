@@ -1,5 +1,6 @@
 from .Rectangle import Rectangle
 from .SimpleDetect import SimpleDetect
+from .ComplexDetect import ComplexDetect
 
 # interface for managing all the detectors
 # all detectors should implement:
@@ -15,6 +16,8 @@ class Detector:
         self.rects_to_delete = []
         if (self.strategy == 'simple_detect'):
             self.detector = SimpleDetect(image, lat, long, zoom, threshold)
+        elif (self.strategy == 'complex_detect'):
+            self.detector = ComplexDetect(image, lat, long, zoom,threshold)
     
     def detect_building(self):
         corners = self.detector.detect_building()
