@@ -91,7 +91,5 @@ class SimpleDetect:
         bottom_right = list(bottom_right)
         bottom_left = list(bottom_left)
 
-        new_rect = Rectangle([top_left, top_right, bottom_right, bottom_left])
-
         # gets the current rect id, the current rect points, and any rectangles that may have been deleted
         return top_left, top_right, bottom_right, bottom_left

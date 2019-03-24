@@ -4,7 +4,8 @@ from .SimpleDetect import SimpleDetect
 # interface for managing all the detectors
 # all detectors should implement:
 class Detector:
-    id_to_detector = {}
+    id_to_rect = {}
+    id_to_strategy = {}
     strategy_to_id = {}
 
     def __init__(self, detection_strategy, image, lat, long, zoom, threshold, merge_mode):
@@ -20,17 +21,15 @@ class Detector:
 
         if self.merge_mode:
             for rect_id in Detector.strategy_to_id[self.strategy]:
-                # can't merge with self
-                if rect_id == new_rect.get_id():
-                    continue
-                possible_rect = Rectangle.get_rect(rect_id).merge_with(new_rect)
+                possible_rect = Detector.id_to_rect[rect_id].merge_with(new_rect)
                 if possible_rect is not None:
                     print('found match!')
                     new_rect = possible_rect
                     break
 
-        # updates id_to_detector and strategy_to_id
-        Detector.id_to_detector[new_rect.get_id()] = self.strategy
+        # updates id_to_rect, id_to_strategy, strategy_to_id with the current rectangle
+        Detector.id_to_rect[new_rect.get_id()] = new_rect
+        Detector.id_to_strategy[new_rect.get_id()] = self.strategy
         if self.strategy in Detector.strategy_to_id:
             Detector.strategy_to_id[self.strategy].append(new_rect.get_id())
         else:
@@ -40,6 +39,15 @@ class Detector:
 
     @staticmethod
     def reset():
-        Detector.id_to_detector = {}
+        Detector.id_to_rect = {}
+        Detector.id_to_strategy = {}
         Detector.strategy_to_id = {}
+
+    @staticmethod
+    def delete_rect(rect_id):
+        del Detector.id_to_rect[rect_id]
+        # finds the strategy of the rect_id and removes it from the strategy list
+        Detector.strategy_to_id[Detector.id_to_strategy[rect_id]].remove(rect_id)
+        del Detector.id_to_strategy[rect_id]
+
     

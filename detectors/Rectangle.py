@@ -1,19 +1,13 @@
 class Rectangle:
     current_id = 0
-    # do rectangles try to merge with neighboring rectangles?
-    # list of all rectangles in existence
-    all_rects = []
-    all_rect_ids = []
-    deleted_rect_ids = []
     tolerable_distance_to_combine_rectangles = 0.00005  # buildings need to be this (lat/long degrees) away to merge
 
     def __init__(self, init_points, to_id=True):
         self.points = init_points  # a point is a list, in (lat, long) form
-        Rectangle.current_id += 1
-        self.id = Rectangle.current_id
         self.deleted_rect_ids = []
         if to_id:
-            Rectangle.add_rect(self)
+            Rectangle.current_id += 1
+            self.id = Rectangle.current_id
 
     def merge_with(self, other_rectangle):
         for point in other_rectangle.points:
@@ -106,19 +100,3 @@ class Rectangle:
 
     def get_points(self):
         return self.points
-
-    # updating the static added_rectangles and removed_rectangles lists
-    @staticmethod
-    def add_rect(rect):
-        Rectangle.all_rects.append(rect)
-        Rectangle.all_rect_ids.append(rect)
-
-    @staticmethod
-    def get_all_rects():
-        return Rectangle.all_rects
-
-    @staticmethod
-    def get_rect(rect_id):
-        if rect_id < len(Rectangle.all_rects):
-            return Rectangle.all_rects[rect_id - 1]
-        return None

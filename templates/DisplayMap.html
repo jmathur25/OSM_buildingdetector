@@ -73,24 +73,22 @@
 
                     // Parse the response
                     var responseJson = JSON.parse(xhr.responseText);
-                    var rectsToUpdate = responseJson["rects_to_add"];
+                    var rectsToAdd = responseJson["rects_to_add"];
                     var rectsToDelete = responseJson["rects_to_delete"];
 
                     // Add polygon(s)
                     console.log("adding polygon");
-                    if (rectsToUpdate.length > 0) {
+                    if (rectsToAdd.length > 0) {
                             // updates the backend window
                             backendWindow.onRemove(map);
 
-                            console.log("new rect");
-                            var rect = rectsToUpdate[0];
-                            var rect_nodes = rect["points"];
-                            var rect_id = rect["id"];
-                            addPolygon(rect_nodes, rect_id);
+                            var rect = rectsToAdd[0];
+                            var rectPoints = rect["points"];
+                            var rectId = rect["id"];
+                            addPolygon(rectPoints, rectId);
                             // Delete polygon(s)
                             if (rectsToDelete["ids"].length > 0) {
                             for (var i = 0; i < rectsToDelete["ids"].length; i++) {
-                                console.log('deleting id:', rectsToDelete["ids"][i])
                                 removePolygon(rectsToDelete["ids"][i]);
                             }
                         }
@@ -122,15 +120,11 @@
         var polygonStack = [];
 
         // Add a polygon to the map
-        function addPolygon(nodeList, id) {
+        function addPolygon(rectPoints, id) {
             // Remove the polygon if it already exists
             console.log("adding polygon ", id);
-            if (id in polygons) {
-                console.log(id, "is already in the list");
-                removePolygon(id);
-            }
 
-            polygons[id] = L.polygon(nodeList);
+            polygons[id] = L.polygon(rectPoints);
             polygons[id].addTo(map);
 
             // Update the polygon stack
@@ -452,15 +446,15 @@
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     // Parse the response
                     var responseJson = JSON.parse(xhr.responseText);
-                    var rectsToUpdate = responseJson["rectsToAdd"];
+                    var rectsToAdd = responseJson["rectsToAdd"];
 
                     // Add polygon(s)
-                    if (rectsToUpdate.length > 0) {
-                        for (var count = 1; count < rectsToUpdate.length; count++) {
-                          var rect_nodes = rectsToUpdate[count];
+                    if (rectsToAdd.length > 0) {
+                        for (var count = 1; count < rectsToAdd.length; count++) {
+                          var rectPoints = rectsToAdd[count];
                           // temporary until we can disentangle this from adding a clicked building
-                          var rect_id = -count;
-                          addPolygonSync(rect_nodes, rect_id);
+                          var rectId = -count;
+                          addPolygonSync(rectPoints, rectId);
                         }
                     }
 
@@ -536,8 +530,8 @@
         polygonSync = {}
 
         // Add a polygon to the map
-        function addPolygonSync(nodeList, id) {
-            polygonSync[id] = L.polygon(nodeList);
+        function addPolygonSync(rectPoints, id) {
+            polygonSync[id] = L.polygon(rectPoints);
             polygonSync[id].addTo(map);
             // Change current polygon colors
             polygonSync[id].setStyle({fillColor: '#A9A9A9', color: 	'#000000'});
