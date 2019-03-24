@@ -11,6 +11,7 @@ class Rectangle:
         self.points = init_points  # a point is a list, in (lat, long) form
         Rectangle.current_id += 1
         self.id = Rectangle.current_id
+        self.deleted_rect_ids = []
         if to_id:
             Rectangle.add_rect(self)
 
@@ -25,8 +26,8 @@ class Rectangle:
                 left = min(self.get_left_bound(), other_rectangle.get_left_bound())
 
                 # delete both rectangles
-                Rectangle.delete_rect(other_rectangle.get_id())
-                Rectangle.delete_rect(self.get_id())
+                # Rectangle.delete_rect(other_rectangle.get_id())
+                # Rectangle.delete_rect(self.get_id())
 
                 # make a new merged rectangle
                 return Rectangle([[right, top], [left, top], [left, bot], [right, bot]])
@@ -121,39 +122,3 @@ class Rectangle:
         if rect_id < len(Rectangle.all_rects):
             return Rectangle.all_rects[rect_id - 1]
         return None
-
-    # convert a list of rectangles into a list of rectangle ids
-    @staticmethod
-    def arr_rect_to_id(rect_arr):
-        id_arr = []
-        for rect in rect_arr:
-            id_arr.append(rect.get_id())
-        return id_arr
-
-    @staticmethod
-    def delete_rect(rect_id):
-        if rect_id in Rectangle.all_rect_ids:
-            print("deleting rect", rect_id)
-            Rectangle.all_rects.remove(rect_id)
-            Rectangle.deleted_rect_ids.append(rect_id)
-            return True
-        return False
-
-    @staticmethod
-    def get_deleted_rects():
-        copy = Rectangle.deleted_rect_ids
-        Rectangle.deleted_rect_ids = []
-        return copy
-
-    # reset all internal storage of rectangle objects
-    @staticmethod
-    def delete_all_rects():
-        Rectangle.all_rects = []
-        Rectangle.all_rect_ids = []
-        Rectangle.current_id = 0
-
-# def get_all_rects_dictionary():
-#     rect_dict = {}
-#     for rect in Rectangle.all_rects:
-#         rect_dict[rect.get_id()] = rect.get_points()
-#     return rect_dict

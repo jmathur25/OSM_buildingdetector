@@ -8,15 +8,12 @@ import math
 import PIL.ImageOps
 
 class SimpleDetect:
-    all_rect_ids = []
-
-    def __init__(self, image, lat, long, zoom, threshold, merge_mode):
+    def __init__(self, image, lat, long, zoom, threshold):
         self.image = image
         self.lat = lat
         self.long = long
         self.zoom = zoom
         self.threshold = threshold
-        self.merge_mode = merge_mode
 
     def delete_rect(self):
         if len(SimpleDetect.all_rect_ids) != 0:
@@ -65,7 +62,7 @@ class SimpleDetect:
         
         return (x, y)
 
-    def detect(self):
+    def detect_building(self):
         grayscale_image = np.array(PIL.ImageOps.grayscale(self.image))
 
         # Get the x,y coordinates of the click
@@ -84,30 +81,17 @@ class SimpleDetect:
         corner4 = quad_three[0], quad_two[1]
 
         # Calculate the geocoordinates of the rectangle
-        topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner1[0], corner1[1])
-        bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner2[0], corner2[1])
-        bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner3[0], corner3[1])
-        topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner4[0], corner4[1])
+        top_right = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner1[0], corner1[1])
+        bottom_right = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner2[0], corner2[1])
+        bottom_left = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner3[0], corner3[1])
+        top_left = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner4[0], corner4[1])
 
-        topleft = list(topleft)
-        topright = list(topright)
-        bottomright = list(bottomright)
-        bottomleft = list(bottomleft)
+        top_left = list(top_left)
+        top_right = list(top_right)
+        bottom_right = list(bottom_right)
+        bottom_left = list(bottom_left)
 
-        new_rect = Rectangle([topleft, topright, bottomright, bottomleft])
-
-        print("Merge Mode in Detect:", self.merge_mode)
-        if self.merge_mode:
-            print('my ids:', SimpleDetect.all_rect_ids)
-            for rect_index in range(0, len(SimpleDetect.all_rect_ids) - 1):
-                rect_id = SimpleDetect.all_rect_ids[rect_index]
-                possible_rect = Rectangle.get_rect(rect_id).merge_with(new_rect)
-                if possible_rect is not None:
-                    print('found match!')
-                    new_rect = possible_rect
-                    break
-
-        SimpleDetect.all_rect_ids.append(new_rect.get_id())
+        new_rect = Rectangle([top_left, top_right, bottom_right, bottom_left])
 
         # gets the current rect id, the current rect points, and any rectangles that may have been deleted
-        return new_rect.get_id(), new_rect.get_points(), Rectangle.get_deleted_rects()
+        return top_left, top_right, bottom_right, bottom_left

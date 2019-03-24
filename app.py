@@ -6,7 +6,7 @@ import PIL.ImageOps
 import cv2
 import numpy
 import json
-from classifiers import building_detection_combined, SimpleDetect, Rectangle
+from detectors import Detector, Rectangle
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
@@ -46,8 +46,7 @@ def home():
     # necessary so that if one refreshes, the way memory deletes with the drawn polygons
     global osm
     osm.clear_ways_memory()
-    Rectangle.delete_all_rects()
-    SimpleDetect.all_rect_ids = []
+    Detector.reset()
     return render_template('DisplayMap.html')
 
 @app.route('/home/backendWindow/', methods=['POST', 'GET'])
@@ -87,7 +86,7 @@ def mapclick():
         # consider moving this to a function inside the OSM_Interactor class, and copy the Rectangle has point inside code
         if possible_building_matches != None:
             for points in possible_building_matches:
-                synced_building_as_rect = building_detection_combined.Rectangle(points, to_id=False)
+                synced_building_as_rect = Rectangle(points, to_id=False)
                 if synced_building_as_rect.has_point_inside((lat, long)):
                     json_post = {"rects_to_add": [],
                                 "rects_to_delete": ['INSIDEBUILDING']
@@ -106,9 +105,9 @@ def mapclick():
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         # rect_id, rect_points, rect_ids_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold)
-        Detection = SimpleDetect(backend_image, lat, long, zoom, threshold, merge_mode)
-        rect_id, rect_points, rect_ids_to_remove = Detection.detect()
-        print('current rects:', SimpleDetect.all_rect_ids)
+        detection = Detector('simple_detect', backend_image, lat, long, zoom, threshold, merge_mode)
+        rect_id, rect_points, rect_ids_to_remove = detection.detect_building()
+        print('current rects:', Detector.id_to_detector)
         print("rect ids to remove:", rect_ids_to_remove)
 
 
@@ -133,8 +132,8 @@ def delete_rect():
         
         # Delete the rectangle with this ID
         rect_id = int(info['rect_id'])
-        Rectangle.delete_rect(rect_id)
-        SimpleDetect.all_rect_ids.remove(rect_id)
+        # Rectangle.delete_rect(rect_id)
+        # SimpleDetect.all_rect_ids.remove(rect_id)
         
     return "Success"
 
