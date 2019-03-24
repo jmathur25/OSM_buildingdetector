@@ -8,18 +8,19 @@ import math
 import PIL.ImageOps
 
 class SimpleDetect:
+    all_rect_ids = []
 
-    def __init__(self, image, lat, long, zoom, threshold):
+    def __init__(self, image, lat, long, zoom, threshold, merge_mode):
         self.image = image
         self.lat = lat
         self.long = long
         self.zoom = zoom
         self.threshold = threshold
-        self.my_rect_ids = []
+        self.merge_mode = merge_mode
 
     def delete_rect(self):
-        if len(self.my_rect_ids) != 0:
-            Rectangle.delete_rect(self.my_rect_ids.pop())
+        if len(SimpleDetect.all_rect_ids) != 0:
+            Rectangle.delete_rect(SimpleDetect.all_rect_ids.pop())
             return True
         return False
     
@@ -93,11 +94,20 @@ class SimpleDetect:
         bottomright = list(bottomright)
         bottomleft = list(bottomleft)
 
-        Rectangle([topleft, topright, bottomright, bottomleft])
+        new_rect = Rectangle([topleft, topright, bottomright, bottomleft])
 
-        rectangles_to_add = Rectangle.get_added_rectangles()
-        self.my_rect_ids.append(rectangles_to_add[0].get_id())
+        print("Merge Mode in Detect:", self.merge_mode)
+        if self.merge_mode:
+            print('my ids:', SimpleDetect.all_rect_ids)
+            for rect_index in range(0, len(SimpleDetect.all_rect_ids) - 1):
+                rect_id = SimpleDetect.all_rect_ids[rect_index]
+                possible_rect = Rectangle.get_rect(rect_id).merge_with(new_rect)
+                if possible_rect is not None:
+                    print('found match!')
+                    new_rect = possible_rect
+                    break
 
-        # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
-        return (rectangles_to_add[0].get_id(), rectangles_to_add[0].get_points(),
-                Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
+        SimpleDetect.all_rect_ids.append(new_rect.get_id())
+
+        # gets the current rect id, the current rect points, and any rectangles that may have been deleted
+        return new_rect.get_id(), new_rect.get_points(), Rectangle.get_deleted_rects()

@@ -6,7 +6,7 @@ import PIL.ImageOps
 import cv2
 import numpy
 import json
-from classifiers import building_detection_combined, SimpleDetect
+from classifiers import building_detection_combined, SimpleDetect, Rectangle
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
@@ -41,45 +41,18 @@ def login():  # this method is called when the page starts up
 
     return render_template('Login.html', error=error)
 
-
 @app.route('/home/')
 def home():
     # necessary so that if one refreshes, the way memory deletes with the drawn polygons
     global osm
     osm.clear_ways_memory()
+    Rectangle.delete_all_rects()
+    SimpleDetect.all_rect_ids = []
     return render_template('DisplayMap.html')
-
-
-@app.route('/home/deleterect', methods=['POST'])
-def delete_rect():
-    if request.method == 'POST':
-        result = request.form
-        info = result_to_dict(result)
-        
-        # Delete the rectangle with this ID
-        rect_id = int(info['rect_id'])
-        building_detection_combined.delete_rect(rect_id)
-        
-    return "Success"
-
 
 @app.route('/home/backendWindow/', methods=['POST', 'GET'])
 def backend_window():
-    return send_from_directory('./classifiers/backendImages/', 'floodFill_Display.PNG')
-
-
-@app.route('/home/mergetoggle', methods=['POST'])
-def merge_toggle():
-    if request.method == 'POST':
-        # Toggle the merge mode and return the current merge state
-        merge_mode = building_detection_combined.toggle_merge_mode()
-        print('toggling merge mode')
-        if merge_mode:
-            return "merge_enabled"
-        else:
-            return "merge_disabled"
-    return "None"
-
+    return send_from_directory('./classifiers/runtime_images/', 'floodFill_Display.PNG')
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
@@ -95,9 +68,13 @@ def mapclick():
             complex = True
         threshold = int(info['threshold'])
 
+        merge_mode = False
+        if (info['merge_mode'] == 'true'):
+            merge_mode = True
+
         global multi_click_count
         multiClick = False
-        if (info['multiclick'] == 'true'):
+        if (info['multi_click'] == 'true'):
             multiClick = True
             multi_click_count += 1
         else:
@@ -112,11 +89,10 @@ def mapclick():
             for points in possible_building_matches:
                 synced_building_as_rect = building_detection_combined.Rectangle(points, to_id=False)
                 if synced_building_as_rect.has_point_inside((lat, long)):
-                    json_post = {"rectsToAdd": [],
-                                "rectsToDelete": ['INSIDEBUILDING']
+                    json_post = {"rects_to_add": [],
+                                "rects_to_delete": ['INSIDEBUILDING']
                                 }
                     return json.dumps(json_post)
-
 
         # find xtile, ytile
         xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
@@ -129,31 +105,46 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        # rect_id, rect_points, rectangles_id_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold)
-        Detection = SimpleDetect(backend_image, lat, long, zoom, threshold)
-        rect_id, rect_points, rectangles_id_to_remove = Detection.detect()
+        # rect_id, rect_points, rect_ids_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold)
+        Detection = SimpleDetect(backend_image, lat, long, zoom, threshold, merge_mode)
+        rect_id, rect_points, rect_ids_to_remove = Detection.detect()
+        print('current rects:', SimpleDetect.all_rect_ids)
+        print("rect ids to remove:", rect_ids_to_remove)
 
 
         # if area too big
         if osm.check_area(rect_points, sort=False):
-            json_post = {"rectsToAdd": [],
-                         "rectsToDelete": []
+            json_post = {"rects_to_add": [],
+                         "rects_to_delete": []
                          }
 
         else:
-            json_post = {"rectsToAdd": [{"id": rect_id,
+            json_post = {"rects_to_add": [{"id": rect_id,
                                     "points": rect_points}],
-                     "rectsToDelete": {"ids": rectangles_id_to_remove}
+                     "rects_to_delete": {"ids": rect_ids_to_remove}
                             }
         return json.dumps(json_post)
 
+@app.route('/home/deleterect', methods=['POST'])
+def delete_rect():
+    if request.method == 'POST':
+        result = request.form
+        info = result_to_dict(result)
+        
+        # Delete the rectangle with this ID
+        rect_id = int(info['rect_id'])
+        Rectangle.delete_rect(rect_id)
+        SimpleDetect.all_rect_ids.remove(rect_id)
+        
+    return "Success"
 
 @app.route('/home/uploadchanges', methods=['POST'])
 def upload_changes():
     print('uploading to OSM...')
     global osm
     
-    if (len(building_detection_combined.get_all_rects()) == 0):
+    if (len(Rectangle.get_all_rects()) == 0):
+        print("No Rects")
         return "0"
     
     # Create the way using the list of nodes
@@ -164,7 +155,6 @@ def upload_changes():
     building_detection_combined.delete_all_rects()
     print('finished!')
     return str(len(ways_created))
-
 
 @app.route('/NewAccount/', methods=['GET', 'POST'])  # activates when create a new account is clicked
 def new_account():
@@ -182,14 +172,12 @@ def new_account():
 
     return render_template('/NewAccount.html', error=error)  # links to the create a new account page
 
-
 @app.route('/home/imagery/<zoom>/<x>/<y>.png', methods=['GET'])
 def imagery_request(zoom, x, y):
     fname = imd.get_tile_filename(x, y, zoom)
     if not os.path.isfile(fname):
         imd.download_tile(x, y, zoom)
     return send_file(fname, mimetype="image/png")
-
 
 @app.route('/home/OSMSync', methods=['POST'])
 def OSM_map_sync():
@@ -212,7 +200,6 @@ def OSM_map_sync():
         json_post = {"rectsToAdd": mappable_results}
         return json.dumps(json_post)
 
-
 @app.route('/home/citySearch', methods=['POST'])
 def citySearch():
     if request.method == 'POST':
@@ -229,7 +216,6 @@ def citySearch():
 
         json_post = {'lat': '-1000'}
         return json.dumps(json_post)
-
 
 def start_webapp(config):
     """Starts the Flask server."""

@@ -55,7 +55,15 @@
               console.log('map click');
               console.log('threshold:', current_threshold);
               console.log('multi click: ', multiClick);
-              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") + "&long=" + encodeURIComponent(e.latlng.lng + "") + "&zoom=" + encodeURIComponent(map.getZoom()) + "&complex=" + complex + "&threshold="+current_threshold + "&multiclick=" + multiClick;
+              console.log('merge mode:', mergeMode);
+              console.log("CURRENT POLYGONS:", polygons);
+              var params = "lat=" + encodeURIComponent(e.latlng.lat + "") +
+                            "&long=" + encodeURIComponent(e.latlng.lng + "") +
+                            "&zoom=" + encodeURIComponent(map.getZoom()) +
+                            "&complex=" + complex +
+                            "&threshold="+current_threshold +
+                            "&multi_click=" + multiClick +
+                            "&merge_mode=" + mergeMode;
               var xhr = new XMLHttpRequest();
               xhr.open("POST", "./mapclick", true);
               xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -65,8 +73,8 @@
 
                     // Parse the response
                     var responseJson = JSON.parse(xhr.responseText);
-                    var rectsToUpdate = responseJson["rectsToAdd"];
-                    var rectsToDelete = responseJson["rectsToDelete"];
+                    var rectsToUpdate = responseJson["rects_to_add"];
+                    var rectsToDelete = responseJson["rects_to_delete"];
 
                     // Add polygon(s)
                     console.log("adding polygon");
@@ -82,6 +90,7 @@
                             // Delete polygon(s)
                             if (rectsToDelete["ids"].length > 0) {
                             for (var i = 0; i < rectsToDelete["ids"].length; i++) {
+                                console.log('deleting id:', rectsToDelete["ids"][i])
                                 removePolygon(rectsToDelete["ids"][i]);
                             }
                         }
@@ -115,7 +124,9 @@
         // Add a polygon to the map
         function addPolygon(nodeList, id) {
             // Remove the polygon if it already exists
+            console.log("adding polygon ", id);
             if (id in polygons) {
+                console.log(id, "is already in the list");
                 removePolygon(id);
             }
 
@@ -141,8 +152,9 @@
         }
 
         // Remove a polygon (external only)
-        function removePolygon(id, updateStack = true, sendChange = false) {
+        function removePolygon(id, updateStack=true, sendChange=false) {
             // Remove from map
+            console.log(polygons);
             polygons[id].remove();
           
             // Remove from dictionary
@@ -170,37 +182,15 @@
             uploadButton.enable();
         }
 
-        // Toggle the merge mode - whether rectangles combine (external only)
-        function mergetoggle() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "./mergetoggle", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            // Wait for a response
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    if (xhr.responseText == "merge_enabled") {
-                        mergeMode = true;
-                        mergeButton.update();
-                    } else if (xhr.responseText == "merge_disabled") {
-                        mergeMode = false;
-                        mergeButton.update();
-                    }
-                }
-            }
-            xhr.send();
-        }
-
         // Add Ctrl+Z functionality
         function onBodyKeyDown(event) {
             if (event.ctrlKey && event.key == "z") {
                 undoAddPolygon();
-
             }
             
             // Handle the merge toggle button
             if (event.key == "m") {
-                mergetoggle();
-                mergeButton.update();
+                mergeButton.mergeButtonClick();
             }
         }
         document.body.onkeydown = onBodyKeyDown;
@@ -369,7 +359,7 @@
             xhr.send(params);
         }
 
-        var mergeMode = false;
+        var mergeMode = 'false';
         
         // Add merge control
         L.Control.MergeButton = L.Control.extend({
@@ -393,15 +383,18 @@
                 return container;
             },
             mergeButtonClick: function (e) {
-                mergetoggle();
-                
+                if (mergeMode == 'false') {
+                    mergeMode = 'true';
+                } else {
+                    mergeMode = 'false';
+                }
                 // Update merge mode
                 this.update();
             },
             
             update: function () {
                 var col = "#FFFFFF";
-                if (mergeMode) {
+                if (mergeMode == 'true') {
                     col = "#BBFFBB";
                 }
                 this.mergeButton.style.backgroundColor = col;
