@@ -1,6 +1,7 @@
 from .Rectangle import Rectangle
 from .SimpleDetect import SimpleDetect
 from .ComplexDetect import ComplexDetect
+from .MultiClickDetect import MultiClickDetect
 
 # interface for managing all the detectors
 # all detectors should implement:
@@ -8,20 +9,31 @@ class Detector:
     id_to_rect = {}
     id_to_strategy = {}
     strategy_to_id = {}
+    multi_click_first = True
 
     def __init__(self, detection_strategy, image, lat, long, zoom, threshold, merge_mode):
         self.strategy = detection_strategy
         self.detector = None
         self.merge_mode = merge_mode
         self.rects_to_delete = []
-        if (self.strategy == 'simple_detect'):
+        if (self.strategy == 'complex_detect'):
+            self.detector = ComplexDetect(image, lat, long, zoom, threshold)
+        elif (self.strategy == 'multi_click_detect'):
+            self.detector = MultiClickDetect(image, lat, long, zoom, threshold, Detector.multi_click_first)
+        else:
             self.detector = SimpleDetect(image, lat, long, zoom, threshold)
-        elif (self.strategy == 'complex_detect'):
-            self.detector = ComplexDetect(image, lat, long, zoom,threshold)
     
     def detect_building(self):
-        corners = self.detector.detect_building()
+        corners, message = self.detector.detect_building()
         new_rect = Rectangle(corners)
+
+        if self.strategy == 'multi_click_detect':
+            if Detector.multi_click_first:
+                Detector.multi_click_first = False
+            else:
+                # deletes the last box as it will be replaced by the new MultiClick flood fill
+                self.rects_to_delete.append(Detector.strategy_to_id[self.strategy][-1])
+                Detector.delete_rect(Detector.strategy_to_id[self.strategy][-1])
 
         if self.merge_mode:
             for rect_id in Detector.strategy_to_id[self.strategy]:
@@ -43,7 +55,7 @@ class Detector:
         else:
             Detector.strategy_to_id[self.strategy] = [new_rect.get_id()]
 
-        return new_rect.get_id(), new_rect.get_points(), self.rects_to_delete
+        return new_rect.get_id(), new_rect.get_points(), self.rects_to_delete, message
 
     @staticmethod
     def reset():

@@ -3,7 +3,6 @@ import numpy as np
 import geolocation
 import backend
 import math
-import PIL.ImageOps
 
 class SimpleDetect:
     def __init__(self, image, lat, long, zoom, threshold):
@@ -55,7 +54,8 @@ class SimpleDetect:
         return (x, y)
 
     def detect_building(self):
-        grayscale_image = np.array(PIL.ImageOps.grayscale(self.image))
+        message = None
+        grayscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
         # Get the x,y coordinates of the click
         x, y = geolocation.deg_to_tilexy_matrix(self.lat, self.long, self.zoom)
@@ -84,4 +84,4 @@ class SimpleDetect:
         bottom_left = list(bottom_left)
 
         # gets the current rect id, the current rect points, and any rectangles that may have been deleted
-        return top_left, top_right, bottom_right, bottom_left
+        return [top_left, top_right, bottom_right, bottom_left], message

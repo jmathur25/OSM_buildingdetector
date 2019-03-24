@@ -2,9 +2,7 @@ import backend
 import imagery
 import os
 import geolocation
-import PIL.ImageOps
-import cv2
-import numpy
+import numpy as np
 import json
 from detectors import Detector, Rectangle
 
@@ -15,7 +13,6 @@ app = Flask(__name__)
 imd = None
 program_config = {}
 osm = None
-multi_click_count = 0
 
 
 # useful function for turning request data into usable dictionaries
@@ -71,13 +68,9 @@ def mapclick():
         if (info['merge_mode'] == 'true'):
             merge_mode = True
 
-        global multi_click_count
-        multiClick = False
+        multi_click = False
         if (info['multi_click'] == 'true'):
-            multiClick = True
-            multi_click_count += 1
-        else:
-            multi_click_count = 0
+            multi_click = True
 
         json_post = {}
         global osm
@@ -96,24 +89,20 @@ def mapclick():
         # find xtile, ytile
         xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
 
-        # find x, y
-        x, y = geolocation.deg_to_tilexy(lat, long, zoom)
-
         # Get those tiles
-        backend_image = imd.get_tiles_around(xtile, ytile, zoom)
+        backend_image = np.array(imd.get_tiles_around(xtile, ytile, zoom))
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
         detection = None
         if complex:
             detection = Detector('complex_detect', backend_image, lat, long, zoom, threshold, merge_mode)
+        elif multi_click:
+            detection = Detector('multi_click_detect', backend_image, lat, long, zoom, threshold, merge_mode)
         else:
             detection = Detector('simple_detect', backend_image, lat, long, zoom, threshold, merge_mode)
-        rect_id, rect_points, rect_ids_to_remove = detection.detect_building()
-        print('current rects:', Detector.id_to_strategy)
-        print("rect ids to remove:", rect_ids_to_remove)
-
-
+            
+        rect_id, rect_points, rect_ids_to_remove, message = detection.detect_building()
         # if area too big
         if osm.check_area(rect_points, sort=False):
             json_post = {"rects_to_add": [],

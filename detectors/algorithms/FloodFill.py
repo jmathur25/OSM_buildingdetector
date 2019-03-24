@@ -26,12 +26,18 @@ class FloodFill:
         self.x_max, self.y_max, self.x_min, self.y_min = 0, 0, self.width - 1, self.height - 1
 
     def flood_fill(self):
+        message = None
+        # if you click on a green pixel, just return
+        if np.array_equal(self.image[self.y_click, self.x_click], self.replacement_color):
+            message = 'green'
+            return self.image, message
         pixel_queue = queue.Queue()
         pixel_queue.put((self.x_click, self.y_click))
         start_time = time.time()
         while not pixel_queue.empty():
             # makes sure flood fill doesn't run too long
             if (time.time() - start_time > FloodFill.TIME_MAX):
+                message = 'timeout'
                 break
             current_x, current_y = pixel_queue.get()
             if current_x > 0:
@@ -66,7 +72,7 @@ class FloodFill:
                     if (self.y_min > current_y - 1):
                         self.y_min = current_y - 1
 
-        return self.image
+        return self.image, message
 
     def green_fill(self):
         distance = 10

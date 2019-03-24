@@ -3,29 +3,36 @@ import numpy as np
 import geolocation
 import backend
 import math
+import os
 from .algorithms import FloodFill, Polygonify
 
-class ComplexDetect:
-    def __init__(self, image, lat, long, zoom, threshold):
-        self.image = image
+class MultiClickDetect:
+    def __init__(self, image, lat, long, zoom, threshold, first):
+        # checks to see if we should be using a past flood fill
+        self.first = first
+        if self.first:
+            self.image = image
+        else:
+            self.image = cv2.imread('detectors/runtime_images/flood_fill_multi_click.png')
         self.lat = lat
         self.long = long
         self.zoom = zoom
         self.THRESHOLD = threshold
-    
+
     def detect_building(self):
         # Get the x_click,y coordinates of the click
         x_click, y_click = geolocation.deg_to_tilexy_matrix(self.lat, self.long, self.zoom)
         # find xtile, ytile
         xtile, ytile = geolocation.deg_to_tile(self.lat, self.long, self.zoom)
-        
-        # writes the pre_image before any changes
-        cv2.imwrite('detectors/runtime_images/pre_image.png', self.image)
-        print("running flood fill")
+
+        if self.first:
+            # writes the pre_image before any changes
+            cv2.imwrite('detectors/runtime_images/pre_image.png', self.image)
+            print("running flood fill on existing image")
 
         flood_fill = FloodFill(self.image, x_click, y_click, self.THRESHOLD)
         flood_fill_image, message = flood_fill.flood_fill()
-        cv2.imwrite('detectors/runtime_images/flood_fill.png', flood_fill_image)
+        cv2.imwrite('detectors/runtime_images/flood_fill_multi_click.png', flood_fill_image)
         print("ran flood fill")
 
         cropped_image = flood_fill.crop_image()
@@ -46,3 +53,4 @@ class ComplexDetect:
             vertex_list.append(list(next_vertex))
 
         return vertex_list, message
+    
