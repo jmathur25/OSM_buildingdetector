@@ -1,11 +1,13 @@
 import numpy as np
 import queue
 import math
+import time
 
 class FloodFill:
     RGB_GREEN = np.array([0, 255, 0])
     RGB_BLACK = np.array([0, 0, 0])
     CROP_PIXEL_MARGIN = 20
+    TIME_MAX = 3
 
     def __init__(self, image, x_click, y_click, threshold):
         self.image = image
@@ -26,9 +28,12 @@ class FloodFill:
     def flood_fill(self):
         pixel_queue = queue.Queue()
         pixel_queue.put((self.x_click, self.y_click))
+        start_time = time.time()
         while not pixel_queue.empty():
+            # makes sure flood fill doesn't run too long
+            if (time.time() - start_time > FloodFill.TIME_MAX):
+                break
             current_x, current_y = pixel_queue.get()
-
             if current_x > 0:
                 left_rgb = self.image[current_y][current_x - 1]
                 if FloodFill.RGB_distance(left_rgb, self.target_color) < self.THRESHOLD and not np.array_equal(self.image[current_y][current_x - 1], self.replacement_color):
