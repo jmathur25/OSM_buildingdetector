@@ -3,10 +3,14 @@ import queue
 import numpy as np
 import math
 from matplotlib import pyplot as plt
+from scipy.spatial import ConvexHull
 
-def run_all3(click_x, click_y, thresh):
+def run_all3(click_x, click_y, threshold=None):
     THRESHOLD = 25
-
+    if (threshold is not None):
+        THRESHOLD = threshold
+        print("new threshold:", THRESHOLD)
+        
     # should read "preImage.PNG" if the first click or else ERROR!! Later fix
     FILENAME = 'classifiers/backendImages/floodFill.PNG'
     image = cv2.imread(FILENAME)
@@ -138,13 +142,26 @@ def run_all3(click_x, click_y, thresh):
     coord = []
     for corner in corners:
         coord.append((corner[0][0], corner[0][1]))
-    
-    print(coord)
-    for i in corners:
-        x,y = i.ravel()
-        cv2.circle(img2,(x,y),3,255,-1)
-    
-    cv2.imwrite("test.png", img2)
 
-    return coord
+    coord = np.array(coord)
+    coord = coord.reshape(len(coord), 2)
+    hull_vertex_indices = ConvexHull(coord).vertices
+
+    hull_coord = []
+    for index in hull_vertex_indices:
+        hull_coord.append(tuple(coord[index]))
+
+    print(coord)
+    print(" ")
+    print(hull_coord)
+    return hull_coord
+    
+    # print(coord)
+    # for i in corners:
+    #     x,y = i.ravel()
+    #     cv2.circle(img2,(x,y),3,255,-1)
+    
+    # cv2.imwrite("test.png", img2)
+
+    # return coord
 

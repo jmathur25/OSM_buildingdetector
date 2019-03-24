@@ -5,7 +5,7 @@ import math
 
 THRESHOLD = 25
 
-FILENAME = 'diff_hue'
+FILENAME = 'houses'
 image = cv2.imread(FILENAME + '.png')
 height = image.shape[0]
 width = image.shape[1]
