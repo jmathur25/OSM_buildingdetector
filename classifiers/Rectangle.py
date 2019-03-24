@@ -1,31 +1,18 @@
-import cv2
-import numpy as np
-import geolocation
-import backend
-import math
-import PIL.ImageOps
-from .FloodFill_To_Edges_Actual import run_all
-from .floodFill2 import run_all3
-
-# all rectangles are parallel to the xy axis
 class Rectangle:
     current_id = 0
-
     # do rectangles try to merge with neighboring rectangles?
     merge_mode = False
-
     # list of all rectangles in existence
     all_rectangles = []
-
     # recently changed rectangles that need to be recognized by the backend
     # access added_rectangles and removed_rectangles through get_changed_rectangles()
     added_rectangles = []
     removed_rectangles = []
-
     tolerable_distance_to_combine_rectangles = 0.00005  # buildings need to be this (lat/long degrees) away to merge
 
     def __init__(self, init_points, to_id=True):
         self.points = init_points  # a point is a list, in (lat, long) form
+
 
         if to_id:
             Rectangle.current_id += 1
@@ -200,119 +187,6 @@ class Rectangle:
         Rectangle.all_rectangles.clear()
         Rectangle.added_rectangles.clear()
         Rectangle.removed_rectangles.clear()
-
-
-# detect a rectangle, then log it to the Rectangle class, which keeps track of merging and logging rectangles
-def detect_rectangle(pil_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold=None):
-    """ Tries to detect the rectangle at a given point on an image. """
-
-    if not complex:
-        pil_image = PIL.ImageOps.grayscale(pil_image)
-
-        im = np.array(pil_image)
-
-        # Get the x,y coordinates of the click
-        x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
-
-        quad_one = get_next_intensity_change(im, x, y, 1, 0)
-        quad_four = get_next_intensity_change(im, x, y, 0, -1)
-        quad_two = get_next_intensity_change(im, x, y, 0, 1)
-        quad_three = get_next_intensity_change(im, x, y, -1, 0)
-
-        corner1 = quad_one[0], quad_two[1]
-        corner2 = quad_one[0], quad_four[1]
-        corner3 = quad_three[0], quad_four[1]
-        corner4 = quad_three[0], quad_two[1]
-
-        # Calculate the geocoordinates of the rectangle
-        topright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner1[0], corner1[1])
-        bottomright = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner2[0], corner2[1])
-        bottomleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner3[0], corner3[1])
-        topleft = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner4[0], corner4[1])
-
-        topleft = list(topleft)
-        topright = list(topright)
-        bottomright = list(bottomright)
-        bottomleft = list(bottomleft)
-
-        Rectangle([topleft, topright, bottomright, bottomleft])
-
-        retangles_to_add = Rectangle.get_added_rectangles()
-
-        # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
-        return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
-                Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
-
-    else:
-        """COMPLEX MODE: Tries to detect the rectangle at a given point on an image. """
-        if threshold == None:
-            threshold = 25
-
-        # Get the x,y coordinates of the click
-        x, y = geolocation.deg_to_tilexy_matrix(lat, long, zoom)
-
-        pil_image = np.array(pil_image)
-
-        if not multiClick or multi_click_count == 0:
-            building_points = run_all(pil_image, x, y, threshold)
-        else:
-            building_points = run_all3(x, y, threshold)
-        vertex_list = []
-        # corners are already structured
-        for corner in building_points:
-            next_vertex = geolocation.tilexy_to_deg_matrix(xtile, ytile, zoom, corner[0], corner[1])
-            vertex_list.append(list(next_vertex))
-
-        Rectangle(vertex_list)
-
-        retangles_to_add = Rectangle.get_added_rectangles()
-
-        # return the rectangle's id added from the click/merge, the rectangle's points, and the ids of all rectangles to remove (from merging)
-        return (retangles_to_add[0].get_id(), retangles_to_add[0].get_points(),
-                Rectangle.arr_rect_to_id(Rectangle.get_removed_rectangles()))
-
-
-# Get the next major intensity change in a given direction.
-def get_next_intensity_change(image, x, y, xstep, ystep):
-
-    def threshold_slider(cur_intensity):
-        fit = math.ceil(0.25*cur_intensity - 10)
-        if fit < 0:
-            fit = 10
-        return fit
-
-    lookahead = 5
-    width = image.shape[1]
-    height = image.shape[0]
-
-
-    while (x >= 0 and x < width and y >= 0 and y < height):
-        
-        if (x + xstep < 0 or x + xstep >= width or y + ystep < 0 or y + ystep >= height):
-            break
-        
-        x += xstep
-        y += ystep
-
-        # keeps the x coordinates and y coordinates bounded by 0 and width / height respectively
-        downx = max(min(int(x + xstep * lookahead), width - 1), 0)
-        downy = max(min(int(y + ystep * lookahead), height - 1), 0)
-        
-        cur_intensity = int(image[int(y), int(x)])
-        next_intensity = int(image[downy, downx])
-        threshold = threshold_slider(cur_intensity)
-        
-        if (abs(cur_intensity - next_intensity) > threshold):
-            for i in range(lookahead, -1, -1):
-                downx = max(min(int(x + xstep * i), width - 1), 0)
-                downy = max(min(int(y + ystep * i), height - 1), 0)
-                
-                next_intensity = int(image[downy, downx])
-                if (abs(cur_intensity - next_intensity) > threshold):
-                    return (downx, downy)
-            return (downx, downy)
-    
-    return (x, y)
 
 # delete the rectangle manually (such as from undo-ing a click from the frontend)
 def delete_rect(rect_id):

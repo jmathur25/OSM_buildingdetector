@@ -6,7 +6,7 @@ import PIL.ImageOps
 import cv2
 import numpy
 import json
-from classifiers import building_detection_combined
+from classifiers import building_detection_combined, SimpleDetect
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
@@ -129,8 +129,11 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        rect_id, rect_points, rectangles_id_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold)
-        
+        # rect_id, rect_points, rectangles_id_to_remove = building_detection_combined.detect_rectangle(backend_image, xtile, ytile, lat, long, zoom, complex, multiClick, multi_click_count, threshold)
+        Detection = SimpleDetect(backend_image, lat, long, zoom, threshold)
+        rect_id, rect_points, rectangles_id_to_remove = Detection.detect()
+
+
         # if area too big
         if osm.check_area(rect_points, sort=False):
             json_post = {"rectsToAdd": [],
