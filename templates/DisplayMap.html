@@ -600,7 +600,7 @@
         var complexButton = L.control.ComplexButton({ position: "topleft" }).addTo(map);
 
 
-        var current_threshold = '25';
+        var current_threshold = '13';
 
         // Add threshold slider control
         L.Control.ThresholdSlider = L.Control.extend({
@@ -626,7 +626,7 @@
                 var link = L.DomUtil.create('input', className, container);
                 link.type = 'range';
                 link.min = '0';
-                link.max = '50';
+                link.max = '25';
                 link.innerHTML = html;
                 link.href = '#';
                 link.className = className

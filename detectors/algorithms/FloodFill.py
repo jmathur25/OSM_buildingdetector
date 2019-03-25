@@ -30,6 +30,7 @@ class FloodFill:
         # if you click on a green pixel, just return
         if np.array_equal(self.image[self.y_click, self.x_click], self.replacement_color):
             message = 'green'
+            print('clicked a green pixel!')
             return self.image, message
         pixel_queue = queue.Queue()
         pixel_queue.put((self.x_click, self.y_click))
@@ -38,6 +39,7 @@ class FloodFill:
             # makes sure flood fill doesn't run too long
             if (time.time() - start_time > FloodFill.TIME_MAX):
                 message = 'timeout'
+                print('flood fill took too long')
                 break
             current_x, current_y = pixel_queue.get()
             if current_x > 0:
@@ -120,16 +122,14 @@ class FloodFill:
         return self.image[save_ymin:save_ymax, save_xmin:save_xmax]
 
     def __check_pixels_in_one_direction(self, target_color, cur_x, cur_y, iterations, isNegative, checkY=True):
-        # green should just be green, the bound can be very tight
-        CHECK_THRESHOLD = 1
         for i in range(iterations):
             if isNegative:
                 i = -i
             if checkY:
-                if FloodFill.RGB_distance(self.image[cur_y + i][cur_x], target_color) < CHECK_THRESHOLD:
+                if FloodFill.RGB_distance(self.image[cur_y + i][cur_x], target_color) < self.THRESHOLD:
                     return True
             else:
-                if FloodFill.RGB_distance(self.image[cur_y][cur_x + i], target_color) < CHECK_THRESHOLD:
+                if FloodFill.RGB_distance(self.image[cur_y][cur_x + i], target_color) < self.THRESHOLD:
                     return True
         return False
 
