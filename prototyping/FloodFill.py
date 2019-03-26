@@ -19,7 +19,7 @@ class FloodFill:
         self.width = len(image[0])
         self.height = len(image)
         self.target_color = np.array(image[self.y_click, self.x_click].tolist())
-        self.replacement_color = FloodFill.RGB_GREEN
+        self.replacement_color = np.array(FloodFill.RGB_GREEN.tolist())
 
         # created during flood_fill
         # x_max is not supposed to be 0, but by starting it at 0 it can be adjusted during the run of floodFill
@@ -27,8 +27,6 @@ class FloodFill:
         self.x_max, self.y_max, self.x_min, self.y_min = 0, 0, self.width - 1, self.height - 1
 
     def flood_fill(self):
-        print('thresh', self.THRESHOLD, 'x', self.x_click, 'y', self.y_click, 'target', self.target_color, 'replace', self.replacement_color)
-        print('width', self.width, 'height', self.height)
         message = None
         # if you click on a green pixel, just return
         if np.array_equal(self.image[self.y_click, self.x_click], self.replacement_color):
@@ -46,6 +44,7 @@ class FloodFill:
                 message = 'timeout'
                 print('flood fill took too long')
                 break
+
             current_x, current_y = pixel_queue.get()
             if current_x > 0:
                 left_rgb = self.image[current_y][current_x - 1]
@@ -79,7 +78,8 @@ class FloodFill:
                     if (self.y_min > current_y - 1):
                         self.y_min = current_y - 1
 
-        return self.image, message
+        # return self.image, message
+        return image, message
 
     def green_fill(self):
         distance = 10
@@ -206,3 +206,12 @@ class FloodFill:
     @staticmethod
     def RGB_distance(first_rgb, second_rgb):
         return math.sqrt(np.sum((np.absolute(first_rgb - second_rgb))**2))
+
+import cv2
+image = cv2.imread('./test_images/pre_image.PNG')
+flood = FloodFill(image, 472, 340, 25)
+result, message = flood.flood_fill()
+print('done running flood fill')
+cv2.imshow('result', result)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

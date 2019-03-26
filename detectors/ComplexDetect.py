@@ -23,16 +23,16 @@ class ComplexDetect:
         cv2.imwrite('detectors/runtime_images/pre_image.png', self.image)
         print("running flood fill")
 
-        flood_fill = FloodFill(self.image, x_click, y_click, self.THRESHOLD)
-        flood_fill_image, message = flood_fill.flood_fill()
-        cv2.imwrite('detectors/runtime_images/flood_fill.png', flood_fill_image)
+        flood = FloodFill(self.image, x_click, y_click, self.THRESHOLD)
+        flood_fill_image, message = flood.flood_fill()
+        cv2.imwrite('detectors/runtime_images/flood.png', flood_fill_image)
         print("ran flood fill")
 
-        cropped_image = flood_fill.crop_image()
+        cropped_image = flood.crop_image()
         cv2.imwrite('detectors/runtime_images/flood_fill_display.png', cropped_image)
         print('cropped image')
 
-        edge_image, total_edge_list = flood_fill.find_edges()
+        edge_image, total_edge_list = flood.find_edges()
         cv2.imwrite('detectors/runtime_images/flood_fill_edges.png', edge_image)
         print('found edges')
 

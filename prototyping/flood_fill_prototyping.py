@@ -5,42 +5,49 @@ import math
 from scipy.spatial import ConvexHull
 from scipy.ndimage.interpolation import rotate
 
-THRESHOLD = 5
+THRESHOLD = 25
 
-def RGB_distance_threshold(first_rgb, second_rgb):
-    return math.sqrt(np.sum((np.absolute(first_rgb - second_rgb))**2)) < THRESHOLD
+def RGB_distance(first_rgb, second_rgb):
+    return math.sqrt(np.sum((np.absolute(first_rgb - second_rgb))**2))
 
 def check_pixels_in_one_direction(image, target_color, cur_x, cur_y, iterations, isNegative, checkY=True):
     for i in range(iterations):
-        if isNegative:
-            i = -i
-        if checkY:
-            if RGB_distance_threshold(image[cur_y + i][cur_x], target_color):
-                return True
-        else:
-            if RGB_distance_threshold(image[cur_y][cur_x + i], target_color):
-                return True
+        try:
+            if isNegative:
+                i = -i
+            if checkY:
+                if RGB_distance(image[cur_y + i][cur_x], target_color) < 1:
+                    return True
+            else:
+                if RGB_distance(image[cur_y][cur_x + i], target_color) < 1:
+                    return True
+        except:
+            print('failing with ', cur_x, cur_y, i, len(image[0]), len(image))
     return False
 
 def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
+    print('thresh', THRESHOLD, 'x', x_loc, 'y', y_loc, 'target', target_color, 'replace', replacement_color)
     width = len(image[0])
     height = len(image)
+    print('width', width, 'height', height)
     x_max = 0
     y_max = 0
     x_min = width - 1
     y_min = height - 1
+    first = True
 
     image[y_loc, x_loc] = replacement_color
     pixel_queue = queue.Queue()
     pixel_queue.put((x_loc, y_loc))
-    width = len(image[0])
-    height = len(image)
     while not pixel_queue.empty():
         current_x, current_y = pixel_queue.get()
 
         if current_x > 0:
             left_rgb = image[current_y][current_x - 1]
-            if RGB_distance_threshold(left_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x - 1], replacement_color):
+            if RGB_distance(left_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x - 1], replacement_color):
+                if first:
+                    # first = False
+                    print('x', current_x - 1, 'y', current_y, 'dist', RGB_distance(left_rgb, target_color))
                 image[current_y][current_x - 1] = replacement_color
                 pixel_queue.put((current_x - 1, current_y))
                 if (x_min > current_x - 1):
@@ -48,15 +55,21 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
 
         if current_x < width - 1:
             right_rgb = image[current_y][current_x + 1]
-            if RGB_distance_threshold(right_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x + 1], replacement_color):
+            if RGB_distance(right_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y][current_x + 1], replacement_color):
+                if first:
+                    # first = False
+                    print('x', current_x + 1, 'y', current_y, 'dist', RGB_distance(right_rgb, target_color))
                 image[current_y][current_x + 1] = replacement_color
                 pixel_queue.put((current_x + 1, current_y))
-                if (x_max < current_x + 1):t
+                if (x_max < current_x + 1):
                     x_max = current_x + 1
 
         if current_y < height - 1:
             up_rgb = image[current_y + 1][current_x]
-            if RGB_distance_threshold(up_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y + 1][current_x], replacement_color):
+            if RGB_distance(up_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y + 1][current_x], replacement_color):
+                if first:
+                    # first = False
+                    print('x', current_x - 1, 'y', current_y + 1, 'dist', RGB_distance(up_rgb, target_color))
                 image[current_y + 1][current_x] = replacement_color
                 pixel_queue.put((current_x, current_y + 1))
                 if (y_max < current_y + 1):
@@ -64,7 +77,10 @@ def flood_fill(image, x_loc, y_loc, target_color, replacement_color):
 
         if current_y > 0:
             down_rgb = image[current_y - 1][current_x]
-            if RGB_distance_threshold(down_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y - 1][current_x], replacement_color):
+            if RGB_distance(down_rgb, target_color) < THRESHOLD and not np.array_equal(image[current_y - 1][current_x], replacement_color):
+                if first:
+                    first = False
+                    print('x', current_x, 'y', current_y - 1, 'dist', RGB_distance(down_rgb, target_color))
                 image[current_y - 1][current_x] = replacement_color
                 pixel_queue.put((current_x, current_y - 1))
                 if (y_min > current_y - 1):
@@ -132,15 +148,16 @@ def flood_fill_edge_finder(image, x_loc, y_loc, target_color, replacement_color)
     return total_edge_list, image
 
 
-x_global = 0
-y_global = 0
+x_global = 472
+y_global = 340
 def register_click(event,x,y,flags,param):
     if event == cv2.EVENT_LBUTTONDOWN:
-        global x_global, y_global
-        x_global = int(x)
-        y_global = int(y)
+        pass
+        # global x_global, y_global
+        # x_global = int(x)
+        # y_global = int(y)
 
-image_name = "./test_images/diff_hue.PNG"
+image_name = "current.png"
 
 image = cv2.imread(image_name)
 cv2.namedWindow('image')
@@ -152,8 +169,7 @@ print(x_global, y_global)
 target_color = np.array(image[y_global][x_global].tolist())
 replace_color = np.array([0, 255, 0])
 
-flood_fill_image = flood_fill(image, x_global, y_global, target_color, replace_color)
-print("showing flood fill")
+flood_fill_image, _, _, _, _ = flood_fill(image, x_global, y_global, target_color, replace_color)
 cv2.namedWindow('image')
 cv2.setMouseCallback('image', register_click)
 cv2.imshow('image', image)
