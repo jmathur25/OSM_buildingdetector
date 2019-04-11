@@ -25,7 +25,7 @@ class ComplexDetect:
 
         flood = FloodFill(self.image, x_click, y_click, self.THRESHOLD)
         flood_fill_image, message = flood.flood_fill()
-        cv2.imwrite('detectors/runtime_images/flood.png', flood_fill_image)
+        cv2.imwrite('detectors/runtime_images/flood_fill.png', flood_fill_image)
         print("ran flood fill")
 
         cropped_image = flood.crop_image()

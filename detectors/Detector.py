@@ -32,8 +32,9 @@ class Detector:
                 Detector.multi_click_first = False
             else:
                 # deletes the last box as it will be replaced by the new MultiClick flood fill
-                self.rects_to_delete.append(Detector.strategy_to_id[self.strategy][-1])
-                Detector.delete_rect(Detector.strategy_to_id[self.strategy][-1])
+                # self.rects_to_delete.append(Detector.strategy_to_id[self.strategy][-1])
+                # Detector.delete_rect(Detector.strategy_to_id[self.strategy][-1])
+                pass
 
         if self.merge_mode:
             for rect_id in Detector.strategy_to_id[self.strategy]:

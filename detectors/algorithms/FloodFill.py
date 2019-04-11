@@ -14,7 +14,7 @@ class FloodFill:
         self.x_click = x_click
         self.y_click = y_click
         # self.THRESHOLD = threshold
-        self.THRESHOLD = 25
+        self.THRESHOLD = threshold
 
         self.width = len(image[0])
         self.height = len(image)
@@ -27,8 +27,6 @@ class FloodFill:
         self.x_max, self.y_max, self.x_min, self.y_min = 0, 0, self.width - 1, self.height - 1
 
     def flood_fill(self):
-        print('thresh', self.THRESHOLD, 'x', self.x_click, 'y', self.y_click, 'target', self.target_color, 'replace', self.replacement_color)
-        print('width', self.width, 'height', self.height)
         message = None
         # if you click on a green pixel, just return
         if np.array_equal(self.image[self.y_click, self.x_click], self.replacement_color):
@@ -111,6 +109,7 @@ class FloodFill:
         return self.image
 
     def crop_image(self):
+        print("Running crop")
         save_xmax = self.x_max + FloodFill.CROP_PIXEL_MARGIN
         save_xmin = self.x_min - FloodFill.CROP_PIXEL_MARGIN
         save_ymax = self.y_max + FloodFill.CROP_PIXEL_MARGIN
