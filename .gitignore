@@ -5,6 +5,7 @@ detectors/algorithms/__pycache__/*
 archive/__pycache__/*
 imgcache/*
 mydatabase.db
+weights
 # config.yml <-- eventually will need to white this out
 
 .idea
