@@ -11,16 +11,18 @@ import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
 
 class InferenceConfig(Config):
-    """Configuration for training on data in MS COCO format.
-    Derives from the base Config class and overrides values specific
-    to the COCO dataset.
-    """
+    # Give the configuration a recognizable name
     NAME = "OSM_buildingdetector"
-    GPU_COUNT = 1 # 1 GPU = CPU
-    IMAGES_PER_GPU = 1
 
-    IMAGE_MAX_DIM = 320
-    IMAGE_MIN_DIM = 320
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1 
+
+    # Number of classes (including background)
+    NUM_CLASSES = 1 + 1  # 1 Backgroun + 1 Building
+
+    IMAGE_MAX_DIM=320
+    IMAGE_MIN_DIM=320
+
 
 MODEL_DIR = ''
 ROOT_DIR = ''
@@ -101,14 +103,14 @@ class Mask_RCNN_Detect():
 
     def _detect_with_split(self, image):
         minimum = 280
-        height, width, image.shape[0], image.shape[1]
+        height, width = image.shape[0], image.shape[1]
         # makes sure image needs to be split in the first
         assert height >= 2 * minimum or width >= 2 * minimum
         vert_num_splits = height // minimum
         horiz_num_splits = width // minimum
 
         # 250 x 560
-        final_mask = np.zeros((image.shape[0], image.shape[1]))
+        final_mask = np.zeros((image.shape[0], image.shape[1])).astype(bool)
         for i in range(vert_num_splits + 1):
             for j in range(horiz_num_splits + 1):
                 # svi = start_vert_index; evi = end_vert_endex
@@ -123,12 +125,11 @@ class Mask_RCNN_Detect():
                     ehi = width
                 else:
                     ehi = (i + 1) * (width // horiz_num_splits)
-
-                image = image[svi:evi, shi:ehi, :]
-                image = Image.fromarray(image)
-                original_size = (image.size[0], image.size[1])
-                image = image.resize((320, 320), Image.ANTIALIAS)
-                detection = self.model.detect([imageio.core.util.Array(np.array(image)[:, :, :3])])
+                im = image[svi:evi, shi:ehi, :]
+                im = Image.fromarray(im)
+                original_size = (im.size[0], im.size[1])
+                im = im.resize((320, 320), Image.ANTIALIAS)
+                detection = self.model.detect([imageio.core.util.Array(np.array(im)[:, :, :3])])
                 masks = detection[0]['masks']
                 masks = masks.any(axis=2)  # flattens masks, doesn't solve overlap problem
                 masks = Image.fromarray(masks).resize(original_size, Image.ANTIALIAS)
