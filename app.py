@@ -15,7 +15,7 @@ app = Flask(__name__)
 imd = None
 program_config = {}
 osm = None
-mrcnn = Mask_RCNN_Detect()
+mrcnn = Mask_RCNN_Detect("weights/epoch55.h5")
 
 # useful function for turning request data into usable dictionaries
 def result_to_dict(result):

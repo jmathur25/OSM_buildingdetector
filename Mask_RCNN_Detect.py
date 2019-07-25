@@ -10,34 +10,38 @@ import geolocation
 import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
 
+
 class InferenceConfig(Config):
     # Give the configuration a recognizable name
     NAME = "OSM_buildingdetector"
 
     GPU_COUNT = 1
-    IMAGES_PER_GPU = 1 
+    IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # 1 Backgroun + 1 Building
 
-    IMAGE_MAX_DIM=320
-    IMAGE_MIN_DIM=320
+    IMAGE_MAX_DIM = 320
+    IMAGE_MIN_DIM = 320
 
 
 MODEL_DIR = ''
 ROOT_DIR = ''
 
+
 class Mask_RCNN_Detect():
 
-    def __init__(self):
+    def __init__(self, weights):
         self.inference_config = InferenceConfig()
         self.model = modellib.MaskRCNN(
             mode="inference", config=self.inference_config, model_dir=MODEL_DIR)
 
-        model_path = os.path.join(ROOT_DIR, "weights/pretrained_weights.h5")
+        # model_path = os.path.join(ROOT_DIR, "weights/pretrained_weights.h5")
+        model_path = os.path.join(ROOT_DIR, weights)
         print("Loading weights from ", model_path)
         self.model.load_weights(model_path, by_name=True)
-        self.model.detect([imageio.core.util.Array(np.array(Image.open('osm_images/tmp.PNG'))[:, :, :3])])
+        self.model.detect([imageio.core.util.Array(
+            np.array(Image.open('osm_images/tmp.PNG'))[:, :, :3])])
         print("initial detect works")
 
     def detect_building(self, image, lat=None, long=None, zoom=None):
@@ -46,14 +50,14 @@ class Mask_RCNN_Detect():
 
         # just a regular image
         if lat is None or long is None or zoom is None:
-            return _detect_single(image)
+            return self._detect_single(image)
 
         # to return
         masks = None
 
         # image needs to be split into pieces
         if image.shape[0] > 500 or image.shape[1] > 500:
-            masks = _detect_with_split(image)
+            masks = self._detect_with_split(image)
         else:
             image = Image.fromarray(image)
             image.save('click_original.png')
@@ -62,10 +66,11 @@ class Mask_RCNN_Detect():
             detection = self.model.detect(
                 [imageio.core.util.Array(np.array(image)[:, :, :3])])
             masks = detection[0]['masks']
-            masks = masks.any(axis=2) # flattens masks, doesn't solve overlap problem
-            masks = Image.fromarray(masks).resize(original_size, Image.ANTIALIAS)
-            plt.imsave('result.png', masks)
-            masks = np.array(masks)
+            masks = self._small_merge(masks)
+            
+            
+        masks = np.array(Image.fromarray(masks).resize(original_size, Image.ANTIALIAS))
+        plt.imsave('result.png', masks)
 
         # list of lat/long points to plot
         to_return = []
@@ -86,7 +91,7 @@ class Mask_RCNN_Detect():
     def _detect_single(self, image, save=None):
         # image needs to be split into pieces
         if image.shape[0] >= 560 or image.shape[1] >= 560:
-            return _detect_with_split(image)
+            return self._detect_with_split(image)
 
         image = Image.fromarray(image)
         original_size = (image.size[0], image.size[1])
@@ -94,7 +99,7 @@ class Mask_RCNN_Detect():
         detection = self.model.detect(
             [imageio.core.util.Array(np.array(image)[:, :, :3])])
         masks = detection[0]['masks']
-        masks = masks.any(axis=2) # flattens masks, doesn't solve overlap problem
+        masks = self._small_merge(masks) # could just do masks.any(axis=2) but this should be better
         masks = Image.fromarray(masks).resize(original_size, Image.ANTIALIAS)
         if save is not None:
             plt.imsave(save, masks)
@@ -129,47 +134,41 @@ class Mask_RCNN_Detect():
                 im = Image.fromarray(im)
                 original_size = (im.size[0], im.size[1])
                 im = im.resize((320, 320), Image.ANTIALIAS)
-                detection = self.model.detect([imageio.core.util.Array(np.array(im)[:, :, :3])])
+                detection = self.model.detect(
+                    [imageio.core.util.Array(np.array(im)[:, :, :3])])
                 masks = detection[0]['masks']
-                masks = masks.any(axis=2)  # flattens masks, doesn't solve overlap problem
-                masks = Image.fromarray(masks).resize(original_size, Image.ANTIALIAS)
+                masks = self._small_merge(masks)
+                masks = Image.fromarray(masks).resize(
+                    original_size, Image.ANTIALIAS)
                 # pastes result into the final mask
                 final_mask[svi:evi, shi:ehi] = masks
 
         return final_mask
 
+    # merges buildings and prevents significant overlap / massive masks
+    def _small_merge(self, masks):  # merges only the small ones inside
+        net_mask = np.zeros((masks.shape[0], masks.shape[1]))
+        for i, layer in enumerate(range(masks.shape[2])):
+            m = masks[:, :, layer]  # gives an id
+            shared = (m & (net_mask != 0))
+            i += 1
+            shared_count = np.count_nonzero(shared)
+            if (shared_count > 100):
+                new_id = i
+                tmp = np.argwhere(shared)[0]
+                collision_id = net_mask[tmp[0], tmp[1]]
+                collision_id_mask = net_mask == collision_id
 
+                new_count = np.count_nonzero(m)
+                collision_count = np.count_nonzero(collision_id_mask)
 
-        # image_tl = image[:len(image)//2, :len(image)//2, :]  # top left
-        # image_tr = image[len(image)//2:, :len(image)//2, :]  # top right
-        # image_br = image[len(image)//2:, len(image)//2:, :]  # bottom right
-        # image_bl = image[:len(image)//2, len(image)//2:, :]  # bottom left
-
-        # mask_tl = None
-        # mask_tr = None
-        # mask_br = None
-        # mask_bl = None
-        # for i, image in enumerate([image_tl, image_tr, image_br, image_bl]):
-        #     image = Image.fromarray(image)
-        #     original_size = (image.size[0], image.size[1])
-        #     image = image.resize((320, 320), Image.ANTIALIAS)
-        #     detection = self.model.detect(
-        #         [imageio.core.util.Array(np.array(image)[:, :, :3])])
-        #     masks = detection[0]['masks']
-        #     masks = masks.any(axis=2)  # doesn't solve overlap problem
-        #     masks = Image.fromarray(masks).resize(
-        #         original_size, Image.ANTIALIAS)
-        #     if i == 0:
-        #         mask_tl = masks
-        #     elif i == 1:
-        #         mask_tr = masks
-        #     elif i == 2:
-        #         mask_br = masks
-        #     else:
-        #         mask_bl = masks
-
-        # mask_up = np.hstack((mask_tl, mask_tr))
-        # mask_down = np.hstack((mask_bl, mask_br))
-        # masks = np.vstack((mask_up, mask_down))
-
-        # return masks
+                # you could use this to get larger buildings within a tolerance
+                # if new_count > collision_count and new_count < 10000:
+                #     net_mask[collision_id_mask] = 0
+                #     net_mask += m * i
+                if new_count < collision_count:
+                    net_mask[collision_id_mask] = 0
+                    net_mask += m * i
+            else:
+                net_mask += m * i
+        return net_mask != 0  # True if was given an id (so is a mask)
