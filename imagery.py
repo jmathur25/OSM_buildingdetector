@@ -6,6 +6,8 @@ from PIL import Image
 from io import BytesIO
 from geolocation import *
 import os.path
+import numpy as np
+import matplotlib.pyplot as plt
 
 class ImageryDownloader(object):
 
@@ -22,7 +24,7 @@ class ImageryDownloader(object):
         # Try to fetch the image from the cache first
         img_fname = self.get_tile_filename(x, y, zoom)
         if os.path.isfile(img_fname):
-            return Image.open(img_fname)
+            return (plt.imread(img_fname) * 256).astype(np.uint8)
         
         # Download the image
         url = self.imagery_url
@@ -51,13 +53,16 @@ class ImageryDownloader(object):
         return img_fname
     
     def get_tiles_around(self, x, y, zoom):
-        """Downloads all the tiles around the x, y tile"""
-        image = Image.new("RGB", (256 * 3, 256 * 3))
-        for i in range(-1, 2, 1):
-            for j in range(-1, 2, 1):
-                try:
-                    tile_part = self.download_tile(x + i, y + j, zoom)
-                    image.paste(tile_part, (256 * (i + 1), 256 * (j + 1)))
-                except:
-                    pass
-        return image
+        im = self.download_tile(x, y, zoom)
+        print(im.size, np.array(im).shape)
+        return im
+        # """Downloads all the tiles around the x, y tile"""
+        # image = Image.new("RGB", (256 * 3, 256 * 3))
+        # for i in range(-1, 2, 1):
+        #     for j in range(-1, 2, 1):
+        #         try:
+        #             tile_part = Image.fromarray(self.download_tile(x + i, y + j, zoom))
+        #             image.paste(tile_part, (256 * (i + 1), 256 * (j + 1)))
+        #         except:
+        #             pass
+        # return image

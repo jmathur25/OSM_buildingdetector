@@ -68,6 +68,7 @@
               xhr.open("POST", "./mapclick", true);
               xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
               // Wait for a response
+              console.log("waiting for response...")
               xhr.onreadystatechange = function() {
                   if (xhr.readyState == 4 && xhr.status == 200) {
 
@@ -77,7 +78,7 @@
                     var rectsToDelete = responseJson["rects_to_delete"];
 
                     // Add polygon(s)
-                    console.log("adding polygon");
+                    console.log("Got response");
                     if (rectsToAdd.length > 0) {
                             // updates the backend window
                             backendWindow.onRemove(map);
@@ -120,7 +121,7 @@
 
         var polygonStack = [];
 
-        console.log("adding points");
+        console.log("adding points...");
         function addMasks(rectPoints) {
             for (point in rectPoints) {
                 L.circle(rectPoints[point], {radius:1}).addTo(map);
