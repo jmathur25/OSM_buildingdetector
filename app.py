@@ -5,6 +5,8 @@ import geolocation
 import numpy as np
 import json
 from detectors import Detector, Rectangle
+from Mask_RCNN_Detect import Mask_RCNN_Detect
+from PIL import Image
 
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
@@ -13,7 +15,7 @@ app = Flask(__name__)
 imd = None
 program_config = {}
 osm = None
-
+mrcnn = Mask_RCNN_Detect()
 
 # useful function for turning request data into usable dictionaries
 def result_to_dict(result):
@@ -52,6 +54,7 @@ def backend_window():
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
+    global osm, mcrnn
     if request.method == 'POST':
         result = request.form
         info = result_to_dict(result)
@@ -73,7 +76,6 @@ def mapclick():
             multi_click = True
 
         json_post = {}
-        global osm
         possible_building_matches = osm.ways_binary_search((lat, long))
 
         # consider moving this to a function inside the OSM_Interactor class, and copy the Rectangle has point inside code
@@ -94,25 +96,34 @@ def mapclick():
 
         # create a rectangle from click
         # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        detection = None
-        if complex:
-            detection = Detector('complex_detect', backend_image, lat, long, zoom, threshold, merge_mode)
-        elif multi_click:
-            detection = Detector('multi_click_detect', backend_image, lat, long, zoom, threshold, merge_mode)
-        else:
-            detection = Detector('simple_detect', backend_image, lat, long, zoom, threshold, merge_mode)
-            
-        rect_id, rect_points, rect_ids_to_remove, message = detection.detect_building()
-        # if area too big
-        if osm.check_area(rect_points, sort=False):
-            json_post = {"rects_to_add": [],
-                         "rects_to_delete": []
-                         }
+        # detection = None
+        # if complex:
+        #     detection = Detector('complex_detect', backend_image, lat, long, zoom, threshold, merge_mode)
+        # elif multi_click:
+        #     detection = Detector('multi_click_detect', backend_image, lat, long, zoom, threshold, merge_mode)
+        # else:
+        #     detection = Detector('simple_detect', backend_image, lat, long, zoom, threshold, merge_mode)
 
-        else:
-            json_post = {"rects_to_add": [{"id": rect_id,
-                                    "points": rect_points}],
-                     "rects_to_delete": {"ids": rect_ids_to_remove}
+        # rect_id, rect_points, rect_ids_to_remove, message = detection.detect_building()
+
+
+        # if area too big
+        # if osm.check_area(rect_points, sort=False):
+        #     json_post = {"rects_to_add": [],
+        #                  "rects_to_delete": []
+        #                  }
+
+        # else:
+            # json_post = {"rects_to_add": [{"id": rect_id,
+            #                         "points": rect_points}],
+            #          "rects_to_delete": {"ids": rect_ids_to_remove}
+            #                 }
+
+        masks = mrcnn.detect_building(backend_image, lat, long, zoom)
+
+        json_post = {"rects_to_add": [{"id": 0,
+                                    "points": masks}],
+                     "rects_to_delete": {"ids": 0}
                             }
         return json.dumps(json_post)
 

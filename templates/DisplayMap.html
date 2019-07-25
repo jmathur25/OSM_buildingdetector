@@ -85,7 +85,8 @@
                             var rect = rectsToAdd[0];
                             var rectPoints = rect["points"];
                             var rectId = rect["id"];
-                            addPolygon(rectPoints, rectId);
+                            addMasks(rectPoints);
+                            // addPolygon(rectPoints, rectId);
                             // Delete polygon(s)
                             if (rectsToDelete["ids"].length > 0) {
                             for (var i = 0; i < rectsToDelete["ids"].length; i++) {
@@ -118,6 +119,13 @@
         var polygons = {}
 
         var polygonStack = [];
+
+        console.log("adding points");
+        function addMasks(rectPoints) {
+            for (point in rectPoints) {
+                L.circle(rectPoints[point], {radius:1}).addTo(map);
+            }
+        }
 
         // Add a polygon to the map
         function addPolygon(rectPoints, id) {
@@ -421,7 +429,7 @@
         // Add the merge button to the map
         var mergeButton = L.Control.mergeButton({ position: "topleft" }).addTo(map);
 
-        var isSync = false;
+        var isSync = true;
 
         var syncMemory = {}
 

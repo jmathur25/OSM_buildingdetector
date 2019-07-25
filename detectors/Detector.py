@@ -2,6 +2,7 @@ from .Rectangle import Rectangle
 from .SimpleDetect import SimpleDetect
 from .ComplexDetect import ComplexDetect
 from .MultiClickDetect import MultiClickDetect
+# from .Mask_RCNN_Detect import Mask_RCNN_Detect
 
 # interface for managing all the detectors
 # all detectors should implement:
