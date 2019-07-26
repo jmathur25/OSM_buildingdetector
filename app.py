@@ -27,18 +27,19 @@ def result_to_dict(result):
 
 @app.route('/', methods=['POST', 'GET'])  # base page that loads up on start/accessing the website
 def login():  # this method is called when the page starts up
-    error = None
-    if request.method == 'POST':
-        result = request.form
-        info = result_to_dict(result)
-        status = backend.user_sign_in(info)
-        if status:
-            flash('You successfully made a new account')
-            return redirect(url_for("home"))
-        else:
-            error = "Account does not exist"
+    return redirect('/home/')
+    # error = None
+    # if request.method == 'POST':
+    #     result = request.form
+    #     info = result_to_dict(result)
+    #     status = backend.user_sign_in(info)
+    #     if status:
+    #         flash('You successfully made a new account')
+    #         return redirect(url_for("home"))
+    #     else:
+    #         error = "Account does not exist"
 
-    return render_template('Login.html', error=error)
+    # return render_template('Login.html', error=error)
 
 @app.route('/home/')
 def home():
@@ -119,11 +120,21 @@ def mapclick():
             #          "rects_to_delete": {"ids": rect_ids_to_remove}
             #                 }
 
-        masks = mrcnn.detect_building(backend_image, lat, long, zoom)
+        if multi_click:
+            print("HERE")
+            lat_delete = float(info['delete_lat'])
+            long_delete = float(info['delete_long'])
+            id_to_delete = mrcnn.delete_mask(lat_delete, long_delete, zoom)
+            json_post = {"rects_to_add": [{"ids": [],
+                                        "points": []}],
+                        "rects_to_delete": {"ids": [id_to_delete]}}
+            return json.dumps(json_post)
 
-        json_post = {"rects_to_add": [{"id": 0,
-                                    "points": masks}],
-                     "rects_to_delete": {"ids": 0}
+        masks = mrcnn.detect_building(backend_image, lat, long, zoom, to_id=True)
+
+        json_post = {"rects_to_add": [{"ids": list(masks.keys()),
+                                    "points": list(masks.values())}],
+                     "rects_to_delete": {"ids": []}
                             }
         return json.dumps(json_post)
 

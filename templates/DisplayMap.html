@@ -57,13 +57,19 @@
               console.log('multi click: ', multiClick);
               console.log('merge mode:', mergeMode);
               console.log("CURRENT POLYGONS:", polygons);
+              if (multiClick == 'true') {
+                  deleteLatClick = e.latlng.lat;
+                  deleteLongClick = e.latlng.lng;
+              }
               var params = "lat=" + encodeURIComponent(e.latlng.lat + "") +
                             "&long=" + encodeURIComponent(e.latlng.lng + "") +
                             "&zoom=" + encodeURIComponent(map.getZoom()) +
                             "&complex=" + complex +
                             "&threshold="+current_threshold +
                             "&multi_click=" + multiClick +
-                            "&merge_mode=" + mergeMode;
+                            "&merge_mode=" + mergeMode + 
+                            "&delete_lat=" + deleteLatClick +
+                            "&delete_long=" + deleteLongClick;
               var xhr = new XMLHttpRequest();
               xhr.open("POST", "./mapclick", true);
               xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -77,6 +83,11 @@
                     var rectsToAdd = responseJson["rects_to_add"];
                     var rectsToDelete = responseJson["rects_to_delete"];
 
+                    // Delete polygon(s)
+                    if (rectsToDelete["ids"].length > 0) {
+                        removeMasks(rectsToDelete["ids"]);
+                    }
+
                     // Add polygon(s)
                     console.log("Got response");
                     if (rectsToAdd.length > 0) {
@@ -85,15 +96,10 @@
 
                             var rect = rectsToAdd[0];
                             var rectPoints = rect["points"];
-                            var rectId = rect["id"];
-                            addMasks(rectPoints);
+                            var rectIds = rect["ids"];
+
+                            addMasks(rectIds, rectPoints);
                             // addPolygon(rectPoints, rectId);
-                            // Delete polygon(s)
-                            if (rectsToDelete["ids"].length > 0) {
-                            for (var i = 0; i < rectsToDelete["ids"].length; i++) {
-                                removePolygon(rectsToDelete["ids"][i]);
-                            }
-                        }
                     } else {
                         if (rectsToDelete.length > 0) {
                             popup.setLatLng(e.latlng);
@@ -116,17 +122,35 @@
         }
         map.on("click", onMapClick);
 
+        masks = {}
+
+        function addMasks(rectIds, rectPoints) {
+            console.log("adding points...");
+            for (var index = 0; index < rectIds.length; index++) {
+                points = rectPoints[index];
+                masks[rectIds[index]] = [];
+                for (var point = 0; point < points.length; point++) {
+                    L.circle(points[point], {radius:1}).addTo(map);
+                    // masks[rectIds[index]].push(L.circle(points[point], {radius:1}).addTo(map));
+                }
+            }
+            console.log("done");
+        }
+
+        function removeMasks(deleteIds) {
+            console.log("deleting masks...");
+            for (var index = 0; index < deleteIds.length; index++) {
+                points = masks[deleteIds[index]];
+                for (var point = 0; point < points.length; point++) {
+                    points[point].remove();
+                }
+            }
+            console.log("done");
+        }
+
         // Polygons
         var polygons = {}
-
         var polygonStack = [];
-
-        console.log("adding points...");
-        function addMasks(rectPoints) {
-            for (point in rectPoints) {
-                L.circle(rectPoints[point], {radius:1}).addTo(map);
-            }
-        }
 
         // Add a polygon to the map
         function addPolygon(rectPoints, id) {
@@ -786,7 +810,7 @@
                 position: 'topleft',
                 // @option mergeText: String = '+'
                 // The text set on the 'merge' button.
-                multiClickText: 'MC',
+                multiClickText: 'DM',
                 // @option mergeTitle: String = 'Zoom in'
                 // The title set on the 'zoom in' button.
                 multiClickTitle: 'Toggle Multi Click'
@@ -841,6 +865,74 @@
 
         // Add the merge button to the map
         var multiClickButton = L.Control.multiClickButton({ position: "topleft" }).addTo(map);
+
+        //  // -------------------------------------------------------------------------------------------
+        // // Delete
+        // // -------------------------------------------------------------------------------------------
+
+        var deleteClick = 'false';
+        var deleteLatClick = undefined;
+        var deleteLongClick = undefined;
+        
+        // // Add delete control
+        // L.Control.DeleteButton = L.Control.extend({
+        //     options: {
+        //         position: 'topleft',
+        //         deleteText: 'DM',
+        //         deleteTitle: 'Delete Masks'
+        //     },
+        //     onAdd: function (map) {
+        //         var zoomName = 'leaflet-control-zoom',
+        //             container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+        //             options = this.options;
+        //         this.DeleteButton = this._createButton(options.deleteText, options.deleteTitle,
+        //                 zoomName + '-in',  container, this.DeleteButton);
+        //         return container;
+        //     },
+        //     DeleteButton: function (e) {
+        //         if (deleteClick == 'false') {
+        //             deleteClick = 'true';
+        //         } else {
+        //             deleteClick = 'false';
+        //         }
+        //         // Update deleteClick mode
+        //         console.log('deleteClick:', deleteClick);
+        //         this.update();
+        //         deleteLatCLick = e.lat;
+        //         deleteLongClick = e.long;
+        //     },
+        //     update: function () {
+        //         var col = "#FFFFFF";
+        //         if (DeleteClick == 'true') {
+        //             col = "#BBFFBB";
+        //         }
+        //         this.DeleteButton.style.backgroundColor = col;
+        //     },
+        //     _createButton: function (html, title, className, container, fn) {
+        //         var link = L.DomUtil.create('a', className, container);
+        //         link.innerHTML = html;
+        //         link.href = '#';
+        //         link.title = title;
+        //         /*
+        //          * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+        //          */
+        //         link.setAttribute('role', 'button');
+        //         link.setAttribute('aria-label', title);
+        //         L.DomEvent.disableClickPropagation(link);
+        //         L.DomEvent.on(link, 'click', L.DomEvent.stop);
+        //         L.DomEvent.on(link, 'click', fn, this);
+        //         L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+        //         return link;
+        //     }
+        // });
+
+        // // Delete button constructor
+        // L.Control.DeleteButton = function(opts) {
+        //     return new L.Control.DeleteButton(opts);
+        // }
+
+        // // Add the merge button to the map
+        // var deleteButton = L.Control.DeleteButton({ position: "topleft" }).addTo(map);
 
     </script>
   </body>

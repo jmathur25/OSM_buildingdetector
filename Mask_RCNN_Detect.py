@@ -8,6 +8,7 @@ import numpy as np
 import warnings
 import geolocation
 import matplotlib.pyplot as plt
+from skimage.transform import resize as scale_resize
 warnings.filterwarnings('ignore')
 
 
@@ -30,7 +31,6 @@ ROOT_DIR = ''
 
 
 class Mask_RCNN_Detect():
-
     def __init__(self, weights):
         self.inference_config = InferenceConfig()
         self.model = modellib.MaskRCNN(
@@ -44,69 +44,73 @@ class Mask_RCNN_Detect():
             np.array(Image.open('osm_images/tmp.PNG'))[:, :, :3])])
         print("initial detect works")
 
-    def detect_building(self, image, lat=None, long=None, zoom=None):
-        print(type(image), image.shape)
-        Image.fromarray(image).save('click_original.png')
+        self.image_id = 1
+        self.id = 1 # for id-ing buildings
+        self.id_to_points = {}
 
-        # just a regular image
-        if lat is None or long is None or zoom is None:
-            return self._detect_single(image)
+    # to_id should only be true while using the Flask app
+    # id-ing will help the Mask_R_CNN keep track of each building and adjustments that need to be made
+    def detect_building(self, image, lat=None, long=None, zoom=None, to_id=False):
+        print(type(image), image.shape)
+
+        if to_id: plt.imsave('runtime/images/image_{}.png'.format(self.image_id), image)
 
         # to return
         masks = None
 
         # image needs to be split into pieces
         if image.shape[0] > 500 or image.shape[1] > 500:
-            masks = self._detect_with_split(image)
+            masks = self._detect_with_split(image, to_id)
         else:
-            image = Image.fromarray(image)
-            image.save('click_original.png')
-            original_size = (image.size[0], image.size[1])
-            image = image.resize((320, 320), Image.ANTIALIAS)
-            detection = self.model.detect(
-                [imageio.core.util.Array(np.array(image)[:, :, :3])])
-            masks = detection[0]['masks']
-            masks = self._small_merge(masks)
-            
-            
-        masks = np.array(Image.fromarray(masks).resize(original_size, Image.ANTIALIAS))
-        plt.imsave('result.png', masks)
+            # _small_merge merges
+            masks = self._detect_single(image, to_id)
+
+        if to_id: plt.imsave('runtime/masks/mask_{}.png'.format(self.image_id), masks)
+
+        # just a regular image, not part of Flask setup
+        if lat is None or long is None or zoom is None:
+            return masks != 0 # turns into boolean mask
 
         # list of lat/long points to plot
-        to_return = []
+        to_return = {}
+
+        # # find x, y
+        x, y = geolocation.deg_to_tilexy(lat, long, zoom)
 
         # find xtile, ytile
         xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
 
         # will turn all True x,y points to lat/long
-        for x in range(masks.shape[1]):  # horizontal (x)
-            for y in range(masks.shape[0]):  # vertical (y)
-                if masks[y, x]:
-                    geo_point = geolocation.tilexy_to_deg_matrix(
-                        xtile+1, ytile+1, zoom, x, y)
-                    to_return.append(list(geo_point))
-
+        for r in range(masks.shape[1]):  # horizontal (x)
+            for c in range(masks.shape[0]):  # vertical (y)
+                if masks[c, r] != 0:
+                    geo_point = list(geolocation.tilexy_to_deg_matrix(xtile+1, ytile+1, zoom, r, c))
+                    spot_id = masks[c, r]
+                    if spot_id not in to_return:
+                        to_return[spot_id] = [geo_point]
+                        # storing all these points in memory will suck, need to "rectanglify"
+                        self.id_to_points[spot_id] = [geo_point]
+                    else:
+                        to_return[spot_id].append(geo_point)
+                        self.id_to_points[spot_id].append(geo_point)
+        self.image_id += 1
         return to_return
 
-    def _detect_single(self, image, save=None):
+    def _detect_single(self, image, to_id=False):
         # image needs to be split into pieces
         if image.shape[0] >= 560 or image.shape[1] >= 560:
             return self._detect_with_split(image)
 
-        image = Image.fromarray(image)
-        original_size = (image.size[0], image.size[1])
-        image = image.resize((320, 320), Image.ANTIALIAS)
+        original_size = (image.shape[0], image.shape[1])
+        image = (scale_resize(image, (320, 320), anti_aliasing=True) * 256).astype(np.uint8)
         detection = self.model.detect(
-            [imageio.core.util.Array(np.array(image)[:, :, :3])])
+            [imageio.core.util.Array(image)])
         masks = detection[0]['masks']
-        masks = self._small_merge(masks) # could just do masks.any(axis=2) but this should be better
-        masks = Image.fromarray(masks).resize(original_size, Image.ANTIALIAS)
-        if save is not None:
-            plt.imsave(save, masks)
-        masks = np.array(masks)
+        masks = self._small_merge(masks, to_id) # could just do masks.any(axis=2) but this should be better
+        masks = scale_resize(masks, original_size, anti_aliasing=True, preserve_range=True)
         return masks
 
-    def _detect_with_split(self, image):
+    def _detect_with_split(self, image, to_id=False):
         minimum = 280
         height, width = image.shape[0], image.shape[1]
         # makes sure image needs to be split in the first
@@ -131,22 +135,20 @@ class Mask_RCNN_Detect():
                 else:
                     ehi = (i + 1) * (width // horiz_num_splits)
                 im = image[svi:evi, shi:ehi, :]
-                im = Image.fromarray(im)
-                original_size = (im.size[0], im.size[1])
-                im = im.resize((320, 320), Image.ANTIALIAS)
+                original_size = (im.shape[0], im.shape[1])
+                im = (scale_resize(im, (320, 320), anti_aliasing=True) * 256).astype(np.unint8)
                 detection = self.model.detect(
-                    [imageio.core.util.Array(np.array(im)[:, :, :3])])
+                    [imageio.core.util.Array(im)])
                 masks = detection[0]['masks']
-                masks = self._small_merge(masks)
-                masks = Image.fromarray(masks).resize(
-                    original_size, Image.ANTIALIAS)
+                masks = self._small_merge(masks, to_id)
+                masks = scale_resize(masks, original_size, anti_aliasing=True, preserve_range=True)
                 # pastes result into the final mask
                 final_mask[svi:evi, shi:ehi] = masks
 
         return final_mask
 
     # merges buildings and prevents significant overlap / massive masks
-    def _small_merge(self, masks):  # merges only the small ones inside
+    def _small_merge(self, masks, to_id=False):  # merges only the small ones inside
         net_mask = np.zeros((masks.shape[0], masks.shape[1]))
         for i, layer in enumerate(range(masks.shape[2])):
             m = masks[:, :, layer]  # gives an id
@@ -155,6 +157,9 @@ class Mask_RCNN_Detect():
             shared_count = np.count_nonzero(shared)
             if (shared_count > 100):
                 new_id = i
+                if to_id:
+                    new_id = self.id
+                    self.id += 1
                 tmp = np.argwhere(shared)[0]
                 collision_id = net_mask[tmp[0], tmp[1]]
                 collision_id_mask = net_mask == collision_id
@@ -162,13 +167,25 @@ class Mask_RCNN_Detect():
                 new_count = np.count_nonzero(m)
                 collision_count = np.count_nonzero(collision_id_mask)
 
-                # you could use this to get larger buildings within a tolerance
-                # if new_count > collision_count and new_count < 10000:
-                #     net_mask[collision_id_mask] = 0
-                #     net_mask += m * i
                 if new_count < collision_count:
                     net_mask[collision_id_mask] = 0
-                    net_mask += m * i
+                    net_mask += m * new_id
             else:
+                if to_id:
+                    i = self.id
+                    self.id += 1
                 net_mask += m * i
-        return net_mask != 0  # True if was given an id (so is a mask)
+        return net_mask # can make this a boolean mask through net_mask != 0
+
+    # need a way to efficiently do this, perhaps sort by tile
+    def delete_mask(self, lat, long, zoom):
+        print("click:", lat, long)
+        for key in self.id_to_points:
+            points = self.id_to_points[key]
+            for point in points:
+                print(point)
+                if lat == point[0] and long == point[1]:
+                    print("REMOVE: ", key)
+                    return key
+
+        return -1
