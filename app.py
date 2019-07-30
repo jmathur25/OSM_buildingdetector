@@ -1,13 +1,13 @@
 import backend
 import imagery
 import os
+import shutil
 import geolocation
 import numpy as np
 import json
 from detectors import Detector, Rectangle
 from Mask_RCNN_Detect import Mask_RCNN_Detect
 from PIL import Image
-
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
 app = Flask(__name__)
@@ -17,6 +17,13 @@ program_config = {}
 osm = None
 mrcnn = Mask_RCNN_Detect("weights/epoch55.h5")
 
+# gets the directories all set up
+if (os.path.isdir('runtime')):
+    shutil.rmtree('runtime')
+os.mkdir('runtime')
+os.mkdir('runtime/images')
+os.mkdir('runtime/masks')
+
 # useful function for turning request data into usable dictionaries
 def result_to_dict(result):
     info = {}
@@ -25,21 +32,9 @@ def result_to_dict(result):
     return info
 
 
-@app.route('/', methods=['POST', 'GET'])  # base page that loads up on start/accessing the website
+@app.route('/', methods=['GET'])  # base page that loads up on start/accessing the website
 def login():  # this method is called when the page starts up
     return redirect('/home/')
-    # error = None
-    # if request.method == 'POST':
-    #     result = request.form
-    #     info = result_to_dict(result)
-    #     status = backend.user_sign_in(info)
-    #     if status:
-    #         flash('You successfully made a new account')
-    #         return redirect(url_for("home"))
-    #     else:
-    #         error = "Account does not exist"
-
-    # return render_template('Login.html', error=error)
 
 @app.route('/home/')
 def home():
@@ -51,7 +46,9 @@ def home():
 
 @app.route('/home/backendWindow/', methods=['POST', 'GET'])
 def backend_window():
-    return send_from_directory('./detectors/runtime_images/', 'flood_fill_display.png')
+    if (mrcnn.image_id == 1): # no images masked yet
+        return send_from_directory('default_images', 'default_window.jpeg')
+    return send_from_directory('runtime/masks', 'mask_{}.png'.format(mrcnn.image_id-1))
 
 @app.route('/home/mapclick', methods=['POST'])
 def mapclick():
@@ -130,10 +127,14 @@ def mapclick():
                         "rects_to_delete": {"ids": [id_to_delete]}}
             return json.dumps(json_post)
 
-        masks = mrcnn.detect_building(backend_image, lat, long, zoom, to_id=True)
+        rectanglify = True
+        masks = mrcnn.detect_building(backend_image, lat, long, zoom, to_id=True, rectanglify=rectanglify, to_fill=False)
+        print(masks)
 
-        json_post = {"rects_to_add": [{"ids": list(masks.keys()),
-                                    "points": list(masks.values())}],
+        json_post = {"rects_to_add": [{
+                                        "ids": list(masks.keys()),
+                                        "points": list(masks.values())
+                                    }],
                      "rects_to_delete": {"ids": []}
                             }
         return json.dumps(json_post)
@@ -167,22 +168,6 @@ def upload_changes():
     building_detection_combined.delete_all_rects()
     print('finished!')
     return str(len(ways_created))
-
-@app.route('/NewAccount/', methods=['GET', 'POST'])  # activates when create a new account is clicked
-def new_account():
-    error = None
-    if request.method == 'POST':  # if the user hits the submit button. post is called
-        result = request.form
-        info = result_to_dict(result)
-        status = backend.create_user(info)
-        if status:  # true condition
-            flash('You successfully made a new account')
-            return redirect(url_for('home'))
-        else:  # false condition
-            error = "account already exists"
-        return redirect(url_for('login'))
-
-    return render_template('/NewAccount.html', error=error)  # links to the create a new account page
 
 @app.route('/home/imagery/<zoom>/<x>/<y>.png', methods=['GET'])
 def imagery_request(zoom, x, y):

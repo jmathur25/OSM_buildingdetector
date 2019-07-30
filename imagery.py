@@ -7,6 +7,9 @@ from io import BytesIO
 from geolocation import *
 import os.path
 import numpy as np
+
+import matplotlib
+matplotlib.use('PS')
 import matplotlib.pyplot as plt
 
 class ImageryDownloader(object):

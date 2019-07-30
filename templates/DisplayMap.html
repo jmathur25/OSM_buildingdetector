@@ -98,8 +98,10 @@
                             var rectPoints = rect["points"];
                             var rectIds = rect["ids"];
 
-                            addMasks(rectIds, rectPoints);
-                            // addPolygon(rectPoints, rectId);
+                            console.log("IDS", rectIds);
+
+                            // addMasks(rectIds, rectPoints);
+                            addPolygon(rectPoints, rectIds);
                     } else {
                         if (rectsToDelete.length > 0) {
                             popup.setLatLng(e.latlng);
@@ -153,15 +155,17 @@
         var polygonStack = [];
 
         // Add a polygon to the map
-        function addPolygon(rectPoints, id) {
-            // Remove the polygon if it already exists
-            console.log("adding polygon ", id);
+        function addPolygon(rectPoints, ids) {
+            for (i in rectPoints) {
+                console.log("adding polygon ", ids[i]);
+                points = rectPoints[i];
+                console.log(points);
+                polygons[ids[i]] = L.polygon(points);
+                polygons[ids[i]].addTo(map);
 
-            polygons[id] = L.polygon(rectPoints);
-            polygons[id].addTo(map);
-
-            // Update the polygon stack
-            polygonStack.push(id);
+                // Update the polygon stack
+                polygonStack.push(ids[i]);
+            }
 
             // Update the uploadButton
             uploadButton.enable();
@@ -225,6 +229,8 @@
 
         // Undo adding a polygon
         function undoAddPolygon() {
+            console.log("removing polygon");
+            console.log(polygonStack);
             if (polygonStack.length > 0) {
                 var lastPolygonId = polygonStack.pop();
                 removePolygon(lastPolygonId, false, true);
