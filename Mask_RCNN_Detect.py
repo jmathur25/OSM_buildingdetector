@@ -129,14 +129,13 @@ class Mask_RCNN_Detect():
         return to_return
 
     def _detect_single(self, image, to_id=False, rectanglify=True, to_fill=True):
-        original_size = (image.shape[0], image.shape[1])
         image = (resize(image, (320, 320), anti_aliasing=True) * 256).astype(np.uint8)
         detection = self.model.detect(
             [imageio.core.util.Array(image)])
         masks = detection[0]['masks']
         masks = self._small_merge(masks, to_id)
         if to_id: plt.imsave('runtime/masks/mask_{}.png'.format(self.image_id), (masks != 0).astype(bool))
-
+            
         if rectanglify:
             # finds corners
             building_ids = np.unique(masks)
@@ -148,13 +147,12 @@ class Mask_RCNN_Detect():
                 plottable = []
                 for x,y in zip(points[:,0], points[:,1]):
                     plottable.append((y, x))
-                    if not to_fill: out_mask[x,y,:] = np.array([i,i,i]) # gets the corner
-                if to_fill:
-                    tmp = np.copy(plottable[2]) # reorders points
-                    plottable[2] = plottable[3]
-                    plottable[3] = tmp
-                    plottable = np.array(plottable, np.int32).reshape(-1,1,2)
-                    cv2.fillPoly(out_mask, [plottable], (i+1,i+1,i+1)) # draws a rectangle using points
+                    if not to_fill: out_mask[x,y,:] = np.array([i+1,i+1,i+1]) # gets the corner
+                tmp = np.copy(plottable[2]) # reorders points
+                plottable[2] = plottable[3]
+                plottable[3] = tmp
+                plottable = np.array(plottable, np.int32).reshape(-1,1,2)
+                if to_fill: cv2.fillPoly(out_mask, [plottable], (i+1,i+1,i+1)) # draws a rectangle using points
             masks = out_mask[:,:,0]
 
         return masks # not resized back
@@ -272,3 +270,9 @@ class Mask_RCNN_Detect():
             elif y >= im.shape[1]: y = im.shape[1] - 1
             img[x,y] = True
         return img
+
+    def plot_corners(self, dict_corners, mask_shape):
+        out_mask = np.zeros(mask_shape)
+        for i, v in enumerate(dict_corners.values()):
+            cv2.fillPoly(out_mask, [np.array(v)], (i+1,i+1,i+1))
+        return out_mask
