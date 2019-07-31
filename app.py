@@ -56,6 +56,7 @@ def mapclick():
     if request.method == 'POST':
         result = request.form
         info = result_to_dict(result)
+        print(info)
 
         lat = float(info['lat'])
         long = float(info['long'])
@@ -69,9 +70,9 @@ def mapclick():
         if (info['merge_mode'] == 'true'):
             merge_mode = True
 
-        multi_click = False
-        if (info['multi_click'] == 'true'):
-            multi_click = True
+        delete_click = False
+        if (info['delete_click'] == 'true'):
+            delete_click = True
 
         json_post = {}
         possible_building_matches = osm.ways_binary_search((lat, long))
@@ -117,8 +118,7 @@ def mapclick():
             #          "rects_to_delete": {"ids": rect_ids_to_remove}
             #                 }
 
-        if multi_click:
-            print("HERE")
+        if delete_click:
             lat_delete = float(info['delete_lat'])
             long_delete = float(info['delete_long'])
             id_to_delete = mrcnn.delete_mask(lat_delete, long_delete, zoom)
@@ -127,16 +127,15 @@ def mapclick():
                         "rects_to_delete": {"ids": [id_to_delete]}}
             return json.dumps(json_post)
 
-        rectanglify = True
-        masks = mrcnn.detect_building(backend_image, lat, long, zoom, to_id=True, rectanglify=rectanglify, to_fill=False)
-        print(masks)
+        masks, message = mrcnn.detect_building(backend_image, lat, long, zoom, to_id=True, rectanglify=True, to_fill=False)
 
-        json_post = {"rects_to_add": [{
-                                        "ids": list(masks.keys()),
-                                        "points": list(masks.values())
-                                    }],
-                     "rects_to_delete": {"ids": []}
-                            }
+        if message == 'rectangle':
+            json_post = {"rects_to_add": [{
+                                            "ids": list(masks.keys()),
+                                            "points": list(masks.values())
+                                        }],
+                        "rects_to_delete": {"ids": []}
+                                }
         return json.dumps(json_post)
 
 @app.route('/home/deleterect', methods=['POST'])
@@ -147,7 +146,8 @@ def delete_rect():
         
         # Delete the rectangle with this ID
         rect_id = int(info['rect_id'])
-        Detector.delete_rect(rect_id)
+        mrcnn.delete_mask(building_id=rect_id)
+        # Detector.delet/e_rect(rect_id)
         
     return "Success"
 

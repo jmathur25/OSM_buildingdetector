@@ -45,7 +45,7 @@
 
         // Handle map clicks
         function onMapClick(e) {
-            if (isSync) {
+            if (isSync && map.getZoom() == 18) {
               //uploads are now valid so button is enabled (or re-enabled)
               uploadButton.enable();
               /*popup.setLatLng(e.latlng);
@@ -54,10 +54,10 @@
               // Send the map click
               console.log('map click');
               console.log('threshold:', current_threshold);
-              console.log('multi click: ', multiClick);
+              console.log('delete click: ', deleteClick);
               console.log('merge mode:', mergeMode);
               console.log("CURRENT POLYGONS:", polygons);
-              if (multiClick == 'true') {
+              if (deleteClick == 'true') {
                   deleteLatClick = e.latlng.lat;
                   deleteLongClick = e.latlng.lng;
               }
@@ -66,7 +66,7 @@
                             "&zoom=" + encodeURIComponent(map.getZoom()) +
                             "&complex=" + complex +
                             "&threshold="+current_threshold +
-                            "&multi_click=" + multiClick +
+                            "&delete_click=" + deleteClick +
                             "&merge_mode=" + mergeMode + 
                             "&delete_lat=" + deleteLatClick +
                             "&delete_long=" + deleteLongClick;
@@ -85,7 +85,8 @@
 
                     // Delete polygon(s)
                     if (rectsToDelete["ids"].length > 0) {
-                        removeMasks(rectsToDelete["ids"]);
+                        // removeMasks(rectsToDelete["ids"]);
+                        removePolygon(rectsToDelete['ids']);
                     }
 
                     // Add polygon(s)
@@ -118,7 +119,12 @@
             xhr.send(params);
             } else {
               popup.setLatLng(e.latlng);
-              popup.setContent("You need to enable Sync before mapping to see what is already mapped!");
+              if (map.getZoom() != 18) {
+                popup.setContent("You need to zoom in fully before mapping buildings.");
+              }
+              else {
+                 popup.setContent("You need to enable Sync before mapping to see what is already mapped!");
+              }
               popup.openOn(map);
             }
         }
@@ -185,8 +191,10 @@
         // Remove a polygon, from cntrl-z or merge_mode
         function removePolygon(id, updateStack=true, sendChange=false) {
             // Remove from map
-            console.log(polygons);
             console.log('removing:', id);
+            if (id == -1) { // -1 means no building
+                return;
+            }
             polygons[id].remove();
           
             // Remove from dictionary
@@ -801,48 +809,50 @@
 
 
         // -------------------------------------------------------------------------------------------
-        // Multi-Click
+        // Delete
         // -------------------------------------------------------------------------------------------
 
-        var multiClick = 'false';
+        var deleteClick = 'false';
+        var deleteLatClick = undefined;
+        var deleteLongClick = undefined;
         
         // Add merge control
-        L.Control.MultiClickButton = L.Control.extend({
+        L.Control.DeleteButton = L.Control.extend({
             // @section
             // @aka Control.Zoom options
             options: {
                 position: 'topleft',
                 // @option mergeText: String = '+'
                 // The text set on the 'merge' button.
-                multiClickText: 'DM',
+                deleteClickText: 'DM',
                 // @option mergeTitle: String = 'Zoom in'
                 // The title set on the 'zoom in' button.
-                multiClickTitle: 'Toggle Multi Click'
+                deleteClickTitle: 'Toggle Delete'
             },
             onAdd: function (map) {
                 var zoomName = 'leaflet-control-zoom',
                     container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
                     options = this.options;
-                this.multiClickButton = this._createButton(options.multiClickText, options.multiClickTitle,
-                        zoomName + '-in',  container, this.multiClickButton);
+                this.deleteClickButton = this._createButton(options.deleteClickText, options.deleteClickTitle,
+                        zoomName + '-in',  container, this.deleteButton);
                 return container;
             },
-            multiClickButton: function (e) {
-                if (multiClick == 'false') {
-                    multiClick = 'true';
+            deleteButton: function (e) {
+                if (deleteClick == 'false') {
+                    deleteClick = 'true';
                 } else {
-                    multiClick = 'false';
+                    deleteClick = 'false';
                 }
-                // Update multiClick mode
-                console.log('multiClick:', multiClick);
+                // Update deleteClick mode
+                console.log('deleteClick:', deleteClick);
                 this.update();
             },
             update: function () {
                 var col = "#FFFFFF";
-                if (multiClick == 'true') {
-                    col = "#BBFFBB";
+                if (deleteClick == 'true') {
+                    col = "#FF0000";
                 }
-                this.multiClickButton.style.backgroundColor = col;
+                this.deleteClickButton.style.backgroundColor = col;
             },
             _createButton: function (html, title, className, container, fn) {
                 var link = L.DomUtil.create('a', className, container);
@@ -863,80 +873,12 @@
         });
 
         // Merge button constructor
-        L.Control.multiClickButton = function(opts) {
-            return new L.Control.MultiClickButton(opts);
+        L.Control.deleteButton = function(opts) {
+            return new L.Control.DeleteButton(opts);
         }
 
         // Add the merge button to the map
-        var multiClickButton = L.Control.multiClickButton({ position: "topleft" }).addTo(map);
-
-        //  // -------------------------------------------------------------------------------------------
-        // // Delete
-        // // -------------------------------------------------------------------------------------------
-
-        var deleteClick = 'false';
-        var deleteLatClick = undefined;
-        var deleteLongClick = undefined;
-        
-        // // Add delete control
-        // L.Control.DeleteButton = L.Control.extend({
-        //     options: {
-        //         position: 'topleft',
-        //         deleteText: 'DM',
-        //         deleteTitle: 'Delete Masks'
-        //     },
-        //     onAdd: function (map) {
-        //         var zoomName = 'leaflet-control-zoom',
-        //             container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
-        //             options = this.options;
-        //         this.DeleteButton = this._createButton(options.deleteText, options.deleteTitle,
-        //                 zoomName + '-in',  container, this.DeleteButton);
-        //         return container;
-        //     },
-        //     DeleteButton: function (e) {
-        //         if (deleteClick == 'false') {
-        //             deleteClick = 'true';
-        //         } else {
-        //             deleteClick = 'false';
-        //         }
-        //         // Update deleteClick mode
-        //         console.log('deleteClick:', deleteClick);
-        //         this.update();
-        //         deleteLatCLick = e.lat;
-        //         deleteLongClick = e.long;
-        //     },
-        //     update: function () {
-        //         var col = "#FFFFFF";
-        //         if (DeleteClick == 'true') {
-        //             col = "#BBFFBB";
-        //         }
-        //         this.DeleteButton.style.backgroundColor = col;
-        //     },
-        //     _createButton: function (html, title, className, container, fn) {
-        //         var link = L.DomUtil.create('a', className, container);
-        //         link.innerHTML = html;
-        //         link.href = '#';
-        //         link.title = title;
-        //         /*
-        //          * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-        //          */
-        //         link.setAttribute('role', 'button');
-        //         link.setAttribute('aria-label', title);
-        //         L.DomEvent.disableClickPropagation(link);
-        //         L.DomEvent.on(link, 'click', L.DomEvent.stop);
-        //         L.DomEvent.on(link, 'click', fn, this);
-        //         L.DomEvent.on(link, 'click', this._refocusOnMap, this);
-        //         return link;
-        //     }
-        // });
-
-        // // Delete button constructor
-        // L.Control.DeleteButton = function(opts) {
-        //     return new L.Control.DeleteButton(opts);
-        // }
-
-        // // Add the merge button to the map
-        // var deleteButton = L.Control.DeleteButton({ position: "topleft" }).addTo(map);
+        var deleteClickButton = L.Control.deleteButton({ position: "topleft" }).addTo(map);
 
     </script>
   </body>
