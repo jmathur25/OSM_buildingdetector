@@ -1,11 +1,14 @@
-__pycache__/*
-backend/__pycache__/*
-detectors/__pycache__/*
-detectors/algorithms/__pycache__/*
-archive/__pycache__/*
+__pycache__/
+backend/__pycache__/
+detectors/__pycache__/
+detectors/algorithms/__pycache__/
+archive/__pycache__/
 imgcache/*
 mydatabase.db
 weights
+runtime
+.vscode
+.ipynb_checkpoints
 # config.yml <-- eventually will need to white this out
 
 .idea

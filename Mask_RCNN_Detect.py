@@ -62,7 +62,6 @@ class Mask_RCNN_Detect():
     # to_id should only be true while using the Flask app
     # id-ing will help the Mask_R_CNN keep track of each building and adjustments that need to be made
     def detect_building(self, image, lat=None, long=None, zoom=None, to_id=False, rectanglify=True, to_fill=False):
-        print(type(image), image.shape)
         assert(image.shape[-1] == 3) # must be size hxwx3
 
         if to_id: plt.imsave('runtime/images/image_{}.png'.format(self.image_id), image)
@@ -250,6 +249,7 @@ class Mask_RCNN_Detect():
                     del relevant[building_id]
                     del self.id_to_geo[building_id]
                     return building_id
+        return -1 # no match
 
 
     # gets the corners from a boolean mask, returns a new mask with just the corners
