@@ -30,16 +30,6 @@
     <div id="map"></div>
     <script>
         // Create map
-        // var map = L.map('map').setView([45.1269, -94.5266], 13);
-        // L.tileLayer('imagery/{z}/{x}/{y}.png', {
-        //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        // }).addTo(map);
-        // // Marker
-        // L.marker([45.1269, -94.5266]).addTo(map)
-        //     .bindPopup('Our testing location is Litchfield, Minnesota!<br>Try clicking the map.')
-        //     .openPopup();
-
-        // Create map
         const cur_lat = parseFloat("{{ lat }}");
         const cur_lng = parseFloat("{{ lng }}");
         const cur_zoom = parseFloat("{{ zoom }}");
