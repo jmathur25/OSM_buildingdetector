@@ -1,5 +1,6 @@
 import backend
 import imagery
+import config_reader
 import os
 import shutil
 import geolocation
@@ -31,18 +32,39 @@ def result_to_dict(result):
         info[k.lower()] = v
     return info
 
+def get_program_config():
+    # do config = get_program_config()
+    return config_reader.get_config()
 
 @app.route('/', methods=['GET'])  # base page that loads up on start/accessing the website
 def login():  # this method is called when the page starts up
     return redirect('/home/')
 
 @app.route('/home/')
-def home():
+def home(lat=None, lng=None, zoom=None):
     # necessary so that if one refreshes, the way memory deletes with the drawn polygons
     global osm
     osm.clear_ways_memory()
     Detector.reset()
-    return render_template('DisplayMap.html')
+
+    if lat is None or lng is None or zoom is None:
+        config = get_program_config()
+        lat = config['start_lat']
+        lng = config['start_lng']
+        zoom = config['start_zoom']
+
+    access_key = get_program_config()['accessKey']
+    context = {}
+    context['lat'] = lat
+    context['lng'] = lng
+    context['zoom'] = zoom
+    context['access_key'] = access_key
+
+    return render_template('DisplayMap.html', **context)
+
+@app.route('/<zoom>/<lat>/<lng>', methods=['GET'])
+def move_to_new_lat_long(zoom, lat, lng):
+    return home(zoom, lat, lng)
 
 @app.route('/home/backendWindow/', methods=['POST', 'GET'])
 def backend_window():
