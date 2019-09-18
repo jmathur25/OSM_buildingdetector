@@ -1,3 +1,4 @@
+# very old file that isn't very useful but it works with things so I'm keeping it for now
 class Rectangle:
     current_id = 0
     tolerable_distance_to_combine_rectangles = 0.00005  # buildings need to be this (lat/long degrees) away to merge

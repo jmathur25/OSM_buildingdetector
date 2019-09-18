@@ -6,7 +6,7 @@ import shutil
 import geolocation
 import numpy as np
 import json
-from detectors import Detector, Rectangle
+from detectors.Detector import Detector
 from Mask_RCNN_Detect import Mask_RCNN_Detect
 from PIL import Image
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
@@ -14,9 +14,9 @@ from flask import Flask, render_template, request, flash, redirect, url_for, sen
 app = Flask(__name__)
 
 imd = None
-program_config = {}
+program_config = None
 osm = None
-mrcnn = Mask_RCNN_Detect("weights/epoch55.h5")
+mrcnn = None
 
 # gets the directories all set up
 if (os.path.isdir('runtime')):
@@ -32,10 +32,6 @@ def result_to_dict(result):
         info[k.lower()] = v
     return info
 
-def get_program_config():
-    # do config = get_program_config()
-    return config_reader.get_config()
-
 @app.route('/', methods=['GET'])  # base page that loads up on start/accessing the website
 def login():  # this method is called when the page starts up
     return redirect('/home/')
@@ -43,17 +39,17 @@ def login():  # this method is called when the page starts up
 @app.route('/home/')
 def home(lat=None, lng=None, zoom=None):
     # necessary so that if one refreshes, the way memory deletes with the drawn polygons
-    global osm
+    global osm, program_config
     osm.clear_ways_memory()
     Detector.reset()
 
     if lat is None or lng is None or zoom is None:
-        config = get_program_config()
+        config = program_config
         lat = config['start_lat']
         lng = config['start_lng']
         zoom = config['start_zoom']
 
-    access_key = get_program_config()['accessKey']
+    access_key = program_config['accessKey']
     context = {}
     context['lat'] = lat
     context['lng'] = lng
@@ -72,131 +68,91 @@ def backend_window():
         return send_from_directory('default_images', 'default_window.jpeg')
     return send_from_directory('runtime/masks', 'mask_{}.png'.format(mrcnn.image_id-1))
 
-@app.route('/home/mapclick', methods=['POST'])
+@app.route('/home/detect_buildings', methods=['POST'])
 def mapclick():
-    global osm, mcrnn
+    global osm, mcrnn, imd
     if request.method == 'POST':
         result = request.form
         info = result_to_dict(result)
         print(info)
 
         lat = float(info['lat'])
-        long = float(info['long'])
+        lng = float(info['lng'])
         zoom = int(info['zoom'])
-        complex = False
-        if info['complex'] == 'true':
-            complex = True
-        threshold = int(info['threshold'])
-
-        merge_mode = False
-        if (info['merge_mode'] == 'true'):
-            merge_mode = True
-
-        delete_click = False
-        if (info['delete_click'] == 'true'):
-            delete_click = True
-
-        json_post = {}
-        possible_building_matches = osm.ways_binary_search((lat, long))
-
-        # consider moving this to a function inside the OSM_Interactor class, and copy the Rectangle has point inside code
-        if possible_building_matches != None:
-            for points in possible_building_matches:
-                synced_building_as_rect = Rectangle(points, to_id=False)
-                if synced_building_as_rect.has_point_inside((lat, long)):
-                    json_post = {"rects_to_add": [],
-                                "rects_to_delete": ['INSIDEBUILDING']
-                                }
-                    return json.dumps(json_post)
+        strategy = info['strategy']
 
         # find xtile, ytile
-        xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
+        xtile, ytile = geolocation.deg_to_tile(lat, lng, zoom)
+        image = np.array(imd.download_tile(xtile, ytile, zoom))
 
-        # Get those tiles
-        backend_image = np.array(imd.get_tiles_around(xtile, ytile, zoom))
+        if strategy == 'mrcnn':
+            # SETUP MRCNN STUFF
+            global mrcnn
+            if mrcnn is None: # import if not already imported
+                print('import MRCNN stuff...')
+                from Mask_RCNN_Detect import Mask_RCNN_Detect
+                mrcnn = Mask_RCNN_Detect('weights/epoch55.h5')
 
-        # create a rectangle from click
-        # rect_data includes a tuple -> (list of rectangle references to add/draw, list of rectangle ids to remove)
-        # detection = None
-        # if complex:
-        #     detection = Detector('complex_detect', backend_image, lat, long, zoom, threshold, merge_mode)
-        # elif multi_click:
-        #     detection = Detector('multi_click_detect', backend_image, lat, long, zoom, threshold, merge_mode)
-        # else:
-        #     detection = Detector('simple_detect', backend_image, lat, long, zoom, threshold, merge_mode)
+            mask_data = mrcnn.detect_building(image, lat, lng, zoom)
+            building_ids = list(mask_data.keys())
+            building_points = list(mask_data.values())
 
-        # rect_id, rect_points, rect_ids_to_remove, message = detection.detect_building()
+        else:
+            detector = Detector(image, lat, lng, zoom)
+            rect_id, rect_points = detector.detect_building()
+            building_ids = [rect_id]
+            building_points = [rect_points]
 
+        json_post = {"rects_to_add": [{
+                                "ids": building_ids,
+                                "points": building_points
+                            }],
+            "rects_to_delete": {"ids": []}
+                    }
 
-        # if area too big
-        # if osm.check_area(rect_points, sort=False):
-        #     json_post = {"rects_to_add": [],
-        #                  "rects_to_delete": []
-        #                  }
+    return json.dumps(json_post)
 
-        # else:
-            # json_post = {"rects_to_add": [{"id": rect_id,
-            #                         "points": rect_points}],
-            #          "rects_to_delete": {"ids": rect_ids_to_remove}
-            #                 }
+@app.route('/home/delete_building', methods=['POST'])
+def delete_building():
+    result = request.form
+    info = result_to_dict(result)
+    lat = float(info['lat'])
+    lng = float(info['lng'])
+    zoom = float(info['zoom'])
 
-        if delete_click:
-            lat_delete = float(info['delete_lat'])
-            long_delete = float(info['delete_long'])
-            id_to_delete = mrcnn.delete_mask(lat_delete, long_delete, zoom)
-            json_post = {"rects_to_add": [{"ids": [],
-                                        "points": []}],
-                        "rects_to_delete": {"ids": [id_to_delete]}}
-            return json.dumps(json_post)
+    building_id = None
+    if 'building_id' in info:
+        building_id = info['building_id']
 
-        masks, message = mrcnn.detect_building(backend_image, lat, long, zoom, to_id=True, rectanglify=True, to_fill=False)
+    global mrcnn
+    if mrcnn is not None:
+        building_id = mrcnn.delete_mask(lat, lng, zoom, building_id)
 
-        if message == 'rectangle':
-            json_post = {"rects_to_add": [{
-                                            "ids": list(masks.keys()),
-                                            "points": list(masks.values())
-                                        }],
-                        "rects_to_delete": {"ids": []}
-                                }
-        return json.dumps(json_post)
+        json_post = {"rects_to_delete":
+                        {"ids": [building_id]}
+                    }
+        return json_post
 
-@app.route('/home/deleterect', methods=['POST'])
-def delete_rect():
-    if request.method == 'POST':
-        result = request.form
-        info = result_to_dict(result)
-        
-        # Delete the rectangle with this ID
-        rect_id = int(info['rect_id'])
-        mrcnn.delete_mask(building_id=rect_id)
-        # Detector.delet/e_rect(rect_id)
-        
-    return "Success"
+    return 'mrcnn has not been made'
 
 @app.route('/home/uploadchanges', methods=['POST'])
 def upload_changes():
-    print('uploading to OSM...')
-    global osm
+    # print('uploading to OSM...')
+    # global osm
     
-    if (len(Rectangle.get_all_rects()) == 0):
-        print("No Rects")
-        return "0"
+    # if (len(Rectangle.get_all_rects()) == 0):
+    #     print("No Rects")
+    #     return "0"
     
-    # Create the way using the list of nodes
-    changeset_comment = "Added " + str(len(building_detection_combined.get_all_rects())) + " buildings."
-    ways_created = osm.way_create_multiple(building_detection_combined.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
+    # # Create the way using the list of nodes
+    # changeset_comment = "Added " + str(len(building_detection_combined.get_all_rects())) + " buildings."
+    # ways_created = osm.way_create_multiple(building_detection_combined.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
     
-    # Clear the rectangle list
-    building_detection_combined.delete_all_rects()
-    print('finished!')
-    return str(len(ways_created))
-
-@app.route('/home/imagery/<zoom>/<x>/<y>.png', methods=['GET'])
-def imagery_request(zoom, x, y):
-    fname = imd.get_tile_filename(x, y, zoom)
-    if not os.path.isfile(fname):
-        imd.download_tile(x, y, zoom)
-    return send_file(fname, mimetype="image/png")
+    # # Clear the rectangle list
+    # building_detection_combined.delete_all_rects()
+    # print('finished!')
+    # return str(len(ways_created))
+    return "-1 lol"
 
 @app.route('/home/OSMSync', methods=['POST'])
 def OSM_map_sync():
@@ -236,37 +192,29 @@ def citySearch():
         json_post = {'lat': '-1000'}
         return json.dumps(json_post)
 
-def start_webapp(config):
-    """Starts the Flask server."""
+# run the app.
+if __name__ == "__main__":
+    config = config_reader.get_config()
+
+    # useless
     app.secret_key = 'super secret key'
-    # app.config['SESSION_TYPE'] = 'filesystem'
     
     # Get config variables
-    
-    if "imageryURL" not in config:
-        print("[ERROR] Could not find imageryURL in the config file!")
-
-    # Get the imagery URL and access key
-    imagery_url = config["imageryURL"]
-    access_key = ""
-
+    access_key = None
     if "accessKey" in config:
         access_key = config["accessKey"]
 
     # Create imagery downloader
-    global imd
-    imd = imagery.ImageryDownloader(imagery_url, access_key)
+    imd = imagery.ImageryDownloader(access_key)
     
-    global program_config
     program_config = config
 
-    global osm
     init_info = program_config["osmUpload"]
     args = ["api", "username", "password"]
     for arg in args:
         if arg not in init_info:
             print("[ERROR] Config: osmUpload->" + arg + " not found!")
-            return "BREAK"
+            raise ValueError()
 
     # initializes the class for interacting with OpenStreetMap's API
     osm = backend.OSM_Interactor(init_info["api"], init_info["username"], init_info["password"])

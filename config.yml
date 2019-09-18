@@ -10,11 +10,6 @@ start_lat: 40.103232
 start_lng: -88.227215
 start_zoom: 13
 
-# Slippy Map imagery URL to use as imagery
-# "{x}", "{y}", "{zoom}", and (optional) "{access_key}" will be replaced
-#     with the values during runtime.
-imageryURL: "https://a.tiles.mapbox.com/v4/digitalglobe.316c9a2e/{zoom}/{x}/{y}.png?access_token={access_key}"
-
 # | OpenStreetMap login information | #
 osmUpload:
     # API location. The full v0.6 OpenStreetMap database API is https://api.openstreetmap.org/api/0.6

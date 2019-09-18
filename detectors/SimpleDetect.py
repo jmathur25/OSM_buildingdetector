@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import geolocation
-import backend
 import math
 
 class SimpleDetect:
@@ -13,14 +12,14 @@ class SimpleDetect:
         self.threshold = threshold
     
     # slides the threshold depending on the current intensity
-    def __threshold_slider(self, cur_intensity):
+    def _threshold_slider(self, cur_intensity):
         fit = math.ceil(0.25*cur_intensity - 10)
         if fit < 0:
             fit = 10
         return fit
 
     # Get the next major intensity change in a given direction.
-    def __get_next_intensity_change(self, grayscale_image, x, y, xstep, ystep):
+    def _get_next_intensity_change(self, grayscale_image, x, y, xstep, ystep):
 
         lookahead = 5
         width = grayscale_image.shape[1]
@@ -39,7 +38,7 @@ class SimpleDetect:
             
             cur_intensity = int(grayscale_image[int(y), int(x)])
             next_intensity = int(grayscale_image[downy, downx])
-            threshold = self.__threshold_slider(cur_intensity)
+            threshold = self._threshold_slider(cur_intensity)
             
             if (abs(cur_intensity - next_intensity) > threshold):
                 for i in range(lookahead, -1, -1):
@@ -54,18 +53,17 @@ class SimpleDetect:
         return (x, y)
 
     def detect_building(self):
-        message = None
         grayscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
         # Get the x,y coordinates of the click
-        x, y = geolocation.deg_to_tilexy_matrix(self.lat, self.long, self.zoom)
+        x, y = geolocation.deg_to_tilexy(self.lat, self.long, self.zoom)
         # find xtile, ytile
         xtile, ytile = geolocation.deg_to_tile(self.lat, self.long, self.zoom)
 
-        quad_one = self.__get_next_intensity_change(grayscale_image, x, y, 1, 0)
-        quad_four = self.__get_next_intensity_change(grayscale_image, x, y, 0, -1)
-        quad_two = self.__get_next_intensity_change(grayscale_image, x, y, 0, 1)
-        quad_three = self.__get_next_intensity_change(grayscale_image, x, y, -1, 0)
+        quad_one = self._get_next_intensity_change(grayscale_image, x, y, 1, 0)
+        quad_four = self._get_next_intensity_change(grayscale_image, x, y, 0, -1)
+        quad_two = self._get_next_intensity_change(grayscale_image, x, y, 0, 1)
+        quad_three = self._get_next_intensity_change(grayscale_image, x, y, -1, 0)
 
         corner1 = quad_one[0], quad_two[1]
         corner2 = quad_one[0], quad_four[1]
@@ -73,10 +71,10 @@ class SimpleDetect:
         corner4 = quad_three[0], quad_two[1]
 
         # Calculate the geocoordinates of the rectangle
-        top_right = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner1[0], corner1[1])
-        bottom_right = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner2[0], corner2[1])
-        bottom_left = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner3[0], corner3[1])
-        top_left = geolocation.tilexy_to_deg_matrix(xtile, ytile, self.zoom, corner4[0], corner4[1])
+        top_right = geolocation.tilexy_to_deg(xtile, ytile, self.zoom, corner1[0], corner1[1])
+        bottom_right = geolocation.tilexy_to_deg(xtile, ytile, self.zoom, corner2[0], corner2[1])
+        bottom_left = geolocation.tilexy_to_deg(xtile, ytile, self.zoom, corner3[0], corner3[1])
+        top_left = geolocation.tilexy_to_deg(xtile, ytile, self.zoom, corner4[0], corner4[1])
 
         top_left = list(top_left)
         top_right = list(top_right)
@@ -84,4 +82,4 @@ class SimpleDetect:
         bottom_left = list(bottom_left)
 
         # gets the current rect id, the current rect points, and any rectangles that may have been deleted
-        return [top_left, top_right, bottom_right, bottom_left], message
+        return [top_left, top_right, bottom_right, bottom_left]

@@ -61,22 +61,12 @@ class Mask_RCNN_Detect():
 
     # to_id should only be true while using the Flask app
     # id-ing will help the Mask_R_CNN keep track of each building and adjustments that need to be made
-    def detect_building(self, image, lat=None, long=None, zoom=None, to_id=False, rectanglify=True, to_fill=False):
+    def detect_building(self, image, lat=None, long=None, zoom=None, rectanglify=True, to_fill=False):
         assert(image.shape[-1] == 3) # must be size hxwx3
 
-        if to_id: plt.imsave('runtime/images/image_{}.png'.format(self.image_id), image)
-
         # to return
-        masks = None
-
-        # image needs to be split into pieces
-        if image.shape[0] > 500 or image.shape[1] > 500:
-            masks = self._detect_with_split(image, to_id)
-        else:
-            masks = self._detect_single(image, to_id, rectanglify, to_fill)
+        masks = self._detect_single(image, rectanglify, to_fill)
         
-        print("masks shape: ", masks.shape)
-
         # just a regular image, not part of Flask setup
         if lat is None or long is None or zoom is None:
             masks = resize(masks, (image.shape[0], image.shape[1]), preserve_range=True) # masks can be reshaped, corners can't
@@ -92,14 +82,19 @@ class Mask_RCNN_Detect():
             self.geo_to_point[(xtile+1,ytile+1)] = {}
         relevant = self.geo_to_point[(xtile+1,ytile+1)]
 
-
+        print(lat)
+        print(long)
+        print(xtile)
+        print(ytile)
         if rectanglify:
-            message = 'rectangle'
             # finds corners
             building_ids = np.unique(masks)
             building_ids = building_ids[building_ids != 0].astype(int).tolist()
             for i, ids in enumerate(building_ids):
                 points = np.argwhere(masks == ids).tolist() # gets as coordinates
+                if len(points) != 4:
+                    print("NOT 4 INSTANCE, SKIPPING BY DEFAULT")
+                    continue
                 for j in range(len(points)):
                     x = points[j][1]
                     y = points[j][0]
@@ -116,7 +111,6 @@ class Mask_RCNN_Detect():
                 self.building_id += 1
         # the full mask is being plotted
         else:
-            message = 'mask'
             # will turn all True x,y points to lat/long
             for r in range(masks.shape[1]):  # horizontal (x)
                 for c in range(masks.shape[0]):  # vertical (y)
@@ -131,15 +125,14 @@ class Mask_RCNN_Detect():
                             to_return[spot_id].append(geo_point)
                             relevant[spot_id].append(geo_point)
         self.image_id += 1
-        return to_return, message
+        return to_return
 
-    def _detect_single(self, image, to_id=False, rectanglify=True, to_fill=True):
+    def _detect_single(self, image, rectanglify=True, to_fill=False):
         image = (resize(image, (320, 320), anti_aliasing=True) * 256).astype(np.uint8)
         detection = self.model.detect(
             [imageio.core.util.Array(image)])
         masks = detection[0]['masks']
         masks = self._small_merge(masks)
-        if to_id: plt.imsave('runtime/masks/mask_{}.png'.format(self.image_id), (masks != 0).astype(bool))
             
         if rectanglify:
             # finds all buildings (one building has the same number in masks)
@@ -157,51 +150,11 @@ class Mask_RCNN_Detect():
                 plottable[2] = plottable[3]
                 plottable[3] = tmp
                 plottable = np.array(plottable, np.int32).reshape(-1,1,2)
-                if to_fill: cv2.fillPoly(out_mask, [plottable], (i+1,i+1,i+1)) # draws a rectangle using points
+                if to_fill:
+                    cv2.fillPoly(out_mask, [plottable], (i+1,i+1,i+1)) # draws a rectangle using points
             masks = out_mask[:,:,0]
 
         return masks # not resized back
-
-    def _detect_with_split(self, image, to_id=False, rectanglify=True, to_fill=True):
-        # doesn't support rectanglify at the moment because points need to be tracked as well
-
-        minimum = 280
-        height, width = image.shape[0], image.shape[1]
-        # makes sure image needs to be split in the first
-        assert height >= 2 * minimum or width >= 2 * minimum
-        vert_num_splits = height // minimum
-        horiz_num_splits = width // minimum
-
-        # 250 x 560
-        final_mask = np.zeros((image.shape[0], image.shape[1])).astype(bool)
-        for i in range(vert_num_splits + 1):
-            for j in range(horiz_num_splits + 1):
-                # svi = start_vert_index; evi = end_vert_endex
-                svi = i * minimum
-                if i == vert_num_splits - 1:
-                    evi = height
-                else:
-                    evi = (i + 1) * (height // vert_num_splits)
-                # shi = start_horiz_index; ehi = end_horiz_index
-                shi = i * minimum
-                if i == horiz_num_splits - 1:
-                    ehi = width
-                else:
-                    ehi = (i + 1) * (width // horiz_num_splits)
-                im = image[svi:evi, shi:ehi, :]
-                original_size = (im.shape[0], im.shape[1])
-                im = (resize(im, (320, 320), anti_aliasing=True) * 256).astype(np.unint8)
-                detection = self.model.detect(
-                    [imageio.core.util.Array(im)])
-                masks = detection[0]['masks']
-                if rectanglify: masks, points_guide = self._small_merge(masks, to_id)
-                else: masks = self._small_merge(masks)
-                masks = resize(masks, original_size, anti_aliasing=True, preserve_range=True)
-                # pastes result into the final mask
-                final_mask[svi:evi, shi:ehi] = masks
-        
-        if rectanglify: return final_mask, points_guide # points guide will be wrong...
-        return final_mask
 
     # merges buildings and prevents significant overlap / massive masks
     def _small_merge(self, masks):  # merges only the small ones inside
@@ -229,8 +182,8 @@ class Mask_RCNN_Detect():
         return net_mask # can make this into a single boolean mask by running net_mask != 0
 
     # need a way to efficiently do this, perhaps sort by tile
-    # given a lat/long or a building_id, it deletes a building
-    def delete_mask(self, lat=None, long=None, zoom=None, building_id=None):
+    # given a lat/lng or a building_id, it deletes a building
+    def delete_mask(self, lat=None, lng=None, zoom=None, building_id=None):
         assert lat is not None or building_id is not None
         if building_id is not None:
             xtile, ytile = self.id_to_geo[building_id]
@@ -239,13 +192,13 @@ class Mask_RCNN_Detect():
             return building_id
 
         # find xtile, ytile
-        xtile, ytile = geolocation.deg_to_tile(lat, long, zoom)
+        xtile, ytile = geolocation.deg_to_tile(lat, lng, zoom)
         if (xtile+1, ytile+1) in self.geo_to_point:
             relevant = self.geo_to_point[(xtile+1,ytile+1)]
             for building_id in relevant:
                 points = relevant[building_id]
                 polygon = pltPath.Path(points)
-                if polygon.contains_point([lat,long]):
+                if polygon.contains_point([lat,lng]):
                     del relevant[building_id]
                     del self.id_to_geo[building_id]
                     return building_id
