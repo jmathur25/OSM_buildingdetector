@@ -118,13 +118,18 @@ def mapclick():
 def delete_building():
     result = request.form
     info = result_to_dict(result)
-    lat = float(info['lat'])
-    lng = float(info['lng'])
-    zoom = float(info['zoom'])
+    building_id = None
+    lat = None
+    lng = None
+    zoom = None
 
     building_id = None
     if 'building_id' in info:
-        building_id = info['building_id']
+        building_id = int(info['building_id'])
+    else:
+        lat = float(info['lat'])
+        lng = float(info['lng'])
+        zoom = float(info['zoom'])
 
     global mrcnn
     if mrcnn is not None:

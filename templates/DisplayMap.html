@@ -228,7 +228,7 @@
         // Undo adding a polygon
         function undoAddPolygon() {
             if (polygonStack.length > 0) {
-                var lastPolygonId = polygonStack.pop()[1];
+                var lastPolygonId = polygonStack.pop()[0];
                 removePolygon(lastPolygonId, false, true);
             }
         }
