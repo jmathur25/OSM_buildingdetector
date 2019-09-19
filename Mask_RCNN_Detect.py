@@ -176,8 +176,6 @@ class Mask_RCNN_Detect():
     def delete_mask(self, lat=None, lng=None, zoom=None, building_id=None):
         assert lat is not None or building_id is not None
         if building_id is not None:
-            print(building_id)
-            print(self.id_geo_tile)
             xtile, ytile = self.id_geo_tile[building_id]
             del self.geo_to_point[(xtile, ytile)][building_id]
             del self.id_geo_tile[building_id]

@@ -79,7 +79,6 @@
 
         // should make a Mask RCNN button and a Simple Detect button
         const detectBuildings = function(e) {
-            const strategy = prompt('What kind of model to use?'); // 'mrcnn' for complex detect, 'simple' for simple detect
             console.log('detecting buildings through ' + strategy);
             const params = "lat=" + encodeURIComponent(e.latlng.lat + "") + 
                             "&lng=" + encodeURIComponent(e.latlng.lng + "") + 
@@ -159,16 +158,23 @@
         var polygons = {}
         var polygonStack = [];
 
+        var GLOBAL_MAX_ID = 0;
+
         // Add a polygon to the map
-        function addPolygons(rectPoints, ids, strategy) {
+        function addPolygons(rectPoints, ids, strat) {
             for (i in rectPoints) {
                 console.log("adding polygon ", ids[i]);
                 points = rectPoints[i];
+                if (strat == 'simple') {
+                    ids[0] = GLOBAL_MAX_ID;
+                } else if (ids[i] >= GLOBAL_MAX_ID) {
+                    GLOBAL_MAX_ID = ids[i] + 1;
+                }
                 polygons[ids[i]] = L.polygon(points);
                 polygons[ids[i]].addTo(map);
 
                 // Update the polygon stack
-                polygonStack.push([ids[i], strategy]);
+                polygonStack.push([ids[i], strat]);
             }
         }
 
@@ -228,8 +234,13 @@
         // Undo adding a polygon
         function undoAddPolygon() {
             if (polygonStack.length > 0) {
-                var lastPolygonId = polygonStack.pop()[0];
-                removePolygon(lastPolygonId, false, true);
+                var top = polygonStack.pop();
+                var lastPolygonId = top[0];
+                if (top[1] === 'mrcnn') {
+                    removePolygon(lastPolygonId, true, true);
+                } else {
+                    removePolygon(lastPolygonId, true, false);
+                }
             }
         }
 
@@ -621,10 +632,60 @@
         var img;
         var backendWindow = L.control.BackendWindow({ position: 'topright' }).addTo(map);
 
+        // ---- STRATEGY BUTTON ---- //
 
-        // -------------------------------------------------------------------------------------------
-        // Delete
-        // -------------------------------------------------------------------------------------------
+        var strategy = 'simple';
+        
+        // Add delete control
+        L.Control.MRCNN = L.Control.extend({
+            options: {
+                position: 'topright',
+                text: 'M',
+                title: 'Detect Buildings with a Mask-RCNN'
+            },
+            onAdd: function (map) {
+                var zoomName = 'leaflet-control-zoom',
+                    container = L.DomUtil.create('div', zoomName + ' leaflet-bar'),
+                    options = this.options;
+                this.mrcnn = this._createButton(options.text, options.title,
+                        zoomName + '-in',  container, this.buttonClick);
+                return container;
+            },
+            buttonClick: function (e) {
+                var col = "#FFFFFF";
+                if (strategy == 'simple') {
+                    strategy = 'mrcnn';
+                    col = "#00FF00";
+                } else {
+                    strategy = 'simple';
+                }
+                this.mrcnn.style.backgroundColor = col;
+            },
+            _createButton: function (html, title, className, container, fn) {
+                var link = L.DomUtil.create('a', className, container);
+                link.innerHTML = html;
+                link.href = '#';
+                link.title = title;
+                /*
+                 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+                 */
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', title);
+                L.DomEvent.disableClickPropagation(link);
+                L.DomEvent.on(link, 'click', L.DomEvent.stop);
+                L.DomEvent.on(link, 'click', fn, this);
+                L.DomEvent.on(link, 'click', this._refocusOnMap, this);
+                return link;
+            },
+        });
+
+        // MRCNN button constructor
+        L.Control.mrcnn = function(opts) {
+            return new L.Control.MRCNN(opts);
+        }
+
+        // Add the MRCNN button to the map
+        var mrcnn_button = L.Control.mrcnn({ position: "topleft" }).addTo(map);
 
         // ---- DELETE BUILDINGS BUTTON ---- //
 
@@ -678,6 +739,7 @@
 
         // Add the delete button to the map
         var deleteBuildings = L.Control.deleteBuildings({ position: "topleft" }).addTo(map);
+
 
     </script>
   </body>
