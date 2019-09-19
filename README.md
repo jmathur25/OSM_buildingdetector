@@ -6,9 +6,10 @@ Where there are not as many OSM mappers adding details to their area, adding ite
 
 In rural areas (and even suburban areas) the buildings, especially houses, aren’t there.
 
-# Requirements
+
+# Quick Start
 It is recommended you create a project environment first. <br>
-Environemt:
+Environment:
 ```
 conda create -n ENV_NAME python=3.7 pip
 ```
@@ -17,11 +18,22 @@ Dependencies:
 ```
 pip install -r requirements.txt
 ```
-Optionally, to make jupyter notebooks using the environment:
+Optionally, to make jupyter notebooks that run on the environment:
 ```
 pip install ipykernel
 ipython kernel install --user --name=ENV_NAME
 ```
+Then, clone the repository onto your machine.
+
+Finally, download the weights for the Mask-RCNN from here: https://drive.google.com/drive/folders/1IRCnYRwKLZUFQCZ8Imiy1_DUR8iFvoSB?usp=sharing <br>
+Put these inside the _weights_ folder.
+
+Run the following command and then navigate to http://127.0.0.1:5000/home/:
+```
+python application.py
+```
+
+
 # Usage
 Simply clone the repo and run _start.py_ to start the Flask server. Navigate to localhost:5000 in a web browser to begin mapping.
 
