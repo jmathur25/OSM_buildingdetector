@@ -3,22 +3,18 @@
 # | Imagery | #
 
 # Access Key - necessary for downloading certain types of imagery
-accessKey: "pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZGFrZ2c2dzFlMWgyd2x0ZHdmMDB6NzYifQ.9Pl3XOO82ArX94fHV289Pg"
+accessKey: "pk.eyJ1Ijoib3NtLWJ1aWxkaW5nZGV0ZWN0b3IiLCJhIjoiY2swcHZpZjQzMDIzMDNjbXk1aHo3bTI0ciJ9.v_QP3dbWP5C6_BM8LjiwKA"
 
 # Default map location and zoom
-defaultLocation:
-    lat: 45.1269
-    lon: -94.5266
-    zoom: 13
-
-# Slippy Map imagery URL to use as imagery
-# "{x}", "{y}", "{zoom}", and (optional) "{access_key}" will be replaced
-#     with the values during runtime.
-imageryURL: "https://a.tiles.mapbox.com/v4/digitalglobe.316c9a2e/{zoom}/{x}/{y}.png?access_token={access_key}"
+start_lat: 40.103232
+start_lng: -88.227215
+start_zoom: 13
 
 # | OpenStreetMap login information | #
 osmUpload:
     # API location. The full v0.6 OpenStreetMap database API is https://api.openstreetmap.org/api/0.6
+    # dev server: https://api06.dev.openstreetmap.org
     api: https://api06.dev.openstreetmap.org 
     username: OSM_buildingdetector
     password: fakepassword123
+    

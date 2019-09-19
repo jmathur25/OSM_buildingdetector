@@ -7,22 +7,21 @@ Where there are not as many OSM mappers adding details to their area, adding ite
 In rural areas (and even suburban areas) the buildings, especially houses, aren’t there.
 
 # Requirements
-OpenStreetMap Building Detector requires some extra packages to run. Install the following packages before running the start.py script.
+It is recommended you create a project environment first. <br>
+Environemt:
+```
+conda create -n ENV_NAME python=3.7 pip
+```
+Dependencies:
 
-OSM API for interacting with the online database:
-```pip install osmapi```
-
-For the local database:
-```pip install dataset```
-
-OpenCV for building detection:
-```pip install opencv-python```
-
-Flask for the backend:
-```pip install flask```
-
-Pillow for image processing
-```pip install pillow```
+```
+pip install -r requirements.txt
+```
+Optionally, to make jupyter notebooks using the environment:
+```
+pip install ipykernel
+ipython kernel install --user --name=ENV_NAME
+```
 # Usage
 Simply clone the repo and run _start.py_ to start the Flask server. Navigate to localhost:5000 in a web browser to begin mapping.
 

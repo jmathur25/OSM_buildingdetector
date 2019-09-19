@@ -1,0 +1,13 @@
+Flask==1.0.2
+tensorflow==1.14.0
+Keras==2.2.4
+Pillow==6.1.0
+numpy==1.16.2
+osmapi==1.2.2
+matplotlib==3.0.3
+imageio==2.5.0
+opencv-python==4.1.0.25
+ruamel.yaml==0.15.46
+pandas==0.25.0
+scikit-image==0.14.2
+mapbox==0.18.0
