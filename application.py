@@ -11,7 +11,7 @@ from Mask_RCNN_Detect import Mask_RCNN_Detect
 from PIL import Image
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, send_file
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 imd = None
 program_config = None
@@ -32,11 +32,11 @@ def result_to_dict(result):
         info[k.lower()] = v
     return info
 
-@app.route('/', methods=['GET'])  # base page that loads up on start/accessing the website
+@application.route('/', methods=['GET'])  # base page that loads up on start/accessing the website
 def login():  # this method is called when the page starts up
     return redirect('/home/')
 
-@app.route('/home/')
+@application.route('/home/')
 def home(lat=None, lng=None, zoom=None):
     # necessary so that if one refreshes, the way memory deletes with the drawn polygons
     global osm, program_config
@@ -58,11 +58,11 @@ def home(lat=None, lng=None, zoom=None):
 
     return render_template('DisplayMap.html', **context)
 
-@app.route('/<zoom>/<lat>/<lng>', methods=['GET'])
+@application.route('/<zoom>/<lat>/<lng>', methods=['GET'])
 def move_to_new_lat_long(zoom, lat, lng):
     return home(zoom, lat, lng)
 
-@app.route('/home/backendWindow/', methods=['POST', 'GET'])
+@application.route('/home/backendWindow/', methods=['POST', 'GET'])
 def backend_window():
     global mrcnn
     if mrcnn is None or mrcnn.image_id == 1: # no images masked yet
@@ -71,7 +71,7 @@ def backend_window():
     print('looking at ' + 'mask_{}.png'.format(mrcnn.image_id-1))
     return send_from_directory('runtime/masks', 'mask_{}.png'.format(mrcnn.image_id-1))
 
-@app.route('/home/detect_buildings', methods=['POST'])
+@application.route('/home/detect_buildings', methods=['POST'])
 def mapclick():
     global osm, mcrnn, imd
     if request.method == 'POST':
@@ -114,7 +114,7 @@ def mapclick():
 
     return json.dumps(json_post)
 
-@app.route('/home/delete_building', methods=['POST'])
+@application.route('/home/delete_building', methods=['POST'])
 def delete_building():
     result = request.form
     info = result_to_dict(result)
@@ -142,7 +142,7 @@ def delete_building():
 
     return 'mrcnn has not been made'
 
-@app.route('/home/upload', methods=['POST'])
+@application.route('/home/upload', methods=['POST'])
 def upload_changes():
     print('uploading to OSM...')
     global osm
@@ -157,7 +157,7 @@ def upload_changes():
     print('uploaded!')
     return str(len(ways_created))
 
-@app.route('/home/OSMSync', methods=['POST'])
+@application.route('/home/OSMSync', methods=['POST'])
 def OSM_map_sync():
     if request.method == 'POST':
         result = request.form
@@ -169,16 +169,16 @@ def OSM_map_sync():
         max_lat = float(info['max_lat'])
 
         global osm
-        mappable_results = osm.sync_map(min_long, min_lat, max_long, max_lat)
-        if mappable_results == None or len(mappable_results) == 0:
+        mapplicationable_results = osm.sync_map(min_long, min_lat, max_long, max_lat)
+        if mapplicationable_results == None or len(mapplicationable_results) == 0:
             json_post = {'rectsToAdd': []}
             return json.dumps(json_post)
         # note that this is in a different format as the other json_post for a map click
-        # mappable_results is a list with each index a building containing tuples for the coordinates of the corners
-        json_post = {"rectsToAdd": mappable_results}
+        # mapplicationable_results is a list with each index a building containing tuples for the coordinates of the corners
+        json_post = {"rectsToAdd": mapplicationable_results}
         return json.dumps(json_post)
 
-@app.route('/home/citySearch', methods=['POST'])
+@application.route('/home/citySearch', methods=['POST'])
 def citySearch():
     if request.method == 'POST':
         result = request.form
@@ -195,12 +195,12 @@ def citySearch():
         json_post = {'lat': '-1000'}
         return json.dumps(json_post)
 
-# run the app.
+# run the application.
 if __name__ == "__main__":
     config = config_reader.get_config()
 
     # useless
-    app.secret_key = 'super secret key'
+    application.secret_key = 'super secret key'
     
     # Get config variables
     access_key = None
@@ -222,5 +222,5 @@ if __name__ == "__main__":
     # initializes the class for interacting with OpenStreetMap's API
     osm = backend.OSM_Interactor(init_info["api"], init_info["username"], init_info["password"])
 
-    app.debug = True
-    app.run()
+    application.debug = True
+    application.run()

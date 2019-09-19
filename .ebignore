@@ -1,19 +1,8 @@
-__pycache__/
-backend/__pycache__/
-detectors/__pycache__/
-detectors/algorithms/__pycache__/
-archive/__pycache__/
-imgcache/*
-mydatabase.db
-weights/*
-runtime
-.vscode
-# config.yml <-- could hide the config file
-.elasticbeanstalk
-.ebignore
-
-.idea
-*.PNG
+Archive
+presentational
+prototyping
+*.md
+*.ipynb
 
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python
@@ -145,8 +134,3 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/python
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
