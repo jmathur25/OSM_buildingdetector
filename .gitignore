@@ -4,13 +4,13 @@ detectors/__pycache__/
 detectors/algorithms/__pycache__/
 archive/__pycache__/
 imgcache/*
-mydatabase.db
-weights/*
+weights/epoch55.h5
 runtime
 .vscode
 # config.yml <-- could hide the config file
 .elasticbeanstalk
 .ebignore
+.DS_Store
 
 .idea
 *.PNG

@@ -2,7 +2,7 @@
 
 ![](osm_demo_initial.gif)
 
-OpenStreetMap Building Detector was made to simplify and improve the mapping process on OpenStreetMap (https://www.openstreetmap.org/). At the moment, most OSM mappers do their work _by hand_, We built a Mask-RCNN, a state of the art deep learning approach to object detection, to quickly detect buildings and improve mapping efficiency. With our platform, one can map a suburb in 10 minutes where previously it may have taken days if not weeks.
+OpenStreetMap Building Detector was made to simplify and improve the mapping process on OpenStreetMap (https://www.openstreetmap.org/). At the moment, most OSM mappers do their work _by hand_, We built a Mask-RCNN, the current state of the art deep learning approach to object detection, to quickly detect buildings and improve mapping efficiency. With our platform, one can map a suburb in 10 minutes where previously it may have taken days if not weeks.
 
 # Quick Start
 It is recommended that you create a project environment to manage all the dependencies of this project. Anaconda is a good option if you are new to programming in Python / using environments.
@@ -44,7 +44,7 @@ In the top right, you will see two things.
 
 1. A search bar. It's not... very... professional... but if you type in the name of cities (or even some towns) with proper punctuation, it will take you there. Examples: Chicago, London, Pleasanton
 
-2. What we call the "window to the backend." This will show the "semantic segmentation masks" for every building the model detects. This is fancy talk for an image that highlights where the model thinks the building(s) are. I wrote several image processing algorithms on top of the result you see, because OSM would much rather plot a rectangle (which is 99% if buildings) than a billion points that represent a mask. The result of those computations is rendered on your map as nice, neat rectangles.
+2. What we call the "window to the backend." This will show the "semantic segmentation masks" for every building the model detects. This is fancy talk for an image that clearly highlights where the model thinks the building(s) are. I wrote several image processing algorithms on top of the result you see, because OSM would much rather plot a rectangle (which is 99% if buildings) than a billion points that represent a mask. The result of those computations is rendered on your map as nice, neat rectangles.
 
 ## Some other cool features
 
@@ -64,6 +64,12 @@ We actually kept #1, and it is the default algorithm when you load up the web ap
 
 Now, as for the Mask-RCNN, we used Matterport's implementation of the Mask-RCNN (Facebook AI initially created this in 2017). See here: https://github.com/matterport/Mask_RCNN. I trained the model using data from https://www.aicrowd.com/challenges/mapping-challenge using Google's Deep Learning VM. On epoch 55, I had a validation mAP of 0.81, which would place on 13th on crowdAI's challenge. These are the weights that I shared on the google link. It does remarkably well (mAP = 0.81 is the object detection equivalent to 81%), but you'll notice it screws up a decent amount still. Quite remakrable how good the human eye is, huh?
 
+After making the algorithm, I had to do a lot to turn it into something usable. <br>
+
+First, I needed a "rectanglify" function that turns a collection of points into a minimum bounding rectangle. This is an interesting geometric challenge, and I solved it in _detectors/algorithms/Polygonify.py_ using a technique called Convex Hull. <br>
+
+Second, a lot of time the Mask-RCNN would detect a big mask and a smaller mask inside that big mask. I went with the assumption that the smaller mask was more likely to be accurate, so I wrote a function called _small_merge_ to do this quickly (another image computation challenge). I tried to combine all of this into a reusable, versatile class structure in _Mask_RCNN_Detect.py_. This class can be used to detect a single image (independent of the Flask server), or embedded deep into the Flask server.
+
 In addition to the core algorithm, there was a lot of software engineering kind of work to turn this into a full-fledges web-app. <br>
 
 First was the development of the Flask server. If you want to learn more about it, navigate to _application.py_. Flask sets up the server side functions in a pretty neat way.
@@ -74,7 +80,10 @@ Third was writing scripts to work with the OSM server. This included fetching ex
 
 Fourth came fetching imagery. The map that you see on the front end is in some ways different from the image that is used in the backend. I need to separately query the image from Mapbox and pass that to the model. _imagery.py_ contains those scripts.
 
-Fifth is 
+Fifth was handling geo data. I needed quick ways to conver between geo data (this is important for mapping the results and for pushing to OSM) with regular image data (for building detection). _geolocation.py_ came in handy a lot here. I also had to keep track of buildings that were mapped, because if a user chooses to delete a building it needs to be deleted from the backend. Thankfully, Mapbox has done a lot of math into splitting the world into tiles. So, I stored buildings by grouping them into their tile and using a hashmap to store that grouping. That means that if a user clicked on the map, I simply computed the tile and then iterated through all the buildings in that tile to see if the click was inside of the building.
+
+That wraps up a high-level description of the technical components that went into this project. It is kinda awesome to see all these parts come together into one finished product.
+
 
 # Contact
 You can reach me at jatinm2@illinois.edu
