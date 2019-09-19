@@ -64,8 +64,11 @@ def move_to_new_lat_long(zoom, lat, lng):
 
 @app.route('/home/backendWindow/', methods=['POST', 'GET'])
 def backend_window():
-    if (mrcnn.image_id == 1): # no images masked yet
+    global mrcnn
+    if mrcnn is None or mrcnn.image_id == 1: # no images masked yet
         return send_from_directory('default_images', 'default_window.jpeg')
+    print("in backend window", mrcnn.image_id)
+    print('looking at ' + 'mask_{}.png'.format(mrcnn.image_id-1))
     return send_from_directory('runtime/masks', 'mask_{}.png'.format(mrcnn.image_id-1))
 
 @app.route('/home/detect_buildings', methods=['POST'])
@@ -74,7 +77,6 @@ def mapclick():
     if request.method == 'POST':
         result = request.form
         info = result_to_dict(result)
-        print(info)
 
         lat = float(info['lat'])
         lng = float(info['lng'])
@@ -131,28 +133,24 @@ def delete_building():
         json_post = {"rects_to_delete":
                         {"ids": [building_id]}
                     }
-        return json_post
+        return json.dumps(json_post)
 
     return 'mrcnn has not been made'
 
-@app.route('/home/uploadchanges', methods=['POST'])
+@app.route('/home/upload', methods=['POST'])
 def upload_changes():
-    # print('uploading to OSM...')
-    # global osm
-    
-    # if (len(Rectangle.get_all_rects()) == 0):
-    #     print("No Rects")
-    #     return "0"
+    print('uploading to OSM...')
+    global osm
     
     # # Create the way using the list of nodes
-    # changeset_comment = "Added " + str(len(building_detection_combined.get_all_rects())) + " buildings."
-    # ways_created = osm.way_create_multiple(building_detection_combined.get_all_rects_dictionary(), changeset_comment, {"building": "yes"})
+    changeset_comment = "Added " + str(len(mrcnn.id_geo)) + " buildings."
+    print("comment", changeset_comment)
+    ways_created = osm.way_create_multiple(mrcnn.id_geo, changeset_comment, {"building": "yes"})
     
     # # Clear the rectangle list
-    # building_detection_combined.delete_all_rects()
-    # print('finished!')
-    # return str(len(ways_created))
-    return "-1 lol"
+    mrcnn.clear()
+    print('uploaded!')
+    return str(len(ways_created))
 
 @app.route('/home/OSMSync', methods=['POST'])
 def OSM_map_sync():

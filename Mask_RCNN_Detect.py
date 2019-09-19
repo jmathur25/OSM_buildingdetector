@@ -56,14 +56,20 @@ class Mask_RCNN_Detect():
         self.image_id = 1
         self.building_id = 1 # for id-ing buildings
         self.geo_to_point = {}
-        self.id_to_geo = {}
+        self.id_geo_tile = {}
+        self.id_geo = {}
 
+    def clear(self):
+        self.geo_point = {}
+        self.id_geo_tile = {}
+        self.id_geo = {}
 
     # to_id should only be true while using the Flask app
     # id-ing will help the Mask_R_CNN keep track of each building and adjustments that need to be made
     def detect_building(self, image, lat=None, long=None, zoom=None, rectanglify=True, to_fill=False):
         assert(image.shape[-1] == 3) # must be size hxwx3
 
+        
         # to return
         masks = self._detect_single(image, rectanglify, to_fill)
         
@@ -72,6 +78,8 @@ class Mask_RCNN_Detect():
             masks = resize(masks, (image.shape[0], image.shape[1]), preserve_range=True) # masks can be reshaped, corners can't
             masks = masks != 0 # converts to bool mask
             return masks
+
+        self.image_id += 1
 
         # list of lat/long points to plot
         to_return = {}
@@ -82,10 +90,6 @@ class Mask_RCNN_Detect():
             self.geo_to_point[(xtile+1,ytile+1)] = {}
         relevant = self.geo_to_point[(xtile+1,ytile+1)]
 
-        print(lat)
-        print(long)
-        print(xtile)
-        print(ytile)
         if rectanglify:
             # finds corners
             building_ids = np.unique(masks)
@@ -93,7 +97,7 @@ class Mask_RCNN_Detect():
             for i, ids in enumerate(building_ids):
                 points = np.argwhere(masks == ids).tolist() # gets as coordinates
                 if len(points) != 4:
-                    print("NOT 4 INSTANCE, SKIPPING BY DEFAULT")
+                    print("NOT 4 POINTS INSTANCE, SKIPPING BY DEFAULT")
                     continue
                 for j in range(len(points)):
                     x = points[j][1]
@@ -107,24 +111,9 @@ class Mask_RCNN_Detect():
                 points[3] = tmp
                 to_return[self.building_id] = points
                 relevant[self.building_id] = points # all the points are stored in class memory
-                self.id_to_geo[self.building_id] = (xtile+1, ytile+1) # if the building id is given, we can backtrace the geotile
+                self.id_geo_tile[self.building_id] = (xtile+1, ytile+1) # if the building id is given, we can backtrace the geotile
+                self.id_geo[self.building_id] = points
                 self.building_id += 1
-        # the full mask is being plotted
-        else:
-            # will turn all True x,y points to lat/long
-            for r in range(masks.shape[1]):  # horizontal (x)
-                for c in range(masks.shape[0]):  # vertical (y)
-                    if masks[c, r] != 0:
-                        geo_point = list(geolocation.tilexy_to_deg_matrix(xtile+1, ytile+1, zoom, r, c))
-                        spot_id = masks[c, r]
-                        if spot_id not in to_return:
-                            to_return[spot_id] = [geo_point]
-                            # storing all these points in memory will suck, need to "rectanglify"
-                            relevant[spot_id] = [geo_point]
-                        else:
-                            to_return[spot_id].append(geo_point)
-                            relevant[spot_id].append(geo_point)
-        self.image_id += 1
         return to_return
 
     def _detect_single(self, image, rectanglify=True, to_fill=False):
@@ -133,6 +122,7 @@ class Mask_RCNN_Detect():
             [imageio.core.util.Array(image)])
         masks = detection[0]['masks']
         masks = self._small_merge(masks)
+        plt.imsave('runtime/masks/mask_{}.png'.format(self.image_id), (masks != 0).astype(bool))
             
         if rectanglify:
             # finds all buildings (one building has the same number in masks)
@@ -186,9 +176,9 @@ class Mask_RCNN_Detect():
     def delete_mask(self, lat=None, lng=None, zoom=None, building_id=None):
         assert lat is not None or building_id is not None
         if building_id is not None:
-            xtile, ytile = self.id_to_geo[building_id]
+            xtile, ytile = self.id_geo_tile[building_id]
             del self.geo_to_point[(xtile, ytile)][building_id]
-            del self.id_to_geo[building_id]
+            del self.id_geo_tile[building_id]
             return building_id
 
         # find xtile, ytile
@@ -200,7 +190,7 @@ class Mask_RCNN_Detect():
                 polygon = pltPath.Path(points)
                 if polygon.contains_point([lat,lng]):
                     del relevant[building_id]
-                    del self.id_to_geo[building_id]
+                    del self.id_geo_tile[building_id]
                     return building_id
         return -1 # no match
 

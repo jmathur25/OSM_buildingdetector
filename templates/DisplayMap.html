@@ -114,6 +114,14 @@
 
                         addPolygons(rectPoints, rectIds, strategy);
                     }
+
+                    // update backend window
+                    backendWindow.onRemove(map);
+
+                    // if there are polygons enable upload button
+                    if (polygons.length != 0) {
+                        uploadButton.enable();
+                    }
                 }
             }
             xhr.send(params);
@@ -126,10 +134,7 @@
             if (isSync && map.getZoom() == 18) {
               console.log('map click');
               // if there are polygons, keep enabled
-              if (polygons.length != 0) {
-                  uploadButton.enable();
-              }
-              if (deleteClick == 'true') {
+              if (deleteClick) {
                   deleteBuilding(e);
                   if (polygons.length == 0) {
                       uploadButton.disable();
@@ -236,7 +241,7 @@
                 position: 'topleft',
                 // @option uploadText: String = '+'
                 // The text set on the 'upload' button.
-                uploadText: '&#x1F81D',
+                uploadText: '&#x2191;',
                 // @option uploadTitle: String = 'Zoom in'
                 // The title set on the 'zoom in' button.
                 uploadTitle: 'Upload'
@@ -344,7 +349,7 @@
         function uploadClick(e) {
             var params = "";
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "./uploadchanges", true);
+            xhr.open("POST", "/home/upload", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             // Wait for a response
             xhr.onreadystatechange = function() {
@@ -352,6 +357,7 @@
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     // Response here
                     var responseText = xhr.responseText;
+                    console.log("got " + responseText);
                     if (Number(responseText) > 0) {
                         uploadButton.disable();
 
@@ -364,6 +370,7 @@
 
                         // Change current polygon colors
                         for (thisPolygon in polygons) {
+                            console.log(thisPolygon);
                             polygons[thisPolygon].setStyle({fillColor: '#00FF00', color: '#00FF00'});
                         }
 
@@ -479,8 +486,6 @@
                 L.DomEvent.on(link, 'click', this._refocusOnMap, this);
                 return link;
             }
-
-
         });
 
         // sync constructor
@@ -638,20 +643,15 @@
                     options = this.options;
                 this.deleteBuildings = this._createButton(options.text, options.title,
                         zoomName + '-in',  container, this.buttonClick);
-                this.disable();
                 return container;
             },
             buttonClick: function (e) {
-                if (setupMode) {
-                    deleteClick = !deleteClick;
-                    var col = "#FFFFFF";
-                    if (deleteClick) {
-                        col = "#FF0000";
-                    }
-                    this.deleteBuildings.style.backgroundColor = col;
-
-
+                deleteClick = !deleteClick;
+                var col = "#FFFFFF";
+                if (deleteClick) {
+                    col = "#FF0000";
                 }
+                this.deleteBuildings.style.backgroundColor = col;
             },
             _createButton: function (html, title, className, container, fn) {
                 var link = L.DomUtil.create('a', className, container);
@@ -669,12 +669,6 @@
                 L.DomEvent.on(link, 'click', this._refocusOnMap, this);
                 return link;
             },
-            disable: function () {
-                this.deleteBuildings.style.opacity = 0.2;
-            },
-            enable: function () {
-                this.deleteBuildings.style.opacity = 1;
-            },
         });
 
         // Delete button constructor
@@ -684,7 +678,6 @@
 
         // Add the delete button to the map
         var deleteBuildings = L.Control.deleteBuildings({ position: "topleft" }).addTo(map);
-        deleteBuildings.disable();
 
     </script>
   </body>

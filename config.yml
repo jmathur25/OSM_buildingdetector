@@ -13,6 +13,8 @@ start_zoom: 13
 # | OpenStreetMap login information | #
 osmUpload:
     # API location. The full v0.6 OpenStreetMap database API is https://api.openstreetmap.org/api/0.6
+    # dev server: https://api06.dev.openstreetmap.org
     api: https://api06.dev.openstreetmap.org 
     username: OSM_buildingdetector
     password: fakepassword123
+    
