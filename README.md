@@ -43,9 +43,9 @@ Press the up arrow button to upload your changes to the OSM server directly! Not
 
 In the top right, you will see two things.
 
-1. A search bar. It's not... very... professional... but if you type in the name of cities (or even some towns) with proper punctuation, it will take you there. Examples: Chicago, London, Pleasanton
+1. A search bar. It's not... very... professional... but if you type in the name of cities (or even some towns) with proper spelling and capitalization, it will take you there. Examples: Chicago, London, Pleasanton
 
-2. What we call the "window to the backend." This will show the "semantic segmentation masks" for every building the model detects. This is fancy talk for an image that clearly highlights where the model thinks the building(s) are. I wrote several image processing algorithms on top of the result you see, because OSM would much rather plot a rectangle (which is 99% if buildings) than a billion points that represent a mask. The result of those computations is rendered on your map as nice, neat rectangles.
+2. What I call the "window to the backend." This will show the "semantic segmentation masks" for every building the model detects. This is fancy talk for an image that clearly highlights where the object in question is. In this case, it shows where the model thinks the buildings are in a raw form. I wrote several image processing algorithms on top of the result you see, because OSM would much rather plot a rectangle (which is 99% if buildings) than a billion points that represent a mask. The result of those computations is rendered on your map as nice, neat rectangles.
 
 ## Some other cool features
 
@@ -59,11 +59,11 @@ This project originally used more simple techniques for mapping. Inside of _Arch
 
 1. _detectors/SimpleDetect.py_. Turns the image into grayscale and sends a vector in the horizontal and vertical directions. Stops when the brightness changes a preset amount. This is a very simple algorithm that captures rectanglar, non-rotated buildings pretty well.
 
-2. _Archive/floodFillActual.py_. This is based on Photoshop's algorithm for filling odd shapes with one color. We adapted this algorithm to take a "seed click" and fill in the building to the best of its ability. It worked decently well and could handle rotated buildings, but some drawbacks included that it still didn't improve user efficiency enough (4 clicks -> 1 click is good but could be better), and it wasn't super robust.
+2. _Archive/floodFillActual.py_. This is based on Photoshop's "magic wand" algorithm for filling odd shapes with one color. We adapted this algorithm to take a "seed click" and fill in the building to the best of its ability. It worked decently well and could handle rotated buildings, but some drawbacks included that it still didn't improve user efficiency enough (4 clicks -> 1 click is good but could be better), and it wasn't robustn(user click had too much power as it was the seed pixel).
 
 We actually kept #1, and it is the default algorithm when you load up the web app and click the map. This is because it is fast, and we want you to consciously choose to load and use the Mask-RCNN.
 
-Now, as for the Mask-RCNN, we used Matterport's implementation of the Mask-RCNN (Facebook AI initially created this in 2017). See here: https://github.com/matterport/Mask_RCNN. I trained the model using data from https://www.aicrowd.com/challenges/mapping-challenge using Google's Deep Learning VM. On epoch 55, I had a validation mAP of 0.81, which would place on 13th on crowdAI's challenge. These are the weights that I shared on the google link. It does remarkably well (mAP = 0.81 is the object detection equivalent to 81%), but you'll notice it screws up a decent amount still. Quite remakrable how good the human eye is, huh?
+Now, as for the Mask-RCNN, I used Matterport's implementation of the Mask-RCNN (Facebook AI initially created this in 2017). See here: https://github.com/matterport/Mask_RCNN. I trained the model using data from https://www.aicrowd.com/challenges/mapping-challenge using Google's Deep Learning VM. On epoch 55, I had a validation mAP of 0.81, which would place on 13th on crowdAI's challenge. These are the weights that I shared on the google link. It does remarkably well (mAP = 0.81 can be thought of as the object detection equivalent to 81%), but you'll notice it screws up a decent amount still. Quite remakrable how good the human eye is, huh?
 
 After making the algorithm, I had to do a lot to turn it into something usable. <br>
 
