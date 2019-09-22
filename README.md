@@ -1,8 +1,9 @@
 # OpenStreetMap Building Detector
 
 ![](demo.gif)
+A demo in Champaign, IL
 
-OpenStreetMap Building Detector was made to simplify and improve the mapping process on OpenStreetMap (https://www.openstreetmap.org/). At the moment, most OSM mappers do their work _by hand_, We built a Mask-RCNN, the current state of the art deep learning approach to object detection, to quickly detect buildings and improve mapping efficiency. With our platform, one can map a suburb in 10 minutes where previously it may have taken days if not weeks.
+OpenStreetMap Building Detector was made to simplify and improve the mapping process on OpenStreetMap (https://www.openstreetmap.org/). At the moment, most OSM mappers do their work _by hand_. We built a Mask-RCNN, the current state of the art deep learning approach to object detection, to quickly detect buildings and improve mapping efficiency. With our platform, one can map a suburb in 10 minutes where previously it may have taken days if not weeks.
 
 # Quick Start
 It is recommended that you create a project environment to manage all the dependencies of this project. Anaconda is a good option if you are new to programming in Python / using environments.
@@ -68,7 +69,7 @@ After making the algorithm, I had to do a lot to turn it into something usable. 
 
 First, I needed a "rectanglify" function that turns a collection of points into a minimum bounding rectangle. This is an interesting geometric challenge, and I solved it in _detectors/algorithms/Polygonify.py_ using a technique called Convex Hull. <br>
 
-Second, a lot of time the Mask-RCNN would detect a big mask and a smaller mask inside that big mask. I went with the assumption that the smaller mask was more likely to be accurate, so I wrote a function called _small_merge_ to do this quickly (another image computation challenge). I tried to combine all of this into a reusable, versatile class structure in _Mask_RCNN_Detect.py_. This class can be used to detect a single image (independent of the Flask server), or embedded deep into the Flask server. You can explore this class with _demo_detect.ipynb_ and _use_mrccn_class.ipynb_.
+Second, I noticed that the Mask-RCNN would often detect a big mask and a smaller mask inside that big mask. I went with the assumption that the smaller mask was more likely to be accurate, so I wrote a function called _small_merge_ to do this quickly (another image computation challenge). I tried to combine all of this into a reusable, versatile class structure in _Mask_RCNN_Detect.py_. This class can be used to detect a single image (independent of the Flask server), or embedded deep into the Flask server. You can explore this class with _demo_detect.ipynb_ and _use_mrccn_class.ipynb_.
 
 In addition to the core algorithm, there was a lot of software engineering kind of work to turn this into a full-fledges web-app. <br>
 
@@ -80,7 +81,7 @@ Third was writing scripts to work with the OSM server. This included fetching ex
 
 Fourth came fetching imagery. The map that you see on the front end is in some ways different from the image that is used in the backend. I need to separately query the image from Mapbox and pass that to the model. _imagery.py_ contains those scripts.
 
-Fifth was handling geo data. I needed quick ways to conver between geo data (this is important for mapping the results and for pushing to OSM) with regular image data (for building detection). _geolocation.py_ came in handy a lot here. I also had to keep track of buildings that were mapped, because if a user chooses to delete a building it needs to be deleted from the backend. Thankfully, Mapbox has done a lot of math into splitting the world into tiles. So, I stored buildings by grouping them into their tile and using a hashmap to store that grouping. That means that if a user clicked on the map, I simply computed the tile and then iterated through all the buildings in that tile to see if the click was inside of the building.
+Fifth was handling geo data. I needed quick ways to convert between geo data (this is important for mapping the results and for pushing to OSM) with regular image data (for building detection). _geolocation.py_ came in handy a lot here. I also had to keep track of buildings that were mapped, because if a user chooses to delete a building it needs to be deleted from the backend. Thankfully, Mapbox has done a lot of math into splitting the world into tiles. So, I stored buildings by grouping them into their tile and using a hashmap to store that grouping. That means that if a user clicked on the map, I simply computed the tile and then iterated through all the buildings in that tile to see if the click was inside of the building.
 
 That wraps up a high-level description of the technical components that went into this project. It is kinda awesome to see all these parts come together into one finished product.
 
