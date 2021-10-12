@@ -6,7 +6,7 @@ numpy==1.16.2
 osmapi==1.2.2
 matplotlib==3.0.3
 imageio==2.5.0
-opencv-python==4.1.0.25
+opencv-python==4.1.1.26
 ruamel.yaml==0.15.46
 pandas==0.25.0
 scikit-image==0.14.2
