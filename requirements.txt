@@ -2,7 +2,7 @@ Flask==1.0.2
 tensorflow==1.14.0
 Keras==2.2.4
 Pillow==6.1.0
-numpy==1.16.2
+numpy==1.22.0
 osmapi==1.2.2
 matplotlib==3.0.3
 imageio==2.5.0
